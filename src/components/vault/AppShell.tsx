@@ -213,7 +213,7 @@ export function AppShell({
       <header className="glass-strong sticky top-0 z-40 border-b border-border/70 pt-[env(safe-area-inset-top,0px)] lg:hidden">
         <div className="flex h-14 items-center justify-between gap-3 px-4">
           <Link to="/" className="focus-ring min-w-0 rounded-xl">
-            <Logo className="[&_svg]:size-6 [&>span:first-child]:size-10" />
+            <Logo className="[&_svg]:!size-6 [&>span:first-child]:!size-10" />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
             {onUploadClick ? (
@@ -306,4 +306,5 @@ export function AppShell({
     </div>
   );
 }
+
 
