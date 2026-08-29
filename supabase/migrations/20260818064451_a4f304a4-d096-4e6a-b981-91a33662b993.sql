@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.storage_used_bytes(UUID);
