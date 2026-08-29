@@ -15,14 +15,14 @@ export function VaultraMark({ className }: { className?: string }) {
         d="M16 2.4 27.2 7v9.1c0 6.6-4.6 12.3-11.2 14.5C9.4 28.4 4.8 22.7 4.8 16.1V7L16 2.4Z"
         fill="none"
         stroke="url(#vaultra-ink)"
-        strokeWidth="1.7"
+        strokeWidth="2.4"
       />
-      <circle cx="16" cy="15.6" r="5.9" fill="none" stroke="currentColor" strokeWidth="1.3" opacity="0.85" />
+      <circle cx="16" cy="15.6" r="5.9" fill="none" stroke="currentColor" strokeWidth="1.8" opacity="0.85" />
       <circle cx="16" cy="15.6" r="2.1" fill="currentColor" />
       <path
         d="M16 6.9v3.1M16 21.2v3.2M7.7 15.6h3.2M21.1 15.6h3.2"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="2"
         strokeLinecap="round"
         opacity="0.7"
       />
@@ -91,3 +91,4 @@ export function Logo({
     </span>
   );
 }
+
