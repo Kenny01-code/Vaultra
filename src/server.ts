@@ -1,8 +1,10 @@
 import { config } from "dotenv";
 
 // Load server-only credentials before TanStack server functions are imported.
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
 config({ path: ".env.local" });
 config({ path: ".env" });
+}
 
 if (process.env.NODE_ENV === "development" || process.env["USE_FIREBASE_EMULATORS"] === "true") {
   process.env["FIRESTORE_EMULATOR_HOST"] ??= "127.0.0.1:8080";
@@ -71,3 +73,4 @@ export default {
     }
   },
 };
+
