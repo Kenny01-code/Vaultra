@@ -1,35 +1,39 @@
 import { cn } from "@/lib/utils";
 
-/** Vaultra mark — aperture/vault dial. Uses currentColor so it matches the theme. */
+/**
+ * Vaultra mark — clean vault/shield (no crosshair / aim lines).
+ * Same icon on landing, login, vault, and mobile.
+ */
 export function VaultraMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("size-4", className)} aria-hidden="true">
       <defs>
         <linearGradient id="vaultra-ink" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0.62" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.55" />
         </linearGradient>
       </defs>
       <path
-        d="M16 2.4 27.2 7v9.1c0 6.6-4.6 12.3-11.2 14.5C9.4 28.4 4.8 22.7 4.8 16.1V7L16 2.4Z"
+        d="M16 2.8 27 7.2v8.8c0 6.4-4.5 11.9-11 14-6.5-2.1-11-7.6-11-14V7.2L16 2.8Z"
         fill="none"
         stroke="url(#vaultra-ink)"
-        strokeWidth="2.4"
+        strokeWidth="2.3"
+        strokeLinejoin="round"
       />
-      <circle cx="16" cy="15.6" r="5.9" fill="none" stroke="currentColor" strokeWidth="1.8" opacity="0.85" />
-      <circle cx="16" cy="15.6" r="2.1" fill="currentColor" />
-      <path
-        d="M16 6.9v3.1M16 21.2v3.2M7.7 15.6h3.2M21.1 15.6h3.2"
+      <circle
+        cx="16"
+        cy="15.2"
+        r="5.2"
+        fill="none"
         stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        opacity="0.7"
+        strokeWidth="1.7"
+        opacity="0.9"
       />
+      <circle cx="16" cy="15.2" r="2" fill="currentColor" />
     </svg>
   );
 }
 
-/** Static wordmark — same on every page and screen size. */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span
@@ -43,7 +47,6 @@ export function Wordmark({ className }: { className?: string }) {
   );
 }
 
-/** Single logo for landing, login, vault, and mobile header. */
 export function Logo({
   className,
   showWordmark = true,
