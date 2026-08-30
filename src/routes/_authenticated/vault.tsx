@@ -443,7 +443,12 @@ export function VaultPage() {
 
         {/* Sidebar Controls (Upload Panel & Storage Meter) */}
         <aside className="order-1 space-y-4 lg:order-2">
-          <UploadPanel inputRef={uploadInput} onUploaded={invalidate} />
+          <UploadPanel
+            inputRef={uploadInput}
+            onUploaded={invalidate}
+            usedBytes={used}
+            quotaBytes={profile.data?.quotaBytes ?? 5 * 1024 * 1024 * 1024}
+          />
           <StorageMeter
             used={used}
             quota={profile.data?.quotaBytes ?? 5 * 1024 * 1024 * 1024}

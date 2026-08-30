@@ -24,9 +24,13 @@ type Item = {
 export function UploadPanel({
   inputRef,
   onUploaded,
+  usedBytes = 0,
+  quotaBytes = 5 * 1024 * 1024 * 1024,
 }: {
   inputRef: React.RefObject<HTMLInputElement | null>;
   onUploaded: () => void;
+  usedBytes?: number;
+  quotaBytes?: number;
 }) {
   const [items, setItems] = useState<Item[]>([]);
   const [dragging, setDragging] = useState(false);
@@ -65,6 +69,16 @@ export function UploadPanel({
           throw new Error("File exceeds the 1 GB maximum limit.");
         }
 
+        // Pre-flight quota check — alert user before any bytes leave the browser
+        const remaining = Math.max(0, quotaBytes - usedBytes);
+        if (file.size > remaining) {
+          throw new Error(
+            remaining <= 0
+              ? "Your vault is full. Delete some files or free up space before uploading."
+              : ``Not enough storage left. You have ${formatBytes(remaining)} remaining, but this file is ${formatBytes(file.size)}.``,
+          );
+        }
+
         await uploadVaultFile(
           file,
           (progress: UploadProgress) => {
@@ -97,7 +111,7 @@ export function UploadPanel({
         activeCount.current -= 1;
       }
     },
-    [onUploaded],
+    [onUploaded, usedBytes, quotaBytes],
   );
 
   const handleFiles = (fileList: FileList | null) => {
