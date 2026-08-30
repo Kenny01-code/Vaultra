@@ -64,7 +64,7 @@ export function FileCard({
 
   return (
     <article
-      className="glass card-hover group relative flex flex-col overflow-hidden rounded-2xl"
+      className="glass card-hover content-auto group relative flex flex-col overflow-hidden rounded-2xl"
       style={{ animation: "var(--animate-fade-up)", animationDelay: `${Math.min(index, 12) * 45}ms` }}
     >
       <button
@@ -78,6 +78,7 @@ export function FileCard({
             src={thumbnailUrl}
             alt={file.name}
             loading="lazy"
+            decoding="async"
             className="size-full object-cover transition-transform duration-700 ease-[var(--ease-premium)] group-hover:scale-105"
           />
         ) : (

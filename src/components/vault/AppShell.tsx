@@ -234,7 +234,7 @@ export function AppShell({
 
       {/* Main Content Area */}
       <div className="lg:pl-[var(--shell-sidebar)]">
-        <main className="mx-auto w-full max-w-7xl px-3.5 pb-28 pt-4 sm:px-6 lg:px-10 lg:pb-16 lg:pt-8">
+        <main className="mx-auto w-full max-w-7xl px-3 pb-28 pt-3.5 min-[380px]:px-3.5 sm:px-6 sm:pt-4 lg:px-10 lg:pb-16 lg:pt-8">
           {title ? (
             <div className="mb-6 stagger">
               <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl lg:text-3xl">

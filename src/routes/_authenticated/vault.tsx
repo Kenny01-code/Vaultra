@@ -372,7 +372,7 @@ export function VaultPage() {
 
           {/* Files List / Grid / Empty State */}
           {files.isLoading ? (
-            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
               {Array.from({ length: 6 }).map((_, index) => (
                 <Skeleton key={index} className="aspect-4/3 rounded-2xl" />
               ))}
@@ -414,7 +414,7 @@ export function VaultPage() {
               busyId={busyId}
             />
           ) : (
-            <div className="grid grid-cols-1 gap-3 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
               {visible.map((file, index) => (
                 <FileCard
                   key={file.id}
