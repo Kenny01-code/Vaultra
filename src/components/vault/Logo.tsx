@@ -1,40 +1,29 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Vaultra mark — full shield + inner vault core.
- * Geometry is inset so strokes are never clipped on small screens.
- */
+/** Official Vaultra mark — matches /vaultra-logo.svg (full shield, no crosshair). */
 export function VaultraMark({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 32 32"
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 128 128"
+      fill="none"
       className={cn("size-5", className)}
       aria-hidden="true"
-      overflow="visible"
     >
       <defs>
-        <linearGradient id="vaultra-ink" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0.55" />
+        <linearGradient id="vaultra-logo-ink" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="currentColor" stopOpacity="1" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0.55" />
         </linearGradient>
       </defs>
       <path
-        d="M16 4.2 25.2 8v7.6c0 5.4-3.8 10.1-9.2 11.9C10.6 25.7 6.8 21 6.8 15.6V8L16 4.2Z"
-        stroke="url(#vaultra-ink)"
-        strokeWidth="2"
+        d="M64 14 104 32v32c0 24-16.5 44.5-40 53.5C40.5 108.5 24 88 24 64V32L64 14Z"
+        stroke="url(#vaultra-logo-ink)"
+        strokeWidth="7"
         strokeLinejoin="round"
       />
-      <circle
-        cx="16"
-        cy="15"
-        r="4.4"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        opacity="0.9"
-      />
-      <circle cx="16" cy="15" r="1.7" fill="currentColor" />
+      <circle cx="64" cy="62" r="20" stroke="currentColor" strokeWidth="5.5" />
+      <circle cx="64" cy="62" r="7.5" fill="currentColor" />
     </svg>
   );
 }
@@ -60,13 +49,8 @@ export function Logo({
   showWordmark?: boolean;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center gap-2.5 overflow-visible",
-        className,
-      )}
-    >
-      <span className="relative grid size-9 shrink-0 place-items-center overflow-visible rounded-xl border border-border bg-surface-2">
+    <span className={cn("inline-flex shrink-0 items-center gap-2.5", className)}>
+      <span className="relative grid size-9 shrink-0 place-items-center rounded-xl border border-border bg-surface-2">
         <VaultraMark className="size-5 text-foreground" />
       </span>
       {showWordmark ? <Wordmark className="whitespace-nowrap" /> : null}
