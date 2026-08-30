@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Self-hosted fonts â€” zero render-blocking, instant load */
+/* Self-hosted fonts Ã¢â‚¬â€ zero render-blocking, instant load */
 @font-face {
   font-family: 'Sora';
   font-style: normal;
@@ -33,7 +33,7 @@
 }
 
 /*
- * VAULTRA design system â€” dark-first, premium, glass + light.
+ * VAULTRA design system Ã¢â‚¬â€ dark-first, premium, glass + light.
  * All colors are oklch semantic tokens. Never hardcode colors in components.
  */
 
@@ -179,6 +179,8 @@
 
   html {
     -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
@@ -187,6 +189,26 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (hover: none) {
+    .card-hover:hover {
+      transform: none;
+      box-shadow: var(--shadow-card);
+    }
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
   }
 
   h1,
@@ -465,7 +487,7 @@
   }
 }
 
-/* Wordmark writing animation â€” letters draw in, then a light sweeps across. */
+/* Wordmark writing animation Ã¢â‚¬â€ letters draw in, then a light sweeps across. */
 @keyframes letter-in {
   0% {
     opacity: 0;

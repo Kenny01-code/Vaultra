@@ -74,7 +74,7 @@ export function FileListView({
             {files.map((file) => (
               <tr
                 key={file.id}
-                className="group transition-colors hover:bg-surface-2/60"
+                className="group content-auto transition-colors hover:bg-surface-2/60" style={{ contentVisibility: "auto", containIntrinsicSize: "auto 56px" }}
               >
                 <td className="py-3 pl-4 pr-3">
                   <div className="flex items-center gap-3">
@@ -204,7 +204,7 @@ export function FileListView({
       <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deleteTarget?.name}”?</AlertDialogTitle>
+            <AlertDialogTitle>Delete â€œ{deleteTarget?.name}â€?</AlertDialogTitle>
             <AlertDialogDescription>
               This permanently removes the file from your vault and revokes any public share link.
             </AlertDialogDescription>

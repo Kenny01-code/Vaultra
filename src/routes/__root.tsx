@@ -78,14 +78,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Vaultra — Secure File Storage" },
+      {
+        name: "viewport",
+        content:
+          "width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5",
+      },
+      { name: "theme-color", content: "#0a0a0b" },
+      { name: "color-scheme", content: "dark" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { title: "Vaultra â€” Secure File Storage" },
       {
         name: "description",
         content:
           "Encrypted-at-rest file storage with owner-only access, quota-aware uploads and expiring share links.",
       },
-      { property: "og:title", content: "Vaultra — Secure File Storage" },
+      { property: "og:title", content: "Vaultra â€” Secure File Storage" },
       {
         property: "og:description",
         content:
@@ -95,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      // Self-hosted fonts — no render-blocking Google Fonts request
+      // Self-hosted fonts â€” no render-blocking Google Fonts request
       { rel: "preload", href: "/fonts/sora.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "preload", href: "/fonts/inter-tight.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "preload", href: "/fonts/jetbrains-mono.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
@@ -103,6 +111,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "dns-prefetch", href: "https://firestore.googleapis.com" },
       { rel: "dns-prefetch", href: "https://identitytoolkit.googleapis.com" },
       { rel: "dns-prefetch", href: "https://storage.googleapis.com" },
+      { rel: "dns-prefetch", href: "https://supabase.co" },
+      { rel: "preconnect", href: "https://supabase.co", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "alternate icon", href: "/favicon.ico", type: "image/x-icon" },
