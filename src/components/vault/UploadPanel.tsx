@@ -69,7 +69,7 @@ export function UploadPanel({
           throw new Error("File exceeds the 1 GB maximum limit.");
         }
 
-        // Pre-flight quota check — alert user before any bytes leave the browser
+        // Pre-flight quota check â€” alert user before any bytes leave the browser
         const remaining = Math.max(0, quotaBytes - usedBytes);
         if (file.size > remaining) {
           throw new Error(
