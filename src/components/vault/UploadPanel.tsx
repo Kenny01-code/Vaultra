@@ -75,7 +75,7 @@ export function UploadPanel({
           throw new Error(
             remaining <= 0
               ? "Your vault is full. Delete some files or free up space before uploading."
-              : ``Not enough storage left. You have ${formatBytes(remaining)} remaining, but this file is ${formatBytes(file.size)}.``,
+              : `Not enough storage left. You have ${formatBytes(remaining)} remaining, but this file is ${formatBytes(file.size)}.`,
           );
         }
 
