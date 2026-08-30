@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Self-hosted fonts — zero render-blocking, instant load */
+/* Self-hosted fonts â€” zero render-blocking, instant load */
 @font-face {
   font-family: 'Sora';
   font-style: normal;
@@ -33,7 +33,7 @@
 }
 
 /*
- * VAULTRA design system — dark-first, premium, glass + light.
+ * VAULTRA design system â€” dark-first, premium, glass + light.
  * All colors are oklch semantic tokens. Never hardcode colors in components.
  */
 
@@ -465,7 +465,7 @@
   }
 }
 
-/* Wordmark writing animation — letters draw in, then a light sweeps across. */
+/* Wordmark writing animation â€” letters draw in, then a light sweeps across. */
 @keyframes letter-in {
   0% {
     opacity: 0;

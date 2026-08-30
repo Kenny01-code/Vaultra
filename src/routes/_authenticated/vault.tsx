@@ -56,13 +56,13 @@ export const Route = createFileRoute("/_authenticated/vault")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Your Vault — Vaultra Secure File Storage" },
+      { title: "Your Vault â€” Vaultra Secure File Storage" },
       {
         name: "description",
         content:
           "Upload, preview, organise and share your files from a private vault with per-file public links and live storage usage.",
       },
-      { property: "og:title", content: "Your Vault — Vaultra" },
+      { property: "og:title", content: "Your Vault â€” Vaultra" },
       { property: "og:description", content: "Private file storage with revocable share links." },
     ],
   }),
@@ -500,7 +500,7 @@ export function VaultPage() {
                 renameTarget && rename.mutate({ fileId: renameTarget.id, name: renameValue.trim() })
               }
             >
-              {rename.isPending ? "Saving…" : "Save name"}
+              {rename.isPending ? "Savingâ€¦" : "Save name"}
             </Button>
           </DialogFooter>
         </DialogContent>

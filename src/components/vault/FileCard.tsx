@@ -120,7 +120,7 @@ export function FileCard({
               {file.name}
             </h3>
             <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-              {formatBytes(file.size_bytes)} · {formatRelativeTime(file.created_at)}
+              {formatBytes(file.size_bytes)} Â· {formatRelativeTime(file.created_at)}
             </p>
           </div>
 
@@ -183,7 +183,7 @@ export function FileCard({
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{file.name}”?</AlertDialogTitle>
+            <AlertDialogTitle>Delete â€œ{file.name}â€?</AlertDialogTitle>
             <AlertDialogDescription>
               This permanently removes the file from your vault and revokes any share link. This
               cannot be undone.

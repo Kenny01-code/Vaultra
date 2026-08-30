@@ -125,7 +125,7 @@ export function AppShell({
             <User className="size-4" /> Edit profile
           </Link>
         </DropdownMenuItem>
-        {/* Admin console link — only visible to the admin */}
+        {/* Admin console link â€” only visible to the admin */}
         {isAdmin ? (
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link to="/admin">
