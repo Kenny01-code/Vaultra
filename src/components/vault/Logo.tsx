@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Vaultra mark Ã¢â‚¬â€ a monochrome aperture/vault dial built from concentric
+/** Vaultra mark ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â a monochrome aperture/vault dial built from concentric
  * segments. Used as the site icon everywhere (header, footer, share pages). */
 export function VaultraMark({ className }: { className?: string }) {
   return (
@@ -87,7 +87,7 @@ export function Logo({
       <span className="relative grid size-8 shrink-0 place-items-center rounded-xl border border-border bg-surface-2 ">
         <VaultraMark className="size-4 text-foreground " />
       </span>
-      {showWordmark ? <Wordmark className="!text-base whitespace-nowrap leading-none tracking-tight " /> : null}
+      {showWordmark ? <Wordmark className="!text-base whitespace-nowrap leading-none tracking-tight" /> : null}
     </span>
   );
 }
