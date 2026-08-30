@@ -1,10 +1,9 @@
 import { cn } from "@/lib/utils";
 
-/** Vaultra mark ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â a monochrome aperture/vault dial built from concentric
- * segments. Used as the site icon everywhere (header, footer, share pages). */
+/** Vaultra mark — aperture/vault dial. Uses currentColor so it matches the theme. */
 export function VaultraMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className={cn("size-5", className)} aria-hidden="true">
+    <svg viewBox="0 0 32 32" className={cn("size-4", className)} aria-hidden="true">
       <defs>
         <linearGradient id="vaultra-ink" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
@@ -30,51 +29,21 @@ export function VaultraMark({ className }: { className?: string }) {
   );
 }
 
-/**
- * "Vaultra" wordmark with a premium writing animation: each glyph draws in
- * from below with a slight 3D rotation, then a specular light sweeps across
- * the finished word. Fully static under `prefers-reduced-motion`.
- */
+/** Static wordmark — same on every page and screen size. */
 export function Wordmark({ className }: { className?: string }) {
-  const letters = "Vaultra".split("");
-
   return (
     <span
       className={cn(
-        "font-display relative inline-flex items-baseline text-lg font-semibold tracking-tight",
+        "font-display text-base font-semibold leading-none tracking-tight text-foreground",
         className,
       )}
-      aria-label="Vaultra"
     >
-      <span className="inline-flex items-baseline [transform-style:preserve-3d]" aria-hidden="true">
-        {letters.map((letter, index) => (
-          <span
-            key={`${letter}-${index}`}
-            className={cn(
-              "inline-block will-change-transform",
-              index >= 5 ? "text-muted-foreground" : "text-foreground",
-            )}
-            style={{
-              animation: `letter-in 0.62s var(--ease-premium) both`,
-              animationDelay: `${0.06 * index + 0.05}s`,
-            }}
-          >
-            {letter}
-          </span>
-        ))}
-      </span>
-      {/* specular sweep across the finished word */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(100deg,transparent_38%,oklch(1_0_0/0.85)_50%,transparent_62%)] bg-[length:220%_100%] bg-clip-text text-transparent"
-        style={{ animation: "wordmark-shine 3.6s var(--ease-premium) 0.6s infinite" }}
-      >
-        Vaultra
-      </span>
+      Vault<span className="text-muted-foreground">ra</span>
     </span>
   );
 }
 
+/** Single logo for landing, login, vault, and mobile header. */
 export function Logo({
   className,
   showWordmark = true,
@@ -83,12 +52,11 @@ export function Logo({
   showWordmark?: boolean;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <span className="relative grid size-8 shrink-0 place-items-center rounded-xl border border-border bg-surface-2 ">
-        <VaultraMark className="size-4 text-foreground " />
+    <span className={cn("inline-flex shrink-0 items-center gap-2.5", className)}>
+      <span className="relative grid size-8 shrink-0 place-items-center rounded-xl border border-border bg-surface-2">
+        <VaultraMark className="size-4 text-foreground" />
       </span>
-      {showWordmark ? <Wordmark className="!text-base whitespace-nowrap leading-none tracking-tight" /> : null}
+      {showWordmark ? <Wordmark className="whitespace-nowrap" /> : null}
     </span>
   );
 }
-
