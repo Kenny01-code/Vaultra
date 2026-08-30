@@ -125,7 +125,7 @@ export function AppShell({
             <User className="size-4" /> Edit profile
           </Link>
         </DropdownMenuItem>
-        {/* Admin console link ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â only visible to the admin */}
+        {/* Admin console link ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â only visible to the admin */}
         {isAdmin ? (
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link to="/admin">
@@ -212,7 +212,7 @@ export function AppShell({
       {/* Mobile Top Header (hidden on lg:) */}
       <header className="glass-strong sticky top-0 z-40 border-b border-border/70 pt-[env(safe-area-inset-top,0px)] lg:hidden">
         <div className="flex h-14 items-center justify-between gap-3 px-4">
-          <Link to="/" className="focus-ring shrink-0 rounded-xl">
+          <Link to="/" className="focus-ring shrink-0 overflow-visible rounded-xl">
             <Logo />
           </Link>
           <div className="flex shrink-0 items-center gap-2">
