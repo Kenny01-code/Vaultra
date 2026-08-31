@@ -65,7 +65,7 @@ const features = [
   },
   {
     icon: KeyRound,
-    title: "Google, GitHub & Apple auth",
+    title: "Google & GitHub auth",
     body: "One-tap social sign-in or classic email + password, with sessions refreshed automatically.",
   },
   {
@@ -183,7 +183,7 @@ function Index() {
               <div>
                 <h2 className="text-xl font-semibold sm:text-2xl">Ready to store something safely?</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Sign up in seconds with Google, GitHub, Apple or email — no card, no setup.
+                  Sign up in seconds with Google, GitHub or email — no card, no setup.
                 </p>
               </div>
               <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
@@ -195,7 +195,6 @@ function Index() {
           </Reveal>
         </section>
 
-        {/* ── iPhone 17 Pro Max preview ── */}
         <section className="cv-auto overflow-hidden py-16 md:py-24">
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div className="pointer-events-none absolute inset-0 bg-aurora opacity-40" aria-hidden="true" />

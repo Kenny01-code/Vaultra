@@ -1,11 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
   <defs>
-    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="shield-grad" x1="0" y1="0" x2="1" y2="1">
       <stop stop-color="currentColor" stop-opacity="1"/>
       <stop offset="1" stop-color="currentColor" stop-opacity="0.55"/>
     </linearGradient>
   </defs>
-  <path d="M64 14 104 32v32c0 24-16.5 44.5-40 53.5C40.5 108.5 24 88 24 64V32L64 14Z" stroke="url(#ink)" stroke-width="7" stroke-linejoin="round"/>
-  <circle cx="64" cy="62" r="20" stroke="currentColor" stroke-width="5.5"/>
-  <circle cx="64" cy="62" r="7.5" fill="currentColor"/>
+  <!-- Shield -->
+  <path
+    d="M64 10 108 30v34c0 26-18 48-44 57C24 112 6 90 6 64V30Z"
+    stroke="url(#shield-grad)"
+    stroke-width="6"
+    stroke-linejoin="round"
+  />
+  <!-- Outer ring -->
+  <circle cx="64" cy="62" r="22" stroke="currentColor" stroke-width="5" opacity="0.85"/>
+  <!-- Centre dot -->
+  <circle cx="64" cy="62" r="7" fill="currentColor"/>
+  <!-- Crosshair ticks N/S/E/W -->
+  <path d="M64 18v14M64 92v14M18 62h14M92 62h14"
+    stroke="currentColor" stroke-width="5" stroke-linecap="round" opacity="0.65"/>
 </svg>

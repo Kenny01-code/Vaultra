@@ -1,29 +1,26 @@
 import { useState, type ReactElement } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useRouter } from "@tanstack/react-router";
 
-import { AppleMark, GithubMark, GoogleMark } from "@/components/brand/BrandIcons";
+import { GithubMark, GoogleMark } from "@/components/brand/BrandIcons";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { cn } from "@/lib/utils";
 
-type Provider = "google" | "apple" | "github";
+type Provider = "google" | "github";
 
 const LABELS: Record<Provider, string> = {
   google: "Google",
-  apple: "Apple",
   github: "GitHub",
 };
 
 const MARKS: Record<Provider, (props: { className?: string }) => ReactElement> = {
   google: GoogleMark,
-  apple: AppleMark,
   github: GithubMark,
 };
 
-const PROVIDERS: Provider[] = ["google", "apple", "github"];
+const PROVIDERS: Provider[] = ["google", "github"];
 
 export function SocialAuth({
   className,
@@ -35,19 +32,17 @@ export function SocialAuth({
   redirectPath?: string;
 }) {
   const [pending, setPending] = useState<Provider | null>(null);
-  const router = useRouter();
 
   const start = async (provider: Provider) => {
     setPending(provider);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}${redirectPath}` } });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}${redirectPath}` },
+      });
       if (error) throw error;
     } catch (error: unknown) {
-      const code = (error as { code?: string })?.code;
-      // Do not toast if the user simply closed the popup window
-      if (code !== "auth/popup-closed-by-user" && code !== "auth/cancelled-popup-request") {
-        toast.error(getAuthErrorMessage(error));
-      }
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setPending(null);
     }
@@ -57,8 +52,8 @@ export function SocialAuth({
     <div
       className={cn(
         layout === "row"
-          ? "grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
-          : "grid gap-2",
+          ? "grid grid-cols-2 gap-2"
+          : "grid grid-cols-2 gap-2",
         className,
       )}
     >
