@@ -10,16 +10,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import { SocialAuth } from "@/components/auth/SocialAuth";
 import { Button } from "@/components/ui/button";
 import { HeaderAccount } from "@/components/vault/HeaderAccount";
 import { Logo } from "@/components/vault/Logo";
 import { Reveal } from "@/components/vault/Reveal";
 import { TypeLine } from "@/components/vault/TypeLine";
+import { HeroScene } from "@/components/vault/HeroScene";
 
-const CinematicVault = lazy(() =>
-  import("@/components/vault/CinematicVault").then((m) => ({ default: m.CinematicVault })),
-);
 const IPhoneFrame = lazy(() =>
   import("@/components/vault/IPhoneFrame").then((m) => ({ default: m.IPhoneFrame })),
 );
@@ -78,6 +75,7 @@ const features = [
 function Index() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
+      {/* ── Sticky header ── */}
       <header className="glass-strong sticky top-0 z-40 border-b border-border/70">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <Link to="/" className="focus-ring flex min-w-0 rounded-xl">
@@ -90,27 +88,49 @@ function Index() {
       </header>
 
       <main>
+        {/* ══════════════════════════════════════════════════════
+            HERO — 3D animated guardian + cinematic form drag
+        ══════════════════════════════════════════════════════ */}
         <section className="relative overflow-hidden">
-          <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.35]" aria-hidden="true" />
-          <div className="bg-aurora pointer-events-none absolute inset-0 opacity-70" aria-hidden="true" />
-          <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-2 md:items-center md:py-24">
-            <div className="stagger">
+          {/* Background layers */}
+          <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]" aria-hidden="true" />
+          <div className="bg-aurora pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+
+          {/* Headline copy — above the scene on mobile, overlaid on desktop */}
+          <div className="relative mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14 lg:pt-16">
+            <div className="stagger mx-auto max-w-2xl text-center">
               <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
                 Encrypted at rest · RLS enforced
               </span>
-              <h1 className="mt-5 text-[1.75rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl md:text-6xl">
+              <h1 className="mt-4 text-[1.85rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl md:text-6xl">
                 Your files,{" "}
                 <TypeLine
                   phrases={["locked down.", "owner-only.", "shareable on your terms.", "audit-ready."]}
                   className="block sm:inline"
                 />
               </h1>
-              <p className="mt-5 max-w-lg text-sm text-muted-foreground sm:text-base md:text-lg">
-                A production-grade secure file storage service: upload up to 1 GB per file, keep
-                everything private by default, and hand out expiring links only when you decide to.
+              <p className="mt-4 max-w-lg mx-auto text-sm text-muted-foreground sm:text-base md:text-lg">
+                Upload up to 1 GB per file, keep everything private by default, and hand out
+                expiring links only when you decide to.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+
+              {/* Stats row */}
+              <dl className="mt-6 flex flex-wrap justify-center gap-6 sm:gap-10">
+                {[
+                  ["5 GB", "free per account"],
+                  ["1 GB", "max per file"],
+                  ["AES-256", "at rest"],
+                ].map(([value, label]) => (
+                  <div key={label} className="text-center">
+                    <dt className="font-display text-lg font-semibold sm:text-xl">{value}</dt>
+                    <dd className="text-[11px] text-muted-foreground sm:text-xs">{label}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              {/* CTA buttons — visible on mobile where scene is below */}
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center lg:hidden">
                 <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
                   <Link to="/auth">
                     Create your vault <ArrowRight className="size-4" aria-hidden="true" />
@@ -120,37 +140,16 @@ function Index() {
                   <Link to="/vault">Open the vault</Link>
                 </Button>
               </div>
-              <div className="mt-7 max-w-md">
-                <p className="mb-2.5 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                  Or continue with
-                </p>
-                <SocialAuth />
-              </div>
-
-              <dl className="mt-10 grid max-w-md grid-cols-3 gap-4">
-                {[
-                  ["5 GB", "free per account"],
-                  ["1 GB", "max per file"],
-                  ["AES-256", "at rest"],
-                ].map(([value, label]) => (
-                  <div key={label}>
-                    <dt className="font-display text-lg font-semibold sm:text-xl">{value}</dt>
-                    <dd className="text-[11px] text-muted-foreground sm:text-xs">{label}</dd>
-                  </div>
-                ))}
-              </dl>
             </div>
+          </div>
 
-            <div className="relative mx-auto w-full max-w-md md:max-w-none">
-              <Suspense fallback={
-                <div className="aspect-square w-full max-w-[22rem] mx-auto animate-pulse rounded-full bg-surface-2 sm:max-w-[28rem] lg:max-w-[36rem]" />
-              }>
-                <CinematicVault />
-              </Suspense>
-            </div>
+          {/* ── 3D Character scene ── */}
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <HeroScene />
           </div>
         </section>
 
+        {/* ── Features grid ── */}
         <section className="cv-auto mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-24">
           <Reveal>
             <h2 className="text-xl font-semibold sm:text-3xl">
@@ -177,6 +176,7 @@ function Index() {
           </div>
         </section>
 
+        {/* ── CTA banner ── */}
         <section className="cv-auto mx-auto max-w-6xl px-4 pb-16 sm:px-6 md:pb-28">
           <Reveal>
             <div className="glass-strong flex flex-col items-start gap-5 rounded-3xl p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:p-10">
@@ -195,6 +195,7 @@ function Index() {
           </Reveal>
         </section>
 
+        {/* ── iPhone preview ── */}
         <section className="cv-auto overflow-hidden py-16 md:py-24">
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div className="pointer-events-none absolute inset-0 bg-aurora opacity-40" aria-hidden="true" />
@@ -225,7 +226,9 @@ function Index() {
       <footer className="border-t border-border/60 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
           <Logo showWordmark />
-          <a href="/vaultra-logo.svg" download="vaultra-logo.svg" className="focus-ring rounded text-foreground underline-offset-4 hover:underline">Download logo</a>
+          <a href="/vaultra-logo.svg" download="vaultra-logo.svg" className="focus-ring rounded text-foreground underline-offset-4 hover:underline">
+            Download logo
+          </a>
           <p>© {new Date().getFullYear()} Vaultra — encrypted-at-rest storage.</p>
         </div>
       </footer>

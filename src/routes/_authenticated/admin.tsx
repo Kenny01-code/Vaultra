@@ -1,3 +1,4 @@
+import { createServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import {
@@ -17,7 +18,54 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileTypeIcon } from "@/components/vault/FileTypeIcon";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+/* ─── Server function — uses admin client, bypasses RLS ─────────────────── */
+const fetchAdminOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // Verify admin role server-side
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: roleRow } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (roleRow?.role !== "admin") throw new Error("Forbidden");
+
+    // Fetch all files and user count using admin client (bypasses RLS)
+    const [{ data: files, error: filesError }, { count: userCount, error: profilesError }] =
+      await Promise.all([
+        supabaseAdmin
+          .from("files")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(500),
+        supabaseAdmin
+          .from("profiles")
+          .select("id", { count: "exact", head: true }),
+      ]);
+
+    if (filesError) throw filesError;
+    if (profilesError) throw profilesError;
+
+    const rows = files ?? [];
+
+    return {
+      users: userCount ?? 0,
+      files: rows.length,
+      publicFiles: rows.filter((r) => r.is_public).length,
+      privateFiles: rows.filter((r) => !r.is_public).length,
+      bytes: rows.reduce((t, r) => t + Number(r.size_bytes ?? 0), 0),
+      kinds: groupByKind(rows),
+      trend: buildTrendData(rows),
+      recentFiles: rows.slice(0, 8),
+    };
+  });
+
+/* ─── Helpers ───────────────────────────────────────────────────────────── */
 function kindOf(mimeType: string, fileName = ""): string {
   const mime = (mimeType || "").toLowerCase();
   const ext = fileName.split(".").pop()?.toLowerCase() ?? "";
@@ -60,8 +108,8 @@ function buildTrendData(rows: { created_at: string; size_bytes: number | string 
     .slice(-7);
 }
 
+/* ─── Route ─────────────────────────────────────────────────────────────── */
 export const Route = createFileRoute("/_authenticated/admin")({
-  // Server-side guard: verify admin role before rendering anything
   beforeLoad: async ({ context }) => {
     const parentUser = (context as { user?: { id: string } }).user;
     if (!parentUser?.id) throw redirect({ to: "/vault", replace: true });
@@ -88,6 +136,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+/* ─── Component ─────────────────────────────────────────────────────────── */
 function AdminPage() {
   const { isAdmin, loading } = useAuth();
 
@@ -95,26 +144,8 @@ function AdminPage() {
     queryKey: ["vault", "admin", "overview"],
     enabled: isAdmin,
     staleTime: 15_000,
-    queryFn: async () => {
-      const [{ data: files, error: filesError }, { count, error: profilesError }] = await Promise.all([
-        supabase.from("files").select("*").order("created_at", { ascending: false }).limit(500),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-      ]);
-      if (filesError) throw filesError;
-      if (profilesError) throw profilesError;
-      const rows = files ?? [];
-
-      return {
-        users: count ?? 0,
-        files: rows.length,
-        publicFiles: rows.filter((r) => r.is_public).length,
-        privateFiles: rows.filter((r) => !r.is_public).length,
-        bytes: rows.reduce((t, r) => t + Number(r.size_bytes ?? 0), 0),
-        kinds: groupByKind(rows),
-        trend: buildTrendData(rows),
-        recentFiles: rows.slice(0, 8),
-      };
-    },
+    refetchInterval: 30_000, // live refresh every 30s
+    queryFn: () => fetchAdminOverview(),
   });
 
   const stats = overview.data;
@@ -150,7 +181,7 @@ function AdminPage() {
   return (
     <AppShell
       title="Admin console & analytics"
-      subtitle="Comprehensive insights across accounts, storage consumption, file categories, and public shares."
+      subtitle="Live platform-wide insights — accounts, storage, file categories, and public shares."
     >
       {overview.isLoading ? (
         <div className="space-y-6">
@@ -167,6 +198,18 @@ function AdminPage() {
         </div>
       ) : stats ? (
         <div className="space-y-6">
+          {/* Live indicator */}
+          <div className="flex items-center gap-2">
+            <span
+              className="size-2 rounded-full bg-foreground"
+              style={{ boxShadow: "0 0 6px oklch(1 0 0 / 0.8)", animation: "tick-glow 2s ease-in-out infinite" }}
+            />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              Live · refreshes every 30s
+            </span>
+          </div>
+
+          {/* KPI cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="glass rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between">
@@ -176,7 +219,7 @@ function AdminPage() {
                 <Users className="size-4 text-primary opacity-80" />
               </div>
               <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">{stats.users}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">Active vault users</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Registered users</p>
             </div>
 
             <div className="glass rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)]">
@@ -218,6 +261,7 @@ function AdminPage() {
           <AnalyticsCharts kinds={stats.kinds} trend={stats.trend} />
 
           <div className="grid gap-6 lg:grid-cols-2">
+            {/* Storage by category */}
             <div className="glass rounded-3xl p-5 sm:p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-base font-semibold">Storage by file category</h2>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -249,10 +293,11 @@ function AdminPage() {
               </ul>
             </div>
 
+            {/* Recent uploads across ALL users */}
             <div className="glass rounded-3xl p-5 sm:p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-base font-semibold">Recent upload activity</h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Latest files processed across all accounts.
+                Latest files across all accounts — platform-wide.
               </p>
               <div className="mt-4 divide-y divide-border/60">
                 {stats.recentFiles.map((file) => (

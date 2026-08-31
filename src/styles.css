@@ -4,7 +4,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Self-hosted fonts Ã¢â‚¬â€ zero render-blocking, instant load */
+/* Self-hosted fonts — zero render-blocking, instant load */
 @font-face {
   font-family: 'Sora';
   font-style: normal;
@@ -33,7 +33,7 @@
 }
 
 /*
- * VAULTRA design system Ã¢â‚¬â€ dark-first, premium, glass + light.
+ * VAULTRA design system — dark-first, premium, glass + light.
  * All colors are oklch semantic tokens. Never hardcode colors in components.
  */
 
@@ -112,7 +112,6 @@
 :root {
   --radius: 0.9rem;
 
-  /* Monochrome: pure black canvas, paper-white ink, neutral greys only. */
   --background: oklch(0.13 0 0);
   --foreground: oklch(0.985 0 0);
 
@@ -316,12 +315,8 @@
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes scale-in {
@@ -336,27 +331,17 @@
 }
 
 @keyframes shimmer {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
 }
 
 @keyframes float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(1.5deg);
-  }
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-14px) rotate(1.5deg); }
 }
 
 @keyframes aurora {
-  0%,
-  100% {
+  0%, 100% {
     transform: translate3d(0, 0, 0) scale(1);
     opacity: 0.9;
   }
@@ -367,21 +352,13 @@
 }
 
 @keyframes orbit {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 @keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
 }
 
 @keyframes sheen {
@@ -389,11 +366,8 @@
     transform: translateX(-120%) skewX(-18deg);
     opacity: 0;
   }
-  22% {
-    opacity: 0.65;
-  }
-  60%,
-  100% {
+  22% { opacity: 0.65; }
+  60%, 100% {
     transform: translateX(220%) skewX(-18deg);
     opacity: 0;
   }
@@ -450,53 +424,35 @@
 }
 
 @keyframes scan {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(-32%);
     opacity: 0;
   }
-  18% {
-    opacity: 1;
-  }
+  18% { opacity: 1; }
   50% {
     transform: translateY(32%);
     opacity: 1;
   }
-  82% {
-    opacity: 0;
-  }
+  82% { opacity: 0; }
 }
 
 @keyframes caret {
-  0%,
-  49% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
 @keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
-/* Wordmark writing animation Ã¢â‚¬â€ letters draw in, then a light sweeps across. */
 @keyframes letter-in {
   0% {
     opacity: 0;
     transform: translateY(0.45em) rotateX(-55deg);
     filter: blur(4px);
   }
-  60% {
-    filter: blur(0);
-  }
+  60% { filter: blur(0); }
   100% {
     opacity: 1;
     transform: translateY(0) rotateX(0deg);
@@ -505,37 +461,117 @@
 }
 
 @keyframes wordmark-shine {
-  0% {
-    background-position: -140% 0;
-  }
-  55%,
-  100% {
-    background-position: 240% 0;
-  }
+  0% { background-position: -140% 0; }
+  55%, 100% { background-position: 240% 0; }
 }
 
 @keyframes tick-glow {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 1; }
 }
 
 @utility animate-fade-up {
   animation: var(--animate-fade-up);
 }
 
-/* Performance: skip rendering off-screen sections until they scroll into view */
 @utility cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: 0 400px;
 }
 
-/* Promote animated elements to their own compositor layer */
 @utility gpu {
   transform: translateZ(0);
   will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VAULT GUARDIAN — 3D CHARACTER ANIMATIONS
+═══════════════════════════════════════════════════════════ */
+
+/* Full-body dance bounce */
+@keyframes guardian-dance {
+  0%, 100% { transform: translateY(0)    rotate(-1.5deg) scaleX(1);    }
+  25%       { transform: translateY(-18px) rotate(2deg)   scaleX(0.97); }
+  50%       { transform: translateY(-8px)  rotate(-1deg)  scaleX(1.02); }
+  75%       { transform: translateY(-22px) rotate(2.5deg) scaleX(0.96); }
+}
+
+/* Reach-out lunge toward the form */
+@keyframes guardian-reach {
+  0%   { transform: translateY(0)    rotate(0deg)  translateX(0);   }
+  40%  { transform: translateY(-10px) rotate(-6deg) translateX(18px); }
+  70%  { transform: translateY(-6px)  rotate(-8deg) translateX(28px); }
+  100% { transform: translateY(0)    rotate(-4deg) translateX(20px); }
+}
+
+/* Idle breathing loop */
+@keyframes guardian-idle {
+  0%, 100% { transform: translateY(0)   rotate(-1deg); }
+  50%       { transform: translateY(-8px) rotate(1deg);  }
+}
+
+/* Left leg kick */
+@keyframes leg-l {
+  0%, 100% { transform: rotate(0deg);   }
+  25%       { transform: rotate(-28deg); }
+  75%       { transform: rotate(18deg);  }
+}
+
+/* Right leg kick (offset) */
+@keyframes leg-r {
+  0%, 100% { transform: rotate(0deg);   }
+  25%       { transform: rotate(20deg);  }
+  75%       { transform: rotate(-26deg); }
+}
+
+/* Left arm swing while dancing */
+@keyframes arm-l-dance {
+  0%, 100% { transform: rotate(0deg);  }
+  25%       { transform: rotate(35deg); }
+  75%       { transform: rotate(-20deg); }
+}
+
+/* Right arm swing while dancing */
+@keyframes arm-r-dance {
+  0%, 100% { transform: rotate(0deg);   }
+  25%       { transform: rotate(-30deg); }
+  75%       { transform: rotate(22deg);  }
+}
+
+/* Left arm reach toward form */
+@keyframes arm-l-reach {
+  0%   { transform: rotate(0deg);                      }
+  50%  { transform: rotate(-55deg) translateY(-8px);   }
+  100% { transform: rotate(-45deg) translateY(-4px);   }
+}
+
+/* Right arm reach toward form */
+@keyframes arm-r-reach {
+  0%   { transform: rotate(0deg);                     }
+  50%  { transform: rotate(60deg) translateY(-8px);   }
+  100% { transform: rotate(50deg) translateY(-4px);   }
+}
+
+/* Gentle arm sway in idle */
+@keyframes arm-idle {
+  0%, 100% { transform: rotate(0deg);  }
+  50%       { transform: rotate(8deg); }
+}
+
+/* Eye blink */
+@keyframes eye-blink {
+  0%, 90%, 100% { transform: scaleY(1);    }
+  95%            { transform: scaleY(0.08); }
+}
+
+/* Form card slide-in from right */
+@keyframes form-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }
