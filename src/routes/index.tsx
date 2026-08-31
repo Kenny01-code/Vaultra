@@ -93,62 +93,66 @@ function Index() {
         {/* ══════════════════════════════════════════════════════
             HERO — 3D animated guardian + cinematic form drag
         ══════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20">
           <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]" aria-hidden="true" />
           <div className="bg-aurora pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
 
-          {/* Headline copy */}
-          <div className="relative mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14 lg:pt-16">
-            <div className="stagger mx-auto max-w-2xl text-center">
-              <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
-                <ShieldCheck className="size-3.5" aria-hidden="true" />
-                Encrypted at rest · RLS enforced
-              </span>
-              <h1 className="mt-4 text-[1.85rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl md:text-6xl">
-                Your files,{" "}
-                <TypeLine
-                  phrases={["locked down.", "owner-only.", "shareable on your terms.", "audit-ready."]}
-                  className="block sm:inline"
-                />
-              </h1>
-              <p className="mt-4 mx-auto max-w-lg text-sm text-muted-foreground sm:text-base md:text-lg">
-                Upload up to 1 GB per file, keep everything private by default, and hand out
-                expiring links only when you decide to.
-              </p>
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-8">
 
-              {/* Stats row */}
-              <dl className="mt-6 flex flex-wrap justify-center gap-6 sm:gap-10">
-                {[
-                  ["5 GB", "free per account"],
-                  ["1 GB", "max per file"],
-                  ["AES-256", "at rest"],
-                ].map(([value, label]) => (
-                  <div key={label} className="text-center">
-                    <dt className="font-display text-lg font-semibold sm:text-xl">{value}</dt>
-                    <dd className="text-[11px] text-muted-foreground sm:text-xs">{label}</dd>
-                  </div>
-                ))}
-              </dl>
+              {/* Left — headline + CTAs */}
+              <div className="stagger flex-1 text-center lg:text-left">
+                <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
+                  <ShieldCheck className="size-3.5" aria-hidden="true" />
+                  Encrypted at rest · RLS enforced
+                </span>
+                <h1 className="mt-4 text-[1.85rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl md:text-6xl">
+                  Your files,{" "}
+                  <TypeLine
+                    phrases={["locked down.", "owner-only.", "shareable on your terms.", "audit-ready."]}
+                    className="block sm:inline"
+                  />
+                </h1>
+                <p className="mt-4 mx-auto max-w-lg text-sm text-muted-foreground sm:text-base md:text-lg lg:mx-0">
+                  Upload up to 1 GB per file, keep everything private by default, and hand out
+                  expiring links only when you decide to.
+                </p>
 
-              {/* Mobile CTA — shown below headline on small screens */}
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center lg:hidden">
-                <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
-                  <Link to="/auth">
-                    Create your vault <ArrowRight className="size-4" aria-hidden="true" />
-                  </Link>
-                </Button>
-                <Button asChild variant="glass" size="lg" className="w-full gap-2 sm:w-auto">
-                  <Link to="/vault">Open the vault</Link>
-                </Button>
+                <dl className="mt-6 flex flex-wrap justify-center gap-6 sm:gap-10 lg:justify-start">
+                  {[
+                    ["5 GB", "free per account"],
+                    ["1 GB", "max per file"],
+                    ["AES-256", "at rest"],
+                  ].map(([value, label]) => (
+                    <div key={label} className="text-center lg:text-left">
+                      <dt className="font-display text-lg font-semibold sm:text-xl">{value}</dt>
+                      <dd className="text-[11px] text-muted-foreground sm:text-xs">{label}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+                  <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
+                    <Link to="/auth">
+                      Create your vault <ArrowRight className="size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="glass" size="lg" className="w-full gap-2 sm:w-auto">
+                    <Link to="/vault">Open the vault</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
 
-            {/* 3D Cinematic vault */}
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pb-10 sm:pb-16">
-            <Suspense fallback={<div className="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[36rem] animate-pulse rounded-full bg-surface-2" />}>
-              <CinematicVault />
-            </Suspense>
+              {/* Right — 3D Cinematic vault */}
+              <div className="w-full flex-1">
+                <Suspense fallback={
+                  <div className="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[36rem] animate-pulse rounded-full bg-surface-2" />
+                }>
+                  <CinematicVault />
+                </Suspense>
+              </div>
+
+            </div>
           </div>
         </section>
 
