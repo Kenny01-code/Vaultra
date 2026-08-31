@@ -25,7 +25,14 @@ const fetchAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     // Verify admin role server-side
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let supabaseAdmin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server")>>["supabaseAdmin"];
+    try {
+      ({ supabaseAdmin } = await import("@/integrations/supabase/client.server"));
+    } catch (err) {
+      throw new Error(
+        "Admin client unavailable — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your deployment environment variables.",
+      );
+    }
 
     const { data: roleRow } = await supabaseAdmin
       .from("user_roles")

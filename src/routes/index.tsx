@@ -15,7 +15,6 @@ import { HeaderAccount } from "@/components/vault/HeaderAccount";
 import { Logo } from "@/components/vault/Logo";
 import { Reveal } from "@/components/vault/Reveal";
 import { TypeLine } from "@/components/vault/TypeLine";
-import { HeroScene } from "@/components/vault/HeroScene";
 
 const IPhoneFrame = lazy(() =>
   import("@/components/vault/IPhoneFrame").then((m) => ({ default: m.IPhoneFrame })),
@@ -88,16 +87,12 @@ function Index() {
       </header>
 
       <main>
-        {/* ══════════════════════════════════════════════════════
-            HERO — 3D animated guardian + cinematic form drag
-        ══════════════════════════════════════════════════════ */}
-        <section className="relative overflow-hidden">
-          {/* Background layers */}
+        {/* ── Hero ── */}
+        <section className="relative overflow-hidden py-20 sm:py-28 md:py-36">
           <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]" aria-hidden="true" />
           <div className="bg-aurora pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
 
-          {/* Headline copy — above the scene on mobile, overlaid on desktop */}
-          <div className="relative mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14 lg:pt-16">
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div className="stagger mx-auto max-w-2xl text-center">
               <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
@@ -110,12 +105,11 @@ function Index() {
                   className="block sm:inline"
                 />
               </h1>
-              <p className="mt-4 max-w-lg mx-auto text-sm text-muted-foreground sm:text-base md:text-lg">
+              <p className="mt-4 mx-auto max-w-lg text-sm text-muted-foreground sm:text-base md:text-lg">
                 Upload up to 1 GB per file, keep everything private by default, and hand out
                 expiring links only when you decide to.
               </p>
 
-              {/* Stats row */}
               <dl className="mt-6 flex flex-wrap justify-center gap-6 sm:gap-10">
                 {[
                   ["5 GB", "free per account"],
@@ -129,8 +123,7 @@ function Index() {
                 ))}
               </dl>
 
-              {/* CTA buttons — visible on mobile where scene is below */}
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center lg:hidden">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
                 <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
                   <Link to="/auth">
                     Create your vault <ArrowRight className="size-4" aria-hidden="true" />
@@ -141,11 +134,6 @@ function Index() {
                 </Button>
               </div>
             </div>
-          </div>
-
-          {/* ── 3D Character scene ── */}
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-            <HeroScene />
           </div>
         </section>
 

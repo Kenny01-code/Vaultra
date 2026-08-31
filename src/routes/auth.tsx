@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logo } from "@/components/vault/Logo";
 import { SocialAuth } from "@/components/auth/SocialAuth";
+import { HeroScene } from "@/components/vault/HeroScene";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
@@ -55,7 +56,6 @@ export function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // Forgot password dialog state
   const [resetOpen, setResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetBusy, setResetBusy] = useState(false);
@@ -81,15 +81,8 @@ export function AuthPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = email.trim();
-    if (!cleanEmail) {
-      toast.error("Please enter your email address.");
-      return;
-    }
-    if (!password) {
-      toast.error("Please enter your password.");
-      return;
-    }
-
+    if (!cleanEmail) { toast.error("Please enter your email address."); return; }
+    if (!password) { toast.error("Please enter your password."); return; }
     setBusy(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
@@ -107,16 +100,8 @@ export function AuthPage() {
     e.preventDefault();
     const cleanEmail = email.trim();
     const cleanName = fullName.trim();
-
-    if (!cleanEmail) {
-      toast.error("Please enter your email address.");
-      return;
-    }
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters.");
-      return;
-    }
-
+    if (!cleanEmail) { toast.error("Please enter your email address."); return; }
+    if (password.length < 6) { toast.error("Password must be at least 6 characters."); return; }
     setBusy(true);
     try {
       const { error } = await supabase.auth.signUp({ email: cleanEmail, password, options: { data: { full_name: cleanName || undefined } } });
@@ -133,11 +118,7 @@ export function AuthPage() {
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = resetEmail.trim().toLowerCase();
-    if (!cleanEmail) {
-      toast.error("Please enter your email address.");
-      return;
-    }
-
+    if (!cleanEmail) { toast.error("Please enter your email address."); return; }
     setResetBusy(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, { redirectTo: `${window.location.origin}/auth` });
@@ -146,12 +127,7 @@ export function AuthPage() {
       setResetOpen(false);
       setResetEmail("");
     } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code === "auth/user-not-found" || code === "auth/invalid-email") {
-        toast.error("No account found with that email address.");
-      } else {
-        toast.error(getAuthErrorMessage(error));
-      }
+      toast.error(getAuthErrorMessage(error));
     } finally {
       setResetBusy(false);
     }
@@ -159,10 +135,7 @@ export function AuthPage() {
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 8) {
-      toast.error("Use at least 8 characters for your new password.");
-      return;
-    }
+    if (newPassword.length < 8) { toast.error("Use at least 8 characters for your new password."); return; }
     setRecoveryBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -180,151 +153,104 @@ export function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden px-4 py-8 sm:py-12">
-      <div className="absolute inset-0 -z-10 bg-aurora opacity-60" aria-hidden="true" />
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* ── Two-column layout: scene left, form right ── */}
+      <div className="flex min-h-screen flex-col lg:flex-row">
 
-      <div className="mx-auto w-full max-w-md" style={{ animation: "var(--animate-fade-up)" }}>
-        <div className="mb-6 flex flex-col items-center gap-3 text-center">
-          <Logo />
-          <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
-            Your files, locked to you
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Private by default. Share only what you choose, with revocable links.
-          </p>
+        {/* ── Left: animated hero scene (hidden on small screens) ── */}
+        <div className="relative hidden lg:flex lg:flex-1 lg:items-center lg:justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-aurora opacity-50" aria-hidden="true" />
+          <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.18]" aria-hidden="true" />
+          <HeroScene className="relative z-10 w-full" />
         </div>
-        <div className="glass rounded-3xl p-4 shadow-[var(--shadow-elevated)] sm:p-5">
-          <SocialAuth redirectPath={targetDestination} />
 
-          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            or email
-            <span className="h-px flex-1 bg-border" />
+        {/* ── Right: auth form ── */}
+        <div className="relative flex flex-1 flex-col items-center justify-center px-4 py-10 sm:py-14 lg:max-w-[480px] lg:border-l lg:border-border/60">
+          {/* Mobile background */}
+          <div className="absolute inset-0 -z-10 bg-aurora opacity-50 lg:hidden" aria-hidden="true" />
+
+          <div className="w-full max-w-md" style={{ animation: "var(--animate-fade-up)" }}>
+            <div className="mb-6 flex flex-col items-center gap-3 text-center">
+              <Logo />
+              <h1 className="font-display text-xl font-semibold tracking-tight sm:text-2xl">
+                Your files, locked to you
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Private by default. Share only what you choose, with revocable links.
+              </p>
+            </div>
+
+            <div className="glass rounded-3xl p-4 shadow-[var(--shadow-elevated)] sm:p-5">
+              <SocialAuth redirectPath={targetDestination} />
+
+              <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground">
+                <span className="h-px flex-1 bg-border" />
+                or email
+                <span className="h-px flex-1 bg-border" />
+              </div>
+
+              <Tabs defaultValue="signin">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="signin">Sign in</TabsTrigger>
+                  <TabsTrigger value="signup">Create account</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="signin" className="mt-4">
+                  <form onSubmit={handleSignIn} className="space-y-3.5">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input id="signin-email" type="email" required autoComplete="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <button type="button" onClick={() => { setResetEmail(email); setResetOpen(true); }} className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+                          Forgot password?
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Input id="signin-password" type={showPassword ? "text" : "password"} required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} className="pr-10" />
+                        <button type="button" tabIndex={-1} onClick={() => setShowPassword((p) => !p)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground">
+                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <Button type="submit" variant="hero" className="w-full gap-2" disabled={busy}>
+                      {busy ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
+                      Sign in
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="signup" className="mt-4">
+                  <form onSubmit={handleSignUp} className="space-y-3.5">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-name">Full name</Label>
+                      <Input id="signup-name" type="text" autoComplete="name" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <Input id="signup-email" type="email" required autoComplete="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="signup-password">Password</Label>
+                      <div className="relative">
+                        <Input id="signup-password" type={showPassword ? "text" : "password"} required autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className="pr-10" />
+                        <button type="button" tabIndex={-1} onClick={() => setShowPassword((p) => !p)} aria-label={showPassword ? "Hide password" : "Show password"} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground">
+                          {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">Minimum 6 characters.</p>
+                    </div>
+                    <Button type="submit" variant="hero" className="w-full gap-2" disabled={busy}>
+                      {busy ? <Loader2 className="size-4 animate-spin" /> : null}
+                      Create account
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
-
-          <Tabs defaultValue="signin">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="signin" className="mt-4">
-              <form onSubmit={handleSignIn} className="space-y-3.5">
-                <div className="space-y-1.5">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setResetEmail(email);
-                        setResetOpen(true);
-                      }}
-                      className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <div className="relative">
-                    <Input
-                      id="signin-password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button type="submit" variant="hero" className="w-full gap-2" disabled={busy}>
-                  {busy ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-                  Sign in
-                </Button>
-              </form>
-            </TabsContent>
-
-            <TabsContent value="signup" className="mt-4">
-              <form onSubmit={handleSignUp} className="space-y-3.5">
-                <div className="space-y-1.5">
-                  <Label htmlFor="signup-name">Full name</Label>
-                  <Input
-                    id="signup-name"
-                    type="text"
-                    autoComplete="name"
-                    placeholder="Jane Doe"
-                    value={fullName}
-                    onChange={(event) => setFullName(event.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    placeholder="name@example.com"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="signup-password"
-                      type={showPassword ? "text" : "password"}
-                      required
-                      autoComplete="new-password"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground">Minimum 6 characters.</p>
-                </div>
-
-                <Button type="submit" variant="hero" className="w-full gap-2" disabled={busy}>
-                  {busy ? <Loader2 className="size-4 animate-spin" /> : null}
-                  Create account
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
         </div>
       </div>
 
@@ -339,31 +265,13 @@ export function AuthPage() {
               Enter your email address and we'll send you a link to reset your password.
             </DialogDescription>
           </DialogHeader>
-
           <form onSubmit={handlePasswordReset} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="reset-email">Email</Label>
-              <Input
-                id="reset-email"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="name@example.com"
-                value={resetEmail}
-                onChange={(event) => setResetEmail(event.target.value)}
-              />
+              <Input id="reset-email" type="email" required autoComplete="email" placeholder="name@example.com" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
             </div>
-
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setResetOpen(false)}
-                disabled={resetBusy}
-              >
-                Cancel
-              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setResetOpen(false)} disabled={resetBusy}>Cancel</Button>
               <Button type="submit" variant="hero" size="sm" disabled={resetBusy || !resetEmail.trim()}>
                 {resetBusy ? <Loader2 className="size-4 animate-spin" /> : "Send link"}
               </Button>
@@ -381,7 +289,7 @@ export function AuthPage() {
           <form onSubmit={handlePasswordUpdate} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="new-password">New password</Label>
-              <Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={(event) => setNewPassword(event.target.value)} />
+              <Input id="new-password" type="password" autoComplete="new-password" minLength={8} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
               <p className="text-[11px] text-muted-foreground">Use at least 8 characters.</p>
             </div>
             <Button type="submit" variant="hero" className="w-full" disabled={recoveryBusy}>
