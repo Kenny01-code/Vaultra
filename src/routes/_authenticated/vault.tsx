@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import {
-  ArrowDownAZ,
   ArrowUpDown,
   CloudUpload,
   FolderOpen,
@@ -41,6 +40,7 @@ import type { VaultDisplayMode, VaultFile, VaultSort, VaultView } from "@/featur
 import { useThumbnails } from "@/features/vault/useThumbnails";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteFile, renameFile, setFileVisibility } from "@/lib/files.functions";
 
 // Lazy-load rich media preview dialog
 const FilePreviewDialog = lazy(() =>
@@ -56,13 +56,13 @@ export const Route = createFileRoute("/_authenticated/vault")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Your Vault â€” Vaultra Secure File Storage" },
+      { title: "Your Vault — Vaultra Secure File Storage" },
       {
         name: "description",
         content:
           "Upload, preview, organise and share your files from a private vault with per-file public links and live storage usage.",
       },
-      { property: "og:title", content: "Your Vault â€” Vaultra" },
+      { property: "og:title", content: "Your Vault — Vaultra" },
       { property: "og:description", content: "Private file storage with revocable share links." },
     ],
   }),
@@ -116,32 +116,26 @@ export function VaultPage() {
     [list],
   );
 
-  // Counts for tabs
-  const counts = useMemo(() => {
-    return {
+  const counts = useMemo(
+    () => ({
       all: list.length,
       recent: Math.min(list.length, 12),
       public: list.filter((f) => f.is_public).length,
       private: list.filter((f) => !f.is_public).length,
-    };
-  }, [list]);
+    }),
+    [list],
+  );
 
-  // Filter and sort files
   const visible = useMemo(() => {
     const term = query.trim().toLowerCase();
     let result = [...list];
 
-    // Filter view
-    if (search.view === "public") result = result.filter((file) => file.is_public);
-    if (search.view === "private") result = result.filter((file) => !file.is_public);
+    if (search.view === "public") result = result.filter((f) => f.is_public);
+    if (search.view === "private") result = result.filter((f) => !f.is_public);
     if (search.view === "recent") result = result.slice(0, 12);
 
-    // Search query
-    if (term) {
-      result = result.filter((file) => file.name.toLowerCase().includes(term));
-    }
+    if (term) result = result.filter((f) => f.name.toLowerCase().includes(term));
 
-    // Sort
     result.sort((a, b) => {
       if (sort === "date-desc") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (sort === "date-asc") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -157,13 +151,10 @@ export function VaultPage() {
 
   const thumbnails = useThumbnails(visible);
 
-  // Visibility toggle mutation with fallback to client SDK
+  // Visibility toggle — server function enforces ownership
   const visibility = useMutation({
-    mutationFn: async (input: { fileId: string; isPublic: boolean }) => {
-      const { data, error } = await supabase.from("files").update({ is_public: input.isPublic }).eq("id", input.fileId).select().single();
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (input: { fileId: string; isPublic: boolean }) =>
+      setFileVisibility({ data: input }),
     onMutate: (input) => setBusyId(input.fileId),
     onSettled: () => setBusyId(null),
     onSuccess: (_data, input) => {
@@ -173,15 +164,9 @@ export function VaultPage() {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Update failed."),
   });
 
-  // Delete mutation with fallback to client SDK
+  // Delete — server function verifies ownership and removes storage object
   const removal = useMutation({
-    mutationFn: async (file: VaultFile) => {
-      const { error: storageError } = await supabase.storage.from("vault").remove([file.storage_path]);
-      if (storageError) throw storageError;
-      const { error } = await supabase.from("files").delete().eq("id", file.id);
-      if (error) throw error;
-      return { id: file.id };
-    },
+    mutationFn: (file: VaultFile) => deleteFile({ data: { fileId: file.id } }),
     onSuccess: () => {
       toast.success("File permanently deleted");
       invalidate();
@@ -189,13 +174,9 @@ export function VaultPage() {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Delete failed."),
   });
 
-  // Rename mutation with fallback to client SDK
+  // Rename — server function sanitizes the name
   const rename = useMutation({
-    mutationFn: async (input: { fileId: string; name: string }) => {
-      const { data, error } = await supabase.from("files").update({ name: input.name }).eq("id", input.fileId).select().single();
-      if (error) throw error;
-      return data;
-    },
+    mutationFn: (input: { fileId: string; name: string }) => renameFile({ data: input }),
     onSuccess: () => {
       toast.success("File renamed");
       setRenameTarget(null);
@@ -208,7 +189,9 @@ export function VaultPage() {
     setPreviewFile(file);
     setPreviewUrl(null);
     try {
-      const { data, error } = await supabase.storage.from("vault").createSignedUrl(file.storage_path, 300);
+      const { data, error } = await supabase.storage
+        .from("vault")
+        .createSignedUrl(file.storage_path, 300);
       if (error) throw error;
       setPreviewUrl(data.signedUrl);
     } catch {
@@ -218,7 +201,9 @@ export function VaultPage() {
 
   const download = async (file: VaultFile) => {
     try {
-      const { data, error } = await supabase.storage.from("vault").createSignedUrl(file.storage_path, 300, { download: file.name });
+      const { data, error } = await supabase.storage
+        .from("vault")
+        .createSignedUrl(file.storage_path, 300, { download: file.name });
       if (error) throw error;
       window.location.assign(data.signedUrl);
     } catch {
@@ -234,7 +219,6 @@ export function VaultPage() {
 
   return (
     <AppShell onUploadClick={() => uploadInput.current?.click()}>
-      {/* Full-window drag and drop indicator */}
       {isWindowDragging ? (
         <div
           className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md border-4 border-dashed border-primary transition-all duration-300"
@@ -260,12 +244,9 @@ export function VaultPage() {
         className="grid gap-5 lg:grid-cols-[1fr_300px] xl:grid-cols-[1fr_320px]"
         onDragEnter={() => setIsWindowDragging(true)}
       >
-        {/* Main Vault Content */}
         <div className="order-2 space-y-4 lg:order-1 min-w-0">
-          {/* Search, Filter Tabs, and View Options Toolbar */}
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-              {/* Search Bar */}
               <div className="relative flex-1">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
@@ -290,7 +271,6 @@ export function VaultPage() {
                 ) : null}
               </div>
 
-              {/* View Switcher and Sort Dropdown */}
               <div className="flex items-center justify-between sm:justify-end gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -344,7 +324,6 @@ export function VaultPage() {
               </div>
             </div>
 
-            {/* Filter Tabs */}
             <div className="overflow-x-auto pb-1">
               <Tabs
                 value={search.view}
@@ -360,7 +339,7 @@ export function VaultPage() {
                       className="flex-1 sm:flex-none text-xs gap-1.5"
                     >
                       {v.label}
-                      <span className="rounded-full bg-surface-2 px-1.5 py-0.2 text-[10px] text-muted-foreground">
+                      <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted-foreground">
                         {counts[v.value]}
                       </span>
                     </TabsTrigger>
@@ -370,7 +349,6 @@ export function VaultPage() {
             </div>
           </div>
 
-          {/* Files List / Grid / Empty State */}
           {files.isLoading ? (
             <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
               {Array.from({ length: 6 }).map((_, index) => (
@@ -441,7 +419,6 @@ export function VaultPage() {
           )}
         </div>
 
-        {/* Sidebar Controls (Upload Panel & Storage Meter) */}
         <aside className="order-1 space-y-4 lg:order-2">
           <UploadPanel
             inputRef={uploadInput}
@@ -457,7 +434,6 @@ export function VaultPage() {
         </aside>
       </div>
 
-      {/* Rich Media Preview Dialog */}
       <Suspense fallback={null}>
         <FilePreviewDialog
           file={previewFile}
@@ -473,7 +449,6 @@ export function VaultPage() {
         />
       </Suspense>
 
-      {/* Rename File Dialog */}
       <Dialog open={Boolean(renameTarget)} onOpenChange={(open) => !open && setRenameTarget(null)}>
         <DialogContent className="w-[calc(100vw-2rem)] max-w-sm rounded-2xl p-5">
           <DialogHeader>
@@ -500,7 +475,7 @@ export function VaultPage() {
                 renameTarget && rename.mutate({ fileId: renameTarget.id, name: renameValue.trim() })
               }
             >
-              {rename.isPending ? "Savingâ€¦" : "Save name"}
+              {rename.isPending ? "Saving…" : "Save name"}
             </Button>
           </DialogFooter>
         </DialogContent>

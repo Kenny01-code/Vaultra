@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+firestore-debug.log
 
 node_modules
 dist
@@ -19,9 +20,20 @@ dist-ssr
 .env.*
 !.env.example
 
-# Firebase Admin SDK credentials
+# Firebase Admin SDK credentials — NEVER commit these
 *-firebase-adminsdk-*.json
 service-account*.json
+vaultra-1a74a-firebase-adminsdk-*.json
+
+# Recovery / backup codes — NEVER commit these
+recovery-codes.txt
+*.recovery-codes*
+
+# Test / smoke test artifacts
+upload-smoke-test.txt
+
+# Zip archives of the project
+*.zip
 
 # Wrangler / Cloudflare
 .wrangler/

@@ -1,12 +1,11 @@
-// Server-only validation and policy helpers for the secure vault.
-// Never trust client-supplied metadata: every value used for persistence is
-// either re-derived on the server or validated here first.
+// Server-only validation helpers — no Firebase, no Supabase imports here.
+// Pure functions only; safe to import from any server function.
 
 export const MAX_FILE_BYTES = 1024 * 1024 * 1024; // 1 GB per file
 export const DEFAULT_QUOTA_BYTES = 5 * 1024 * 1024 * 1024; // 5 GB per account
-export const BUCKET = "vaultra-1a74a.firebasestorage.app";
+export const VAULT_BUCKET = "vault";
 
-/** Executables / server-interpretable types are rejected outright (OWASP file upload). */
+/** Executables / server-interpretable types rejected outright (OWASP file upload). */
 const BLOCKED_EXTENSIONS = new Set([
   "exe", "dll", "so", "bat", "cmd", "com", "cpl", "msi", "msc", "scr", "jar",
   "sh", "bash", "zsh", "ps1", "vbs", "js", "mjs", "cjs", "jse", "wsf", "wsh",
@@ -29,7 +28,7 @@ export function extensionOf(name: string): string {
 
 /** Strips paths, control characters and traversal sequences from a display name. */
 export function sanitizeFileName(rawName: string): string {
-  const base = rawName.split(/[\\/]/).pop() ?? "file";
+  const base = rawName.split(/[\\\/]/).pop() ?? "file";
   const cleaned = base
     // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f]/g, "")
@@ -59,13 +58,13 @@ export function validateUploadIntent({ name, sizeBytes, mimeType }: UploadIntent
   if (BLOCKED_EXTENSIONS.has(extension)) {
     throw new Error(`Files of type ".${extension}" are not allowed for security reasons.`);
   }
-  if (BLOCKED_MIME_PATTERNS.some((pattern) => pattern.test(mimeType))) {
+  if (BLOCKED_MIME_PATTERNS.some((p) => p.test(mimeType))) {
     throw new Error("This file type is not allowed for security reasons.");
   }
   return { safeName, extension };
 }
 
-/** Storage keys are always namespaced by owner id so RLS can enforce ownership. */
+/** Storage keys are always namespaced by owner id so RLS enforces ownership. */
 export function buildStoragePath(userId: string, extension: string): string {
   const id = crypto.randomUUID();
   return extension ? `${userId}/${id}.${extension}` : `${userId}/${id}`;
@@ -75,10 +74,4 @@ export function assertOwnedPath(userId: string, path: string): void {
   if (!path.startsWith(`${userId}/`) || path.includes("..")) {
     throw new Error("Forbidden: storage path does not belong to this account.");
   }
-}
-
-/** Content-Disposition safe download filename. */
-export function contentDisposition(name: string, inline: boolean): string {
-  const fallback = sanitizeFileName(name).replace(/"/g, "");
-  return `${inline ? "inline" : "attachment"}; filename="${fallback}"; filename*=UTF-8''${encodeURIComponent(name)}`;
 }

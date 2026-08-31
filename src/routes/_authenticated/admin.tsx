@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import {
   FileCheck2,
   HardDrive,
@@ -47,8 +46,6 @@ function groupByKind(rows: { mime_type: string; name?: string; size_bytes: numbe
 
 function buildTrendData(rows: { created_at: string; size_bytes: number | string }[]): TrendPoint[] {
   const map = new Map<string, { files: number; bytes: number }>();
-
-  // Aggregate by day (last 7 data points)
   for (const row of rows) {
     const dateStr = row.created_at
       ? new Date(row.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })
@@ -58,17 +55,25 @@ function buildTrendData(rows: { created_at: string; size_bytes: number | string 
     entry.bytes += Number(row.size_bytes ?? 0);
     map.set(dateStr, entry);
   }
-
-  const points = [...map.entries()].map(([label, value]) => ({
-    label,
-    files: value.files,
-    bytes: value.bytes,
-  }));
-
-  return points.slice(-7);
+  return [...map.entries()]
+    .map(([label, value]) => ({ label, files: value.files, bytes: value.bytes }))
+    .slice(-7);
 }
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  // Server-side guard: verify admin role before rendering anything
+  beforeLoad: async ({ context }) => {
+    const parentUser = (context as { user?: { id: string } }).user;
+    if (!parentUser?.id) throw redirect({ to: "/vault", replace: true });
+
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", parentUser.id)
+      .maybeSingle();
+
+    if (data?.role !== "admin") throw redirect({ to: "/vault", replace: true });
+  },
   head: () => ({
     meta: [
       { title: "Admin Console & Analytics — Vaultra" },
@@ -85,39 +90,28 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function AdminPage() {
   const { isAdmin, loading } = useAuth();
-  const router = useRouter();
-
-  // Hard guard: redirect anyone who is not the admin
-  useEffect(() => {
-    if (!loading && !isAdmin) {
-      void router.navigate({ to: "/vault", replace: true });
-    }
-  }, [isAdmin, loading, router]);
 
   const overview = useQuery({
     queryKey: ["vault", "admin", "overview"],
-    enabled: isAdmin, // don't even fetch unless confirmed admin
+    enabled: isAdmin,
     staleTime: 15_000,
     queryFn: async () => {
       const [{ data: files, error: filesError }, { count, error: profilesError }] = await Promise.all([
-        supabase.from("files").select("*").order("created_at", { ascending: false }),
+        supabase.from("files").select("*").order("created_at", { ascending: false }).limit(500),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
       ]);
       if (filesError) throw filesError;
       if (profilesError) throw profilesError;
       const rows = files ?? [];
 
-      const kinds = groupByKind(rows);
-      const trend = buildTrendData(rows);
-
       return {
         users: count ?? 0,
         files: rows.length,
-        publicFiles: rows.filter((row) => row.is_public).length,
-        privateFiles: rows.filter((row) => !row.is_public).length,
-        bytes: rows.reduce((total, row) => total + Number(row.size_bytes ?? 0), 0),
-        kinds,
-        trend,
+        publicFiles: rows.filter((r) => r.is_public).length,
+        privateFiles: rows.filter((r) => !r.is_public).length,
+        bytes: rows.reduce((t, r) => t + Number(r.size_bytes ?? 0), 0),
+        kinds: groupByKind(rows),
+        trend: buildTrendData(rows),
         recentFiles: rows.slice(0, 8),
       };
     },
@@ -125,7 +119,6 @@ function AdminPage() {
 
   const stats = overview.data;
 
-  // While auth state resolves, show skeleton
   if (loading) {
     return (
       <AppShell title="Admin console & analytics">
@@ -141,7 +134,6 @@ function AdminPage() {
     );
   }
 
-  // Non-admin: show access denied while redirect fires
   if (!isAdmin) {
     return (
       <AppShell title="Access denied">
@@ -175,7 +167,6 @@ function AdminPage() {
         </div>
       ) : stats ? (
         <div className="space-y-6">
-          {/* Top KPI Metrics Cards */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="glass rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between">
@@ -196,7 +187,9 @@ function AdminPage() {
                 <FileCheck2 className="size-4 text-primary opacity-80" />
               </div>
               <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">{stats.files}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">{stats.privateFiles} private · {stats.publicFiles} shared</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {stats.privateFiles} private · {stats.publicFiles} shared
+              </p>
             </div>
 
             <div className="glass rounded-2xl p-4 sm:p-5 shadow-[var(--shadow-card)]">
@@ -222,10 +215,8 @@ function AdminPage() {
             </div>
           </div>
 
-          {/* Interactive Recharts Analytics Visualization */}
           <AnalyticsCharts kinds={stats.kinds} trend={stats.trend} />
 
-          {/* Category Distribution Breakdown */}
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="glass rounded-3xl p-5 sm:p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-base font-semibold">Storage by file category</h2>
@@ -258,7 +249,6 @@ function AdminPage() {
               </ul>
             </div>
 
-            {/* Recent Upload Activity */}
             <div className="glass rounded-3xl p-5 sm:p-6 shadow-[var(--shadow-card)]">
               <h2 className="font-display text-base font-semibold">Recent upload activity</h2>
               <p className="mt-1 text-xs text-muted-foreground">
@@ -271,20 +261,17 @@ function AdminPage() {
                       <FileTypeIcon mimeType={file.mime_type} name={file.name} className="size-4 shrink-0" />
                       <div className="min-w-0">
                         <p className="font-medium truncate max-w-[160px] sm:max-w-[220px]">{file.name}</p>
-                        <p className="text-[10px] text-muted-foreground font-mono">{formatBytes(Number(file.size_bytes))}</p>
+                        <p className="text-[10px] text-muted-foreground font-mono">
+                          {formatBytes(Number(file.size_bytes))}
+                        </p>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-2 shrink-0">
                       <Badge variant={file.is_public ? "default" : "secondary"} className="text-[10px] gap-1">
                         {file.is_public ? (
-                          <>
-                            <Share2 className="size-2.5" /> Public
-                          </>
+                          <><Share2 className="size-2.5" /> Public</>
                         ) : (
-                          <>
-                            <Lock className="size-2.5" /> Private
-                          </>
+                          <><Lock className="size-2.5" /> Private</>
                         )}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground hidden xs:inline">

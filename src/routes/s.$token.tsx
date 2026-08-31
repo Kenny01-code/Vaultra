@@ -5,7 +5,7 @@ import { Download, ExternalLink, FileText, FileWarning, Loader2, Music } from "l
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/vault/Logo";
 import { fileKind, formatBytes, formatRelativeTime } from "@/lib/format";
-import { supabase } from "@/integrations/supabase/client";
+import { getSharedFile } from "@/lib/files.functions";
 
 type SharedFileData = {
   id: string;
@@ -18,7 +18,11 @@ type SharedFileData = {
 
 export const Route = createFileRoute("/s/$token")({
   loader: async ({ params }) => {
-    return { found: false as const };
+    try {
+      return await getSharedFile({ data: { token: params.token } });
+    } catch {
+      return { found: false as const };
+    }
   },
   head: ({ loaderData }) => {
     const name = loaderData && loaderData.found ? loaderData.file.name : null;
@@ -125,48 +129,8 @@ function SharedPreview({ url, mimeType, name }: { url: string; mimeType: string;
 }
 
 function SharePage() {
-  const params = Route.useParams();
   const loaderData = Route.useLoaderData();
-  const [fileData, setFileData] = useState<SharedFileData | null>(
-    loaderData?.found ? loaderData.file : null,
-  );
-  const [loadingFallback, setLoadingFallback] = useState(!loaderData?.found);
-
-  // Client-side fallback if server function couldn't resolve
-  useEffect(() => {
-    if (fileData) return;
-
-    let isMounted = true;
-    const fetchClientFallback = async () => {
-      try {
-        const { data, error } = await supabase.from("files").select("*").eq("share_token", params.token).eq("is_public", true).maybeSingle();
-        if (error) throw error;
-        if (data && isMounted) {
-          const signed = await supabase.storage.from("vault").createSignedUrl(data.storage_path, 600);
-          if (signed.error) throw signed.error;
-
-          setFileData({
-            id: data.id,
-            name: data.name,
-            mimeType: data.mime_type,
-            sizeBytes: Number(data.size_bytes),
-            createdAt: data.created_at,
-            url: signed.data.signedUrl,
-          });
-        }
-      } catch (err) {
-        console.warn("Public share link lookup failed:", err);
-      } finally {
-        if (isMounted) setLoadingFallback(false);
-      }
-    };
-
-    void fetchClientFallback();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fileData, params.token]);
+  const fileData: SharedFileData | null = loaderData?.found ? loaderData.file : null;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -182,12 +146,7 @@ function SharePage() {
       </header>
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12 pb-20">
-        {loadingFallback ? (
-          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground gap-3">
-            <Loader2 className="size-8 animate-spin text-primary" />
-            <p className="text-sm">Locating shared file…</p>
-          </div>
-        ) : !fileData ? (
+        {!fileData ? (
           <div className="glass mx-auto max-w-md rounded-3xl p-6 text-center sm:p-10 shadow-[var(--shadow-elevated)]">
             <FileWarning className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
             <h1 className="mt-4 font-display text-lg font-semibold sm:text-xl">
@@ -207,11 +166,15 @@ function SharePage() {
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                   Shared file
                 </span>
-                <h1 className="mt-2 truncate font-display text-lg font-semibold sm:text-2xl" title={fileData.name}>
+                <h1
+                  className="mt-2 truncate font-display text-lg font-semibold sm:text-2xl"
+                  title={fileData.name}
+                >
                   {fileData.name}
                 </h1>
                 <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  {formatBytes(fileData.sizeBytes)} · {fileData.mimeType || "application/octet-stream"} · Uploaded {formatRelativeTime(fileData.createdAt)}
+                  {formatBytes(fileData.sizeBytes)} · {fileData.mimeType || "application/octet-stream"} · Uploaded{" "}
+                  {formatRelativeTime(fileData.createdAt)}
                 </p>
               </div>
 

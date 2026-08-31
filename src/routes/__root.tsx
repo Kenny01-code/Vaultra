@@ -87,13 +87,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "color-scheme", content: "dark" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "Vaultra â€” Secure File Storage" },
+      { title: "Vaultra — Secure File Storage" },
       {
         name: "description",
         content:
           "Encrypted-at-rest file storage with owner-only access, quota-aware uploads and expiring share links.",
       },
-      { property: "og:title", content: "Vaultra â€” Secure File Storage" },
+      { property: "og:title", content: "Vaultra — Secure File Storage" },
       {
         property: "og:description",
         content:
@@ -103,11 +103,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      // Self-hosted fonts â€” no render-blocking Google Fonts request
       { rel: "preload", href: "/fonts/sora.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "preload", href: "/fonts/inter-tight.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
       { rel: "preload", href: "/fonts/jetbrains-mono.woff2", as: "font", type: "font/woff2", crossOrigin: "anonymous" },
-      // Firebase DNS prefetch
       { rel: "dns-prefetch", href: "https://firestore.googleapis.com" },
       { rel: "dns-prefetch", href: "https://identitytoolkit.googleapis.com" },
       { rel: "dns-prefetch", href: "https://storage.googleapis.com" },
@@ -144,7 +142,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster />
       </AuthProvider>
