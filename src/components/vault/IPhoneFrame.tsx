@@ -17,9 +17,8 @@ export function IPhoneFrame({
   const url = src ?? (typeof window !== "undefined" ? window.location.origin : "about:blank");
 
   return (
-    // Outer wrapper scales the whole device down on small screens
-    <div className={cn("relative mx-auto select-none iphone-responsive", className)}
-      {/* ── Outer titanium chassis ── */}
+    <div className={cn("relative mx-auto select-none iphone-responsive", className)} style={{ width: 320 }}>
+      {/* Outer titanium chassis */}
       <div
         className="relative rounded-[52px] p-[3px]"
         style={{
