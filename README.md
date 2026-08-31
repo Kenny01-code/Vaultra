@@ -1,6 +1,14 @@
 # Vaultra — Secure File Storage Service
 
-A production-grade encrypted file vault built with TanStack Start, Firebase, and React. Users can upload files up to 1 GB, keep them private by default, and share them via expiring signed links.
+A production-grade secure file storage and sharing service built with TanStack Start, Firebase, and React. Users can upload files up to 1 GB, keep them private by default, and share them through expiring signed links.
+
+## Live Demo
+
+https://vaultra-one.vercel.app/
+
+## Repository
+
+https://github.com/Kenny01-code/Vaultra
 
 ## Tech Stack
 
@@ -23,8 +31,8 @@ A production-grade encrypted file vault built with TanStack Start, Firebase, and
 ### 1. Clone and install
 
 ```sh
-git clone <your-repo-url>
-cd cloud-vault
+git clone https://github.com/Kenny01-code/Vaultra.git
+cd Vaultra
 npm install
 ```
 
