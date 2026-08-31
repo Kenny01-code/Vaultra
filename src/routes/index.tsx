@@ -15,7 +15,9 @@ import { HeaderAccount } from "@/components/vault/HeaderAccount";
 import { Logo } from "@/components/vault/Logo";
 import { Reveal } from "@/components/vault/Reveal";
 import { TypeLine } from "@/components/vault/TypeLine";
-import { HeroScene } from "@/components/vault/HeroScene";
+const CinematicVault = lazy(() =>
+  import("@/components/vault/CinematicVault").then((m) => ({ default: m.CinematicVault })),
+);
 
 const IPhoneFrame = lazy(() =>
   import("@/components/vault/IPhoneFrame").then((m) => ({ default: m.IPhoneFrame })),
@@ -142,9 +144,11 @@ function Index() {
             </div>
           </div>
 
-          {/* 3D Character scene — preview form card (links to /auth) */}
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-            <HeroScene />
+            {/* 3D Cinematic vault */}
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pb-10 sm:pb-16">
+            <Suspense fallback={<div className="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[36rem] animate-pulse rounded-full bg-surface-2" />}>
+              <CinematicVault />
+            </Suspense>
           </div>
         </section>
 
@@ -209,10 +213,10 @@ function Index() {
               </p>
             </Reveal>
             <Reveal delay={120} className="mt-12 flex justify-center">
-              <div className="relative">
+              <div className="relative w-full flex justify-center overflow-hidden px-4">
                 <div className="pointer-events-none absolute -inset-16 rounded-full bg-[radial-gradient(ellipse_at_50%_60%,oklch(1_0_0/0.10),transparent_65%)] blur-3xl" />
                 <Suspense fallback={
-                  <div className="rounded-[52px] bg-surface-2 animate-pulse" style={{ width: 320, height: 693 }} />
+                  <div className="rounded-[52px] bg-surface-2 animate-pulse" style={{ width: 280, height: 606 }} />
                 }>
                   <IPhoneFrame />
                 </Suspense>

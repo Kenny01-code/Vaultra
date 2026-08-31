@@ -484,6 +484,20 @@
   will-change: transform;
 }
 
+/* Responsive iPhone frame — scales down on small viewports */
+@media (max-width: 380px) {
+  .iphone-responsive {
+    transform: scale(0.78);
+    transform-origin: top center;
+  }
+}
+@media (min-width: 381px) and (max-width: 480px) {
+  .iphone-responsive {
+    transform: scale(0.88);
+    transform-origin: top center;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    VAULT GUARDIAN — HUMAN-FEELING CHARACTER ANIMATIONS
 ═══════════════════════════════════════════════════════════ */
