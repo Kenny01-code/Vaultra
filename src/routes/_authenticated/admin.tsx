@@ -24,13 +24,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const fetchAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    // Verify admin role server-side
-    let supabaseAdmin: Awaited<ReturnType<typeof import("@/integrations/supabase/client.server")>>["supabaseAdmin"];
-    try {
-      ({ supabaseAdmin } = await import("@/integrations/supabase/client.server"));
-    } catch (err) {
+    const { supabaseAdmin, isAdminClientAvailable } = await import("@/integrations/supabase/client.server");
+
+    if (!isAdminClientAvailable()) {
       throw new Error(
-        "Admin client unavailable — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your deployment environment variables.",
+        "Admin database unavailable. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your Vercel environment variables (Settings → Environment Variables), then redeploy.",
       );
     }
 
@@ -200,8 +198,19 @@ function AdminPage() {
           <Skeleton className="h-80 rounded-3xl" />
         </div>
       ) : overview.isError ? (
-        <div className="glass rounded-2xl p-6 text-center text-muted-foreground">
-          <p className="text-sm">{(overview.error as Error).message}</p>
+        <div className="glass rounded-2xl p-6 text-center">
+          <Shield className="mx-auto mb-3 size-10 text-muted-foreground opacity-40" />
+          <p className="text-sm font-semibold">Admin database not connected</p>
+          <p className="mt-2 text-xs text-muted-foreground max-w-md mx-auto">
+            {(overview.error as Error).message}
+          </p>
+          <div className="mt-4 glass rounded-xl p-4 text-left text-xs text-muted-foreground max-w-md mx-auto space-y-1">
+            <p className="font-semibold text-foreground">How to fix:</p>
+            <p>1. Go to <strong>Vercel</strong> → your project → <strong>Settings → Environment Variables</strong></p>
+            <p>2. Add <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_URL</code> — your Supabase project URL</p>
+            <p>3. Add <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> — from Supabase Dashboard → Settings → API</p>
+            <p>4. <strong>Redeploy</strong> the project</p>
+          </div>
         </div>
       ) : stats ? (
         <div className="space-y-6">

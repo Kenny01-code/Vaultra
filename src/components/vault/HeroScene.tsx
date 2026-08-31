@@ -1,102 +1,123 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, Mail } from "lucide-react";
+import { toast } from "sonner";
 import { SocialAuth } from "@/components/auth/SocialAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/vault/Logo";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { useRouter } from "@tanstack/react-router";
 
-/* ─────────────────────────────────────────────
-   PHASE TIMELINE
-   0–2.8s  : character dances alone
-   2.8–4.2s: character reaches out + form slides in
-   4.2s+   : idle loop, form stays centred
-───────────────────────────────────────────── */
+/*
+  PHASE TIMELINE
+  0 – 3.5s  : robot dances alone (human-feeling groove)
+  3.5 – 5.5s: robot reaches out, form slides in from right (1.8s natural ease)
+  5.5s+     : idle breathing, form centred
+*/
 
-export function HeroScene({ className }: { className?: string }) {
-  const [phase, setPhase] = useState<"dance" | "reach" | "idle">("dance");
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+type Phase = "dance" | "reach" | "idle";
+
+interface HeroSceneProps {
+  className?: string;
+  /** When true the form card contains a real functional auth form */
+  withAuthForm?: boolean;
+  redirectPath?: string;
+}
+
+export function HeroScene({ className, withAuthForm = false, redirectPath = "/vault" }: HeroSceneProps) {
+  const [phase, setPhase] = useState<Phase>("dance");
+  const t1 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const t2 = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    timerRef.current = setTimeout(() => setPhase("reach"), 2800);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    t1.current = setTimeout(() => setPhase("reach"), 3500);
+    return () => { if (t1.current) clearTimeout(t1.current); };
   }, []);
 
   useEffect(() => {
     if (phase !== "reach") return;
-    timerRef.current = setTimeout(() => setPhase("idle"), 1400);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    t2.current = setTimeout(() => setPhase("idle"), 1800);
+    return () => { if (t2.current) clearTimeout(t2.current); };
   }, [phase]);
+
+  const formVisible = phase !== "dance";
 
   return (
     <div
       className={cn(
-        "relative flex min-h-[520px] w-full items-center justify-center overflow-hidden sm:min-h-[600px] lg:min-h-[680px]",
+        "relative flex min-h-[540px] w-full items-center justify-center overflow-hidden sm:min-h-[620px] lg:min-h-[700px]",
         className,
       )}
-      aria-hidden="true"
+      aria-hidden={!withAuthForm}
     >
-      {/* ── Stage floor glow ── */}
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-32 w-[70%] -translate-x-1/2 rounded-[50%] blur-3xl"
-        style={{ background: "radial-gradient(ellipse at center, oklch(1 0 0 / 0.07), transparent 70%)" }} />
+      {/* Stage floor glow */}
+      <div
+        className="pointer-events-none absolute bottom-0 left-1/2 h-40 w-[80%] -translate-x-1/2 rounded-[50%] blur-3xl"
+        style={{ background: "radial-gradient(ellipse at center, oklch(1 0 0 / 0.06), transparent 70%)" }}
+      />
 
-      {/* ── Ambient particles ── */}
       <Particles />
 
-      {/* ── Character ── */}
+      {/* Robot — shifts left once form appears */}
       <div
         className="absolute"
         style={{
-          left: phase === "idle" ? "28%" : "50%",
-          bottom: "12%",
-          transform: phase === "idle" ? "translateX(-50%)" : "translateX(-50%)",
-          transition: "left 1.2s cubic-bezier(0.22,1,0.36,1)",
+          left: formVisible ? "30%" : "50%",
+          bottom: "10%",
+          transform: "translateX(-50%)",
+          transition: "left 1.8s cubic-bezier(0.34,1.2,0.64,1)",
           zIndex: 20,
         }}
       >
         <VaultGuardian phase={phase} />
       </div>
 
-      {/* ── Auth form card ── */}
-      <div
-        style={{
-          position: "absolute",
-          right: phase === "dance" ? "-120%" : phase === "reach" ? "8%" : "8%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          transition: "right 1.1s cubic-bezier(0.22,1,0.36,1)",
-          zIndex: 30,
-          width: "min(340px, 88vw)",
-          opacity: phase === "dance" ? 0 : 1,
-          transitionProperty: "right, opacity",
-          transitionDuration: "1.1s, 0.4s",
-          transitionDelay: "0s, 0.2s",
-        }}
-      >
-        <HeroFormCard />
-      </div>
-
-      {/* ── Stage shadow under character ── */}
+      {/* Ground shadow */}
       <div
         className="pointer-events-none absolute rounded-[50%] blur-xl"
         style={{
-          width: 120,
-          height: 24,
-          background: "radial-gradient(ellipse at center, oklch(0 0 0 / 0.7), transparent 70%)",
-          bottom: "9%",
-          left: phase === "idle" ? "28%" : "50%",
+          width: 130,
+          height: 26,
+          background: "radial-gradient(ellipse at center, oklch(0 0 0 / 0.65), transparent 70%)",
+          bottom: "7%",
+          left: formVisible ? "30%" : "50%",
           transform: "translateX(-50%)",
-          transition: "left 1.2s cubic-bezier(0.22,1,0.36,1)",
+          transition: "left 1.8s cubic-bezier(0.34,1.2,0.64,1)",
           zIndex: 10,
         }}
       />
+
+      {/* Form card — slides in from right */}
+      <div
+        style={{
+          position: "absolute",
+          right: formVisible ? "6%" : "-130%",
+          top: "50%",
+          transform: "translateY(-50%)",
+          transition: "right 1.8s cubic-bezier(0.34,1.2,0.64,1), opacity 0.5s ease",
+          transitionDelay: formVisible ? "0s" : "0s",
+          zIndex: 30,
+          width: "min(340px, 86vw)",
+          opacity: formVisible ? 1 : 0,
+          pointerEvents: formVisible ? "auto" : "none",
+        }}
+      >
+        {withAuthForm
+          ? <AuthFormCard redirectPath={redirectPath} />
+          : <PreviewFormCard />
+        }
+      </div>
     </div>
   );
 }
 
-/* ─── Vault Guardian character ─────────────────────────────────────────────── */
-function VaultGuardian({ phase }: { phase: "dance" | "reach" | "idle" }) {
+/* ─── Vault Guardian ──────────────────────────────────────────────────────── */
+function VaultGuardian({ phase }: { phase: Phase }) {
   const dancing = phase === "dance";
   const reaching = phase === "reach";
 
@@ -104,188 +125,194 @@ function VaultGuardian({ phase }: { phase: "dance" | "reach" | "idle" }) {
     <div
       className="relative select-none"
       style={{
-        width: 140,
-        height: 260,
-        animation: dancing ? "guardian-dance 0.9s ease-in-out infinite" : reaching ? "guardian-reach 1.2s ease-in-out forwards" : "guardian-idle 3s ease-in-out infinite",
+        width: 150,
+        height: 280,
+        animation: dancing
+          ? "guardian-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+          : reaching
+          ? "guardian-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
+          : "guardian-idle 3.2s ease-in-out infinite",
       }}
     >
-      {/* ── Body glow ── */}
-      <div className="pointer-events-none absolute inset-0 rounded-full blur-2xl"
-        style={{ background: "radial-gradient(ellipse at 50% 40%, oklch(1 0 0 / 0.18), transparent 65%)" }} />
+      {/* Body glow */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-full blur-2xl"
+        style={{ background: "radial-gradient(ellipse at 50% 38%, oklch(1 0 0 / 0.16), transparent 65%)" }}
+      />
 
-      <svg viewBox="0 0 140 260" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 size-full drop-shadow-[0_0_24px_oklch(1_0_0/0.3)]">
+      <svg
+        viewBox="0 0 150 280"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="absolute inset-0 size-full drop-shadow-[0_0_28px_oklch(1_0_0/0.28)]"
+      >
         <defs>
-          <linearGradient id="body-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="oklch(0.92 0 0)" />
-            <stop offset="1" stopColor="oklch(0.55 0 0)" />
+          <linearGradient id="vg-body" x1="0" y1="0" x2="0" y2="1">
+            <stop stopColor="oklch(0.93 0 0)" />
+            <stop offset="1" stopColor="oklch(0.52 0 0)" />
           </linearGradient>
-          <linearGradient id="visor-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop stopColor="oklch(0.98 0 0)" stopOpacity="0.9" />
-            <stop offset="1" stopColor="oklch(0.6 0 0)" stopOpacity="0.6" />
+          <linearGradient id="vg-leg" x1="0" y1="0" x2="0" y2="1">
+            <stop stopColor="oklch(0.76 0 0)" />
+            <stop offset="1" stopColor="oklch(0.33 0 0)" />
           </linearGradient>
-          <linearGradient id="leg-grad" x1="0" y1="0" x2="0" y2="1">
-            <stop stopColor="oklch(0.75 0 0)" />
-            <stop offset="1" stopColor="oklch(0.35 0 0)" />
+          <linearGradient id="vg-visor" x1="0" y1="0" x2="1" y2="1">
+            <stop stopColor="oklch(0.98 0 0)" stopOpacity="0.85" />
+            <stop offset="1" stopColor="oklch(0.55 0 0)" stopOpacity="0.5" />
           </linearGradient>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          <filter id="vg-glow">
+            <feGaussianBlur stdDeviation="2.2" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
-          <radialGradient id="eye-glow" cx="50%" cy="50%" r="50%">
-            <stop stopColor="oklch(1 0 0)" />
-            <stop offset="1" stopColor="oklch(0.7 0 0)" stopOpacity="0" />
-          </radialGradient>
         </defs>
 
         {/* ── Legs ── */}
-        {/* Left leg */}
-        <g style={{ transformOrigin: "55px 185px", animation: dancing ? "leg-l 0.9s ease-in-out infinite" : "none" }}>
-          <rect x="44" y="185" width="22" height="52" rx="11" fill="url(#leg-grad)" />
-          {/* Boot */}
-          <ellipse cx="55" cy="237" rx="16" ry="9" fill="oklch(0.28 0 0)" />
-          <ellipse cx="55" cy="235" rx="14" ry="7" fill="oklch(0.38 0 0)" />
-          {/* Boot shine */}
-          <ellipse cx="50" cy="233" rx="5" ry="2.5" fill="oklch(1 0 0 / 0.25)" />
-        </g>
-        {/* Right leg */}
-        <g style={{ transformOrigin: "85px 185px", animation: dancing ? "leg-r 0.9s ease-in-out infinite" : "none" }}>
-          <rect x="74" y="185" width="22" height="52" rx="11" fill="url(#leg-grad)" />
-          {/* Boot */}
-          <ellipse cx="85" cy="237" rx="16" ry="9" fill="oklch(0.28 0 0)" />
-          <ellipse cx="85" cy="235" rx="14" ry="7" fill="oklch(0.38 0 0)" />
-          <ellipse cx="80" cy="233" rx="5" ry="2.5" fill="oklch(1 0 0 / 0.25)" />
+        {/* Hip sway wrapper — whole lower body rocks */}
+        <g style={{ transformOrigin: "75px 195px", animation: dancing ? "hip-sway 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+          {/* Left leg */}
+          <g style={{ transformOrigin: "58px 198px", animation: dancing ? "leg-l 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+            <rect x="46" y="198" width="24" height="56" rx="12" fill="url(#vg-leg)" />
+            <ellipse cx="58" cy="254" rx="17" ry="10" fill="oklch(0.26 0 0)" />
+            <ellipse cx="58" cy="252" rx="15" ry="8" fill="oklch(0.36 0 0)" />
+            <ellipse cx="53" cy="250" rx="5" ry="2.5" fill="oklch(1 0 0 / 0.22)" />
+          </g>
+          {/* Right leg */}
+          <g style={{ transformOrigin: "92px 198px", animation: dancing ? "leg-r 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+            <rect x="80" y="198" width="24" height="56" rx="12" fill="url(#vg-leg)" />
+            <ellipse cx="92" cy="254" rx="17" ry="10" fill="oklch(0.26 0 0)" />
+            <ellipse cx="92" cy="252" rx="15" ry="8" fill="oklch(0.36 0 0)" />
+            <ellipse cx="87" cy="250" rx="5" ry="2.5" fill="oklch(1 0 0 / 0.22)" />
+          </g>
         </g>
 
         {/* ── Torso ── */}
-        <rect x="32" y="110" width="76" height="80" rx="20" fill="url(#body-grad)" />
-        {/* Chest panel */}
-        <rect x="44" y="122" width="52" height="38" rx="10" fill="oklch(0.18 0 0)" />
-        {/* Chest panel glow lines */}
-        <rect x="50" y="130" width="40" height="2" rx="1" fill="oklch(1 0 0 / 0.5)" filter="url(#glow)" />
-        <rect x="50" y="136" width="30" height="2" rx="1" fill="oklch(1 0 0 / 0.35)" />
-        <rect x="50" y="142" width="35" height="2" rx="1" fill="oklch(1 0 0 / 0.25)" />
-        {/* Vault logo on chest */}
-        <g transform="translate(60, 148) scale(0.55)" opacity="0.9">
-          <path d="M10 2 18 5.5v6c0 4.5-3 8-8 10C5 21.5 2 18 2 13.5V5.5Z" stroke="oklch(1 0 0 / 0.9)" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
-          <circle cx="10" cy="11" r="3.5" stroke="oklch(1 0 0 / 0.8)" strokeWidth="1.2" fill="none" />
-          <circle cx="10" cy="11" r="1.2" fill="oklch(1 0 0)" />
-          <path d="M10 4v2M10 16v2M4 11h2M14 11h2" stroke="oklch(1 0 0 / 0.6)" strokeWidth="1" strokeLinecap="round" />
-        </g>
-        {/* Torso side panels */}
-        <rect x="32" y="125" width="10" height="30" rx="5" fill="oklch(0.72 0 0)" />
-        <rect x="98" y="125" width="10" height="30" rx="5" fill="oklch(0.72 0 0)" />
-        {/* Belt */}
-        <rect x="32" y="182" width="76" height="10" rx="5" fill="oklch(0.22 0 0)" />
-        <rect x="62" y="183" width="16" height="8" rx="3" fill="oklch(0.55 0 0)" />
-        <rect x="65" y="185" width="10" height="4" rx="2" fill="oklch(0.8 0 0 / 0.5)" />
+        <g style={{ transformOrigin: "75px 150px", animation: dancing ? "torso-groove 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+          <rect x="34" y="118" width="82" height="84" rx="22" fill="url(#vg-body)" />
+          {/* Chest panel */}
+          <rect x="46" y="130" width="58" height="42" rx="11" fill="oklch(0.16 0 0)" />
+          {/* Scan lines */}
+          <rect x="52" y="138" width="46" height="2" rx="1" fill="oklch(1 0 0 / 0.55)" filter="url(#vg-glow)" />
+          <rect x="52" y="144" width="34" height="2" rx="1" fill="oklch(1 0 0 / 0.35)" />
+          <rect x="52" y="150" width="40" height="2" rx="1" fill="oklch(1 0 0 / 0.22)" />
+          {/* Vault logo on chest */}
+          <g transform="translate(63,156) scale(0.58)" opacity="0.92">
+            <path d="M10 2 18 5.5v6c0 4.5-3 8-8 10C5 21.5 2 18 2 13.5V5.5Z" stroke="oklch(1 0 0 / 0.9)" strokeWidth="1.5" strokeLinejoin="round" fill="none" />
+            <circle cx="10" cy="11" r="3.5" stroke="oklch(1 0 0 / 0.8)" strokeWidth="1.2" fill="none" />
+            <circle cx="10" cy="11" r="1.2" fill="oklch(1 0 0)" />
+            <path d="M10 4v2M10 16v2M4 11h2M14 11h2" stroke="oklch(1 0 0 / 0.6)" strokeWidth="1" strokeLinecap="round" />
+          </g>
+          {/* Side panels */}
+          <rect x="34" y="133" width="11" height="34" rx="5.5" fill="oklch(0.70 0 0)" />
+          <rect x="105" y="133" width="11" height="34" rx="5.5" fill="oklch(0.70 0 0)" />
+          {/* Belt */}
+          <rect x="34" y="194" width="82" height="11" rx="5.5" fill="oklch(0.20 0 0)" />
+          <rect x="65" y="195" width="20" height="9" rx="3.5" fill="oklch(0.52 0 0)" />
+          <rect x="68" y="197" width="14" height="5" rx="2.5" fill="oklch(0.78 0 0 / 0.45)" />
 
-        {/* ── Arms ── */}
-        {/* Left arm */}
-        <g style={{
-          transformOrigin: "32px 125px",
-          animation: dancing
-            ? "arm-l-dance 0.9s ease-in-out infinite"
-            : reaching
-            ? "arm-l-reach 1.2s ease-in-out forwards"
-            : "arm-idle 3s ease-in-out infinite",
-        }}>
-          <rect x="10" y="115" width="22" height="60" rx="11" fill="url(#body-grad)" />
-          {/* Elbow joint */}
-          <circle cx="21" cy="155" r="8" fill="oklch(0.65 0 0)" />
-          <circle cx="21" cy="155" r="5" fill="oklch(0.45 0 0)" />
-          {/* Hand */}
-          <ellipse cx="21" cy="175" rx="10" ry="8" fill="oklch(0.78 0 0)" />
-          <ellipse cx="21" cy="173" rx="8" ry="6" fill="oklch(0.88 0 0)" />
-          {/* Knuckle lines */}
-          <path d="M15 172 q6-3 12 0" stroke="oklch(0.6 0 0)" strokeWidth="0.8" fill="none" />
-        </g>
-        {/* Right arm */}
-        <g style={{
-          transformOrigin: "108px 125px",
-          animation: dancing
-            ? "arm-r-dance 0.9s ease-in-out infinite"
-            : reaching
-            ? "arm-r-reach 1.2s ease-in-out forwards"
-            : "arm-idle 3s ease-in-out infinite 0.4s",
-        }}>
-          <rect x="108" y="115" width="22" height="60" rx="11" fill="url(#body-grad)" />
-          <circle cx="119" cy="155" r="8" fill="oklch(0.65 0 0)" />
-          <circle cx="119" cy="155" r="5" fill="oklch(0.45 0 0)" />
-          <ellipse cx="119" cy="175" rx="10" ry="8" fill="oklch(0.78 0 0)" />
-          <ellipse cx="119" cy="173" rx="8" ry="6" fill="oklch(0.88 0 0)" />
-          <path d="M113 172 q6-3 12 0" stroke="oklch(0.6 0 0)" strokeWidth="0.8" fill="none" />
+          {/* ── Arms ── */}
+          {/* Left arm */}
+          <g style={{
+            transformOrigin: "34px 133px",
+            animation: dancing
+              ? "arm-l-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+              : reaching
+              ? "arm-l-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
+              : "arm-idle 3.2s ease-in-out infinite",
+          }}>
+            <rect x="10" y="123" width="24" height="64" rx="12" fill="url(#vg-body)" />
+            <circle cx="22" cy="167" r="9" fill="oklch(0.62 0 0)" />
+            <circle cx="22" cy="167" r="5.5" fill="oklch(0.42 0 0)" />
+            <ellipse cx="22" cy="187" rx="11" ry="9" fill="oklch(0.76 0 0)" />
+            <ellipse cx="22" cy="185" rx="9" ry="7" fill="oklch(0.86 0 0)" />
+            <path d="M16 184 q6-3 12 0" stroke="oklch(0.58 0 0)" strokeWidth="0.9" fill="none" />
+          </g>
+          {/* Right arm */}
+          <g style={{
+            transformOrigin: "116px 133px",
+            animation: dancing
+              ? "arm-r-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+              : reaching
+              ? "arm-r-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
+              : "arm-idle 3.2s ease-in-out infinite 0.5s",
+          }}>
+            <rect x="116" y="123" width="24" height="64" rx="12" fill="url(#vg-body)" />
+            <circle cx="128" cy="167" r="9" fill="oklch(0.62 0 0)" />
+            <circle cx="128" cy="167" r="5.5" fill="oklch(0.42 0 0)" />
+            <ellipse cx="128" cy="187" rx="11" ry="9" fill="oklch(0.76 0 0)" />
+            <ellipse cx="128" cy="185" rx="9" ry="7" fill="oklch(0.86 0 0)" />
+            <path d="M122 184 q6-3 12 0" stroke="oklch(0.58 0 0)" strokeWidth="0.9" fill="none" />
+          </g>
         </g>
 
         {/* ── Neck ── */}
-        <rect x="58" y="95" width="24" height="20" rx="8" fill="oklch(0.75 0 0)" />
+        <rect x="62" y="102" width="26" height="22" rx="9" fill="oklch(0.73 0 0)" />
 
         {/* ── Head ── */}
-        <rect x="28" y="42" width="84" height="62" rx="28" fill="url(#body-grad)" />
-        {/* Head shine */}
-        <ellipse cx="60" cy="52" rx="22" ry="10" fill="oklch(1 0 0 / 0.18)" />
-        {/* Visor */}
-        <rect x="36" y="58" width="68" height="28" rx="14" fill="oklch(0.08 0 0)" />
-        <rect x="38" y="60" width="64" height="24" rx="12" fill="url(#visor-grad)" opacity="0.15" />
-        {/* Visor reflection */}
-        <path d="M42 65 Q70 60 98 65" stroke="oklch(1 0 0 / 0.35)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-        {/* Eyes inside visor */}
-        <circle cx="58" cy="72" r="7" fill="oklch(0.06 0 0)" />
-        <circle cx="82" cy="72" r="7" fill="oklch(0.06 0 0)" />
-        {/* Eye glow */}
-        <circle cx="58" cy="72" r="4.5" fill="oklch(0.95 0 0)" filter="url(#glow)"
-          style={{ animation: "eye-blink 4s ease-in-out infinite" }} />
-        <circle cx="82" cy="72" r="4.5" fill="oklch(0.95 0 0)" filter="url(#glow)"
-          style={{ animation: "eye-blink 4s ease-in-out infinite 0.15s" }} />
-        {/* Eye pupils */}
-        <circle cx="59" cy="71" r="1.8" fill="oklch(0.1 0 0)" />
-        <circle cx="83" cy="71" r="1.8" fill="oklch(0.1 0 0)" />
-        {/* Eye specular */}
-        <circle cx="60" cy="70" r="0.8" fill="oklch(1 0 0 / 0.9)" />
-        <circle cx="84" cy="70" r="0.8" fill="oklch(1 0 0 / 0.9)" />
-        {/* Antenna */}
-        <rect x="67" y="28" width="6" height="18" rx="3" fill="oklch(0.65 0 0)" />
-        <circle cx="70" cy="26" r="5" fill="oklch(0.85 0 0)" />
-        <circle cx="70" cy="26" r="3" fill="oklch(1 0 0)"
-          style={{ animation: "tick-glow 1.8s ease-in-out infinite", filter: "drop-shadow(0 0 4px oklch(1 0 0 / 0.9))" }} />
-        {/* Ear panels */}
-        <rect x="18" y="60" width="12" height="22" rx="6" fill="oklch(0.68 0 0)" />
-        <rect x="110" y="60" width="12" height="22" rx="6" fill="oklch(0.68 0 0)" />
-        <rect x="20" y="65" width="8" height="3" rx="1.5" fill="oklch(0.45 0 0)" />
-        <rect x="112" y="65" width="8" height="3" rx="1.5" fill="oklch(0.45 0 0)" />
-        <rect x="20" y="71" width="8" height="3" rx="1.5" fill="oklch(0.45 0 0)" />
-        <rect x="112" y="71" width="8" height="3" rx="1.5" fill="oklch(0.45 0 0)" />
+        <g style={{ transformOrigin: "75px 72px", animation: dancing ? "head-bob 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+          <rect x="30" y="44" width="90" height="66" rx="30" fill="url(#vg-body)" />
+          {/* Head shine */}
+          <ellipse cx="64" cy="55" rx="24" ry="11" fill="oklch(1 0 0 / 0.16)" />
+          {/* Visor */}
+          <rect x="38" y="62" width="74" height="30" rx="15" fill="oklch(0.07 0 0)" />
+          <rect x="40" y="64" width="70" height="26" rx="13" fill="url(#vg-visor)" opacity="0.14" />
+          <path d="M44 69 Q75 63 106 69" stroke="oklch(1 0 0 / 0.32)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          {/* Eyes */}
+          <circle cx="60" cy="77" r="7.5" fill="oklch(0.05 0 0)" />
+          <circle cx="90" cy="77" r="7.5" fill="oklch(0.05 0 0)" />
+          <circle cx="60" cy="77" r="5" fill="oklch(0.94 0 0)" filter="url(#vg-glow)"
+            style={{ animation: "eye-blink 4.5s ease-in-out infinite" }} />
+          <circle cx="90" cy="77" r="5" fill="oklch(0.94 0 0)" filter="url(#vg-glow)"
+            style={{ animation: "eye-blink 4.5s ease-in-out infinite 0.18s" }} />
+          <circle cx="61" cy="76" r="2" fill="oklch(0.08 0 0)" />
+          <circle cx="91" cy="76" r="2" fill="oklch(0.08 0 0)" />
+          <circle cx="62" cy="75" r="0.9" fill="oklch(1 0 0 / 0.88)" />
+          <circle cx="92" cy="75" r="0.9" fill="oklch(1 0 0 / 0.88)" />
+          {/* Antenna */}
+          <rect x="72" y="28" width="6" height="20" rx="3" fill="oklch(0.62 0 0)" />
+          <circle cx="75" cy="26" r="5.5" fill="oklch(0.83 0 0)" />
+          <circle cx="75" cy="26" r="3.2" fill="oklch(1 0 0)"
+            style={{ animation: "tick-glow 2s ease-in-out infinite", filter: "drop-shadow(0 0 5px oklch(1 0 0 / 0.9))" }} />
+          {/* Ear vents */}
+          <rect x="19" y="63" width="13" height="24" rx="6.5" fill="oklch(0.66 0 0)" />
+          <rect x="118" y="63" width="13" height="24" rx="6.5" fill="oklch(0.66 0 0)" />
+          <rect x="21" y="68" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+          <rect x="120" y="68" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+          <rect x="21" y="74" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+          <rect x="120" y="74" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+          <rect x="21" y="80" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+          <rect x="120" y="80" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
+        </g>
       </svg>
     </div>
   );
 }
 
-/* ─── Floating particles ────────────────────────────────────────────────────── */
+/* ─── Particles ───────────────────────────────────────────────────────────── */
 function Particles() {
-  const particles = [
-    { x: "15%", y: "20%", size: 3, delay: "0s", dur: "6s" },
-    { x: "80%", y: "15%", size: 2, delay: "1s", dur: "8s" },
-    { x: "65%", y: "70%", size: 4, delay: "2s", dur: "7s" },
-    { x: "25%", y: "75%", size: 2, delay: "0.5s", dur: "9s" },
-    { x: "90%", y: "50%", size: 3, delay: "3s", dur: "6.5s" },
-    { x: "10%", y: "50%", size: 2, delay: "1.5s", dur: "7.5s" },
-    { x: "50%", y: "10%", size: 2, delay: "2.5s", dur: "8.5s" },
-    { x: "40%", y: "85%", size: 3, delay: "0.8s", dur: "7s" },
+  const pts = [
+    { x: "12%", y: "18%", s: 3, d: "0s",   dur: "6.2s" },
+    { x: "82%", y: "14%", s: 2, d: "1.1s", dur: "8.4s" },
+    { x: "68%", y: "72%", s: 4, d: "2.2s", dur: "7.1s" },
+    { x: "22%", y: "78%", s: 2, d: "0.6s", dur: "9.3s" },
+    { x: "91%", y: "52%", s: 3, d: "3.1s", dur: "6.8s" },
+    { x: "8%",  y: "54%", s: 2, d: "1.7s", dur: "7.9s" },
+    { x: "52%", y: "8%",  s: 2, d: "2.8s", dur: "8.8s" },
+    { x: "38%", y: "88%", s: 3, d: "0.9s", dur: "7.3s" },
+    { x: "74%", y: "38%", s: 2, d: "4.0s", dur: "6.5s" },
+    { x: "28%", y: "42%", s: 2, d: "1.4s", dur: "9.1s" },
   ];
   return (
     <>
-      {particles.map((p, i) => (
+      {pts.map((p, i) => (
         <div
           key={i}
           className="pointer-events-none absolute rounded-full"
           style={{
-            left: p.x,
-            top: p.y,
-            width: p.size,
-            height: p.size,
-            background: "oklch(1 0 0 / 0.5)",
-            boxShadow: "0 0 6px oklch(1 0 0 / 0.6)",
+            left: p.x, top: p.y,
+            width: p.s, height: p.s,
+            background: "oklch(1 0 0 / 0.45)",
+            boxShadow: "0 0 7px oklch(1 0 0 / 0.55)",
             animation: `float ${p.dur} ease-in-out infinite`,
-            animationDelay: p.delay,
+            animationDelay: p.d,
           }}
         />
       ))}
@@ -293,39 +320,142 @@ function Particles() {
   );
 }
 
-/* ─── Auth form card ────────────────────────────────────────────────────────── */
-function HeroFormCard() {
+/* ─── Preview form card (homepage — links to /auth) ──────────────────────── */
+function PreviewFormCard() {
   return (
     <div
       className="glass-strong rounded-3xl p-5 shadow-[var(--shadow-elevated)]"
-      style={{ border: "1px solid oklch(1 0 0 / 0.18)" }}
+      style={{ border: "1px solid oklch(1 0 0 / 0.16)" }}
+    >
+      <div className="mb-4 flex flex-col items-center gap-2 text-center">
+        <Logo />
+        <p className="text-xs text-muted-foreground">Your files, locked to you.</p>
+      </div>
+      <SocialAuth />
+      <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" />
+      </div>
+      <div className="space-y-2">
+        <Button asChild variant="hero" className="w-full gap-2">
+          <Link to="/auth">Sign in with email <ArrowRight className="size-3.5" /></Link>
+        </Button>
+        <Button asChild variant="glass" className="w-full">
+          <Link to="/auth">Create account</Link>
+        </Button>
+      </div>
+      <p className="mt-3 text-center text-[10px] text-muted-foreground">
+        5 GB free · No credit card · AES-256 at rest
+      </p>
+    </div>
+  );
+}
+
+/* ─── Real auth form card (auth page) ────────────────────────────────────── */
+function AuthFormCard({ redirectPath }: { redirectPath: string }) {
+  const router = useRouter();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) { toast.error("Enter your email."); return; }
+    if (!password) { toast.error("Enter your password."); return; }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
+      toast.success("Welcome back!");
+      await router.navigate({ to: redirectPath });
+    } catch (err) { toast.error(getAuthErrorMessage(err)); }
+    finally { setBusy(false); }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) { toast.error("Enter your email."); return; }
+    if (password.length < 6) { toast.error("Password must be at least 6 characters."); return; }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(), password,
+        options: { data: { full_name: fullName.trim() || undefined } },
+      });
+      if (error) throw error;
+      toast.success("Account created!");
+      await router.navigate({ to: redirectPath });
+    } catch (err) { toast.error(getAuthErrorMessage(err)); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div
+      className="glass-strong rounded-3xl p-5 shadow-[var(--shadow-elevated)]"
+      style={{ border: "1px solid oklch(1 0 0 / 0.16)" }}
+      aria-hidden="false"
     >
       <div className="mb-4 flex flex-col items-center gap-2 text-center">
         <Logo />
         <p className="text-xs text-muted-foreground">Your files, locked to you.</p>
       </div>
 
-      <SocialAuth />
+      <SocialAuth redirectPath={redirectPath} />
 
       <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted-foreground">
-        <span className="h-px flex-1 bg-border" />
-        or
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-border" />or email<span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="space-y-2">
-        <Button asChild variant="hero" className="w-full gap-2">
-          <Link to="/auth">
-            Sign in with email <ArrowRight className="size-3.5" />
-          </Link>
+      {/* Single form — toggled by mode */}
+      <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-3">
+        {mode === "signup" && (
+          <div className="space-y-1">
+            <Label htmlFor="ac-name" className="text-xs">Full name</Label>
+            <Input id="ac-name" type="text" autoComplete="name" placeholder="Jane Doe"
+              value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-9 text-sm" />
+          </div>
+        )}
+        <div className="space-y-1">
+          <Label htmlFor="ac-email" className="text-xs">Email</Label>
+          <Input id="ac-email" type="email" required autoComplete="email" placeholder="name@example.com"
+            value={email} onChange={(e) => setEmail(e.target.value)} className="h-9 text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="ac-pw" className="text-xs">Password</Label>
+          <div className="relative">
+            <Input id="ac-pw" type={showPw ? "text" : "password"} required
+              autoComplete={mode === "signin" ? "current-password" : "new-password"}
+              value={password} onChange={(e) => setPassword(e.target.value)}
+              className="h-9 pr-9 text-sm" />
+            <button type="button" tabIndex={-1} onClick={() => setShowPw((p) => !p)}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              {showPw ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
+            </button>
+          </div>
+          {mode === "signup" && (
+            <p className="text-[10px] text-muted-foreground">Minimum 6 characters.</p>
+          )}
+        </div>
+        <Button type="submit" variant="hero" className="w-full gap-2 h-9" disabled={busy}>
+          {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Mail className="size-3.5" />}
+          {mode === "signin" ? "Sign in" : "Create account"}
         </Button>
-        <Button asChild variant="glass" className="w-full">
-          <Link to="/auth">Create account</Link>
-        </Button>
-      </div>
+      </form>
 
       <p className="mt-3 text-center text-[10px] text-muted-foreground">
-        5 GB free · No credit card · AES-256 at rest
+        {mode === "signin" ? (
+          <>No account?{" "}
+            <button type="button" onClick={() => setMode("signup")}
+              className="text-foreground underline-offset-2 hover:underline">Create one</button>
+          </>
+        ) : (
+          <>Already have an account?{" "}
+            <button type="button" onClick={() => setMode("signin")}
+              className="text-foreground underline-offset-2 hover:underline">Sign in</button>
+          </>
+        )}
       </p>
     </div>
   );

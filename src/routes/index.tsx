@@ -15,6 +15,7 @@ import { HeaderAccount } from "@/components/vault/HeaderAccount";
 import { Logo } from "@/components/vault/Logo";
 import { Reveal } from "@/components/vault/Reveal";
 import { TypeLine } from "@/components/vault/TypeLine";
+import { HeroScene } from "@/components/vault/HeroScene";
 
 const IPhoneFrame = lazy(() =>
   import("@/components/vault/IPhoneFrame").then((m) => ({ default: m.IPhoneFrame })),
@@ -87,12 +88,15 @@ function Index() {
       </header>
 
       <main>
-        {/* ── Hero ── */}
-        <section className="relative overflow-hidden py-20 sm:py-28 md:py-36">
+        {/* ══════════════════════════════════════════════════════
+            HERO — 3D animated guardian + cinematic form drag
+        ══════════════════════════════════════════════════════ */}
+        <section className="relative overflow-hidden">
           <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]" aria-hidden="true" />
           <div className="bg-aurora pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
 
-          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+          {/* Headline copy */}
+          <div className="relative mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14 lg:pt-16">
             <div className="stagger mx-auto max-w-2xl text-center">
               <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
                 <ShieldCheck className="size-3.5" aria-hidden="true" />
@@ -110,6 +114,7 @@ function Index() {
                 expiring links only when you decide to.
               </p>
 
+              {/* Stats row */}
               <dl className="mt-6 flex flex-wrap justify-center gap-6 sm:gap-10">
                 {[
                   ["5 GB", "free per account"],
@@ -123,7 +128,8 @@ function Index() {
                 ))}
               </dl>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              {/* Mobile CTA — shown below headline on small screens */}
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center lg:hidden">
                 <Button asChild variant="hero" size="lg" className="w-full gap-2 sm:w-auto">
                   <Link to="/auth">
                     Create your vault <ArrowRight className="size-4" aria-hidden="true" />
@@ -134,6 +140,11 @@ function Index() {
                 </Button>
               </div>
             </div>
+          </div>
+
+          {/* 3D Character scene — preview form card (links to /auth) */}
+          <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <HeroScene />
           </div>
         </section>
 
