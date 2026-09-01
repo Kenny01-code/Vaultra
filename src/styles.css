@@ -499,142 +499,268 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   VAULT GUARDIAN — HUMAN-FEELING CHARACTER ANIMATIONS
+   VAULT GUARDIAN — MJ-LEVEL CHARACTER ANIMATIONS
+   Emote cycle: groove(0-4s) moonwalk(4-8s) spin(8-10s) dip(10-13s) groove(13s+)
 ═══════════════════════════════════════════════════════════ */
 
-/*
-  Full-body groove: weight shifts side-to-side like a real dancer.
-  The body dips on the beat, leans into each step, slight squash/stretch.
-*/
-@keyframes guardian-dance {
-  0%   { transform: translateY(0px)   rotate(-2deg)  scaleX(1)    scaleY(1);    }
-  12%  { transform: translateY(-6px)  rotate(-3deg)  scaleX(0.98) scaleY(1.02); }
-  25%  { transform: translateY(-20px) rotate(2.5deg) scaleX(0.96) scaleY(1.04); }
-  38%  { transform: translateY(-10px) rotate(3deg)   scaleX(0.99) scaleY(1.01); }
-  50%  { transform: translateY(-4px)  rotate(-1.5deg) scaleX(1.02) scaleY(0.99); }
-  62%  { transform: translateY(-8px)  rotate(-3.5deg) scaleX(0.97) scaleY(1.03); }
-  75%  { transform: translateY(-24px) rotate(3deg)   scaleX(0.95) scaleY(1.05); }
-  88%  { transform: translateY(-12px) rotate(2deg)   scaleX(0.98) scaleY(1.02); }
-  100% { transform: translateY(0px)   rotate(-2deg)  scaleX(1)    scaleY(1);    }
+/* GROOVE — weight-shifted side-to-side funk */
+@keyframes guardian-groove {
+  0%   { transform: translateY(0px)    rotate(-2deg)  scaleX(1)    scaleY(1);    }
+  10%  { transform: translateY(-8px)   rotate(-3.5deg) scaleX(0.97) scaleY(1.03); }
+  25%  { transform: translateY(-22px)  rotate(3deg)   scaleX(0.95) scaleY(1.05); }
+  40%  { transform: translateY(-10px)  rotate(3.5deg) scaleX(0.98) scaleY(1.02); }
+  50%  { transform: translateY(-3px)   rotate(-1deg)  scaleX(1.02) scaleY(0.98); }
+  65%  { transform: translateY(-9px)   rotate(-4deg)  scaleX(0.96) scaleY(1.04); }
+  78%  { transform: translateY(-26px)  rotate(3.5deg) scaleX(0.94) scaleY(1.06); }
+  90%  { transform: translateY(-13px)  rotate(2deg)   scaleX(0.97) scaleY(1.03); }
+  100% { transform: translateY(0px)    rotate(-2deg)  scaleX(1)    scaleY(1);    }
 }
 
-/* Torso counter-rotates to the hips for that human twist */
+/* MOONWALK — glides backward, leans forward, one heel up */
+@keyframes guardian-moonwalk {
+  0%   { transform: translateX(0px)   rotate(-8deg) scaleX(1);    }
+  15%  { transform: translateX(-12px) rotate(-9deg) scaleX(0.98); }
+  30%  { transform: translateX(-26px) rotate(-7deg) scaleX(1.01); }
+  45%  { transform: translateX(-38px) rotate(-9deg) scaleX(0.98); }
+  60%  { transform: translateX(-48px) rotate(-7deg) scaleX(1.01); }
+  75%  { transform: translateX(-36px) rotate(-8deg) scaleX(0.99); }
+  88%  { transform: translateX(-18px) rotate(-8deg) scaleX(1);    }
+  100% { transform: translateX(0px)   rotate(-8deg) scaleX(1);    }
+}
+
+/* SPIN — full 360 with lean */
+@keyframes guardian-spin {
+  0%   { transform: rotate(0deg)   scaleX(1);    }
+  25%  { transform: rotate(90deg)  scaleX(0.85); }
+  50%  { transform: rotate(180deg) scaleX(1);    }
+  75%  { transform: rotate(270deg) scaleX(0.85); }
+  100% { transform: rotate(360deg) scaleX(1);    }
+}
+
+/* DIP — dramatic lean-back then snap up */
+@keyframes guardian-dip {
+  0%   { transform: translateY(0px)  rotate(0deg);   }
+  20%  { transform: translateY(8px)  rotate(12deg);  }
+  40%  { transform: translateY(18px) rotate(28deg);  }
+  55%  { transform: translateY(22px) rotate(32deg);  }
+  70%  { transform: translateY(10px) rotate(18deg);  }
+  85%  { transform: translateY(-8px) rotate(-4deg);  }
+  100% { transform: translateY(0px)  rotate(0deg);   }
+}
+
+/* Torso counter-twist — human upper-body isolation */
 @keyframes torso-groove {
+  0%   { transform: rotate(2deg)   translateY(0px);  }
+  25%  { transform: rotate(-3deg)  translateY(-4px); }
+  50%  { transform: rotate(1.5deg) translateY(0px);  }
+  75%  { transform: rotate(-2.5deg) translateY(-5px); }
+  100% { transform: rotate(2deg)   translateY(0px);  }
+}
+@keyframes torso-moonwalk {
+  0%, 100% { transform: rotate(-12deg) translateY(4px);  }
+  50%       { transform: rotate(-10deg) translateY(6px);  }
+}
+@keyframes torso-spin {
+  0%   { transform: rotate(0deg);   }
+  100% { transform: rotate(360deg); }
+}
+@keyframes torso-dip {
+  0%   { transform: rotate(0deg)   translateY(0px);  }
+  40%  { transform: rotate(-20deg) translateY(10px); }
+  55%  { transform: rotate(-24deg) translateY(14px); }
+  85%  { transform: rotate(5deg)   translateY(-4px); }
+  100% { transform: rotate(0deg)   translateY(0px);  }
+}
+
+/* Hip sway */
+@keyframes hip-sway {
+  0%   { transform: rotate(-2deg) translateX(0px);  }
+  25%  { transform: rotate(4deg)  translateX(5px);  }
+  50%  { transform: rotate(-1deg) translateX(0px);  }
+  75%  { transform: rotate(4.5deg) translateX(-5px); }
+  100% { transform: rotate(-2deg) translateX(0px);  }
+}
+@keyframes hip-moonwalk {
+  0%   { transform: rotate(6deg)  translateX(0px);  }
+  30%  { transform: rotate(8deg)  translateX(-4px); }
+  60%  { transform: rotate(5deg)  translateX(-8px); }
+  100% { transform: rotate(6deg)  translateX(0px);  }
+}
+
+/* Head bob */
+@keyframes head-bob {
   0%   { transform: rotate(1.5deg)  translateY(0px);  }
-  25%  { transform: rotate(-2.5deg) translateY(-3px); }
-  50%  { transform: rotate(1deg)    translateY(0px);  }
-  75%  { transform: rotate(-2deg)   translateY(-4px); }
+  20%  { transform: rotate(-2deg)   translateY(-5px); }
+  40%  { transform: rotate(2.5deg)  translateY(-2px); }
+  60%  { transform: rotate(-1.5deg) translateY(-6px); }
+  80%  { transform: rotate(2deg)    translateY(-3px); }
   100% { transform: rotate(1.5deg)  translateY(0px);  }
 }
-
-/* Hip sway — lower body rocks opposite to torso */
-@keyframes hip-sway {
-  0%   { transform: rotate(-1.5deg) translateX(0px);  }
-  25%  { transform: rotate(3deg)    translateX(4px);  }
-  50%  { transform: rotate(-1deg)   translateX(0px);  }
-  75%  { transform: rotate(3.5deg)  translateX(-4px); }
-  100% { transform: rotate(-1.5deg) translateX(0px);  }
+@keyframes head-moonwalk {
+  0%, 100% { transform: rotate(-6deg) translateY(2px);  }
+  50%       { transform: rotate(-4deg) translateY(0px);  }
+}
+@keyframes head-dip {
+  0%   { transform: rotate(0deg)   translateY(0px);   }
+  40%  { transform: rotate(-18deg) translateY(8px);   }
+  55%  { transform: rotate(-22deg) translateY(12px);  }
+  85%  { transform: rotate(6deg)   translateY(-6px);  }
+  100% { transform: rotate(0deg)   translateY(0px);   }
 }
 
-/* Head bobs with slight lag — feels alive */
-@keyframes head-bob {
-  0%   { transform: rotate(1deg)   translateY(0px);  }
-  20%  { transform: rotate(-1.5deg) translateY(-4px); }
-  40%  { transform: rotate(2deg)   translateY(-2px); }
-  60%  { transform: rotate(-1deg)  translateY(-5px); }
-  80%  { transform: rotate(1.5deg) translateY(-2px); }
-  100% { transform: rotate(1deg)   translateY(0px);  }
+/* Moonwalk legs — heel-toe glide */
+@keyframes leg-l-moonwalk {
+  0%   { transform: rotate(0deg)   translateY(0px);  }
+  25%  { transform: rotate(-18deg) translateY(-6px); }
+  50%  { transform: rotate(0deg)   translateY(0px);  }
+  75%  { transform: rotate(8deg)   translateY(2px);  }
+  100% { transform: rotate(0deg)   translateY(0px);  }
+}
+@keyframes leg-r-moonwalk {
+  0%   { transform: rotate(0deg)  translateY(0px);  }
+  25%  { transform: rotate(10deg) translateY(2px);  }
+  50%  { transform: rotate(0deg)  translateY(0px);  }
+  75%  { transform: rotate(-16deg) translateY(-5px); }
+  100% { transform: rotate(0deg)  translateY(0px);  }
 }
 
-/* Left leg — steps forward on the beat */
+/* Groove legs */
 @keyframes leg-l {
   0%   { transform: rotate(0deg);   }
-  20%  { transform: rotate(-22deg); }
-  45%  { transform: rotate(14deg);  }
-  70%  { transform: rotate(-8deg);  }
+  20%  { transform: rotate(-26deg); }
+  45%  { transform: rotate(16deg);  }
+  70%  { transform: rotate(-10deg); }
+  100% { transform: rotate(0deg);   }
+}
+@keyframes leg-r {
+  0%   { transform: rotate(0deg);   }
+  20%  { transform: rotate(18deg);  }
+  45%  { transform: rotate(-24deg); }
+  70%  { transform: rotate(12deg);  }
   100% { transform: rotate(0deg);   }
 }
 
-/* Right leg — offset half-beat */
-@keyframes leg-r {
+/* Dip legs — wide stance */
+@keyframes leg-l-dip {
+  0%   { transform: rotate(0deg);   }
+  40%  { transform: rotate(-32deg); }
+  55%  { transform: rotate(-36deg); }
+  85%  { transform: rotate(8deg);   }
+  100% { transform: rotate(0deg);   }
+}
+@keyframes leg-r-dip {
   0%   { transform: rotate(0deg);  }
-  20%  { transform: rotate(16deg); }
-  45%  { transform: rotate(-20deg); }
-  70%  { transform: rotate(10deg); }
+  40%  { transform: rotate(28deg); }
+  55%  { transform: rotate(32deg); }
+  85%  { transform: rotate(-6deg); }
   100% { transform: rotate(0deg);  }
 }
 
-/* Left arm — big expressive swing, shoulder-led */
+/* Groove arms */
 @keyframes arm-l-dance {
   0%   { transform: rotate(5deg);   }
-  20%  { transform: rotate(38deg);  }
-  45%  { transform: rotate(-5deg);  }
-  65%  { transform: rotate(-22deg); }
-  85%  { transform: rotate(12deg);  }
+  20%  { transform: rotate(42deg);  }
+  45%  { transform: rotate(-8deg);  }
+  65%  { transform: rotate(-26deg); }
+  85%  { transform: rotate(14deg);  }
   100% { transform: rotate(5deg);   }
 }
-
-/* Right arm — opposite phase */
 @keyframes arm-r-dance {
   0%   { transform: rotate(-5deg);  }
-  20%  { transform: rotate(-32deg); }
-  45%  { transform: rotate(8deg);   }
-  65%  { transform: rotate(26deg);  }
-  85%  { transform: rotate(-10deg); }
+  20%  { transform: rotate(-36deg); }
+  45%  { transform: rotate(10deg);  }
+  65%  { transform: rotate(30deg);  }
+  85%  { transform: rotate(-12deg); }
   100% { transform: rotate(-5deg);  }
 }
 
-/* Reach-out lunge — robot leans toward the form card */
+/* Moonwalk arms — pumping for balance */
+@keyframes arm-l-moonwalk {
+  0%   { transform: rotate(-20deg); }
+  50%  { transform: rotate(20deg);  }
+  100% { transform: rotate(-20deg); }
+}
+@keyframes arm-r-moonwalk {
+  0%   { transform: rotate(20deg);  }
+  50%  { transform: rotate(-20deg); }
+  100% { transform: rotate(20deg);  }
+}
+
+/* Spin arms — flung out */
+@keyframes arm-l-spin {
+  0%   { transform: rotate(-50deg); }
+  50%  { transform: rotate(-55deg); }
+  100% { transform: rotate(-50deg); }
+}
+@keyframes arm-r-spin {
+  0%   { transform: rotate(50deg);  }
+  50%  { transform: rotate(55deg);  }
+  100% { transform: rotate(50deg);  }
+}
+
+/* Dip arms — one up one down */
+@keyframes arm-l-dip {
+  0%   { transform: rotate(0deg);   }
+  40%  { transform: rotate(-70deg); }
+  55%  { transform: rotate(-75deg); }
+  85%  { transform: rotate(10deg);  }
+  100% { transform: rotate(0deg);   }
+}
+@keyframes arm-r-dip {
+  0%   { transform: rotate(0deg);  }
+  40%  { transform: rotate(65deg); }
+  55%  { transform: rotate(70deg); }
+  85%  { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg);  }
+}
+
+/* Reach-out lunge */
 @keyframes guardian-reach {
-  0%   { transform: translateY(0px)   rotate(0deg)   translateX(0px);  }
-  30%  { transform: translateY(-12px) rotate(-5deg)  translateX(14px); }
-  60%  { transform: translateY(-8px)  rotate(-9deg)  translateX(26px); }
-  80%  { transform: translateY(-4px)  rotate(-7deg)  translateX(22px); }
-  100% { transform: translateY(0px)   rotate(-5deg)  translateX(18px); }
+  0%   { transform: translateY(0px)   rotate(0deg)  translateX(0px);  }
+  30%  { transform: translateY(-14px) rotate(-6deg) translateX(16px); }
+  60%  { transform: translateY(-10px) rotate(-10deg) translateX(28px); }
+  80%  { transform: translateY(-5px)  rotate(-8deg) translateX(24px); }
+  100% { transform: translateY(0px)   rotate(-6deg) translateX(20px); }
 }
-
-/* Left arm reaches out toward form */
 @keyframes arm-l-reach {
-  0%   { transform: rotate(5deg);                        }
-  40%  { transform: rotate(-62deg) translateY(-10px);    }
-  70%  { transform: rotate(-52deg) translateY(-6px);     }
-  100% { transform: rotate(-48deg) translateY(-4px);     }
+  0%   { transform: rotate(5deg);                     }
+  40%  { transform: rotate(-65deg) translateY(-12px); }
+  70%  { transform: rotate(-55deg) translateY(-7px);  }
+  100% { transform: rotate(-50deg) translateY(-5px);  }
 }
-
-/* Right arm reaches out toward form */
 @keyframes arm-r-reach {
-  0%   { transform: rotate(-5deg);                       }
-  40%  { transform: rotate(68deg)  translateY(-10px);    }
-  70%  { transform: rotate(56deg)  translateY(-6px);     }
-  100% { transform: rotate(52deg)  translateY(-4px);     }
+  0%   { transform: rotate(-5deg);                    }
+  40%  { transform: rotate(70deg)  translateY(-12px); }
+  70%  { transform: rotate(58deg)  translateY(-7px);  }
+  100% { transform: rotate(54deg)  translateY(-5px);  }
 }
 
-/* Idle breathing — gentle float */
+/* Idle breathing */
 @keyframes guardian-idle {
-  0%, 100% { transform: translateY(0px)   rotate(-0.8deg); }
-  50%       { transform: translateY(-9px)  rotate(0.8deg);  }
+  0%, 100% { transform: translateY(0px)  rotate(-0.8deg); }
+  50%       { transform: translateY(-9px) rotate(0.8deg);  }
 }
-
-/* Idle arm sway */
 @keyframes arm-idle {
-  0%, 100% { transform: rotate(0deg);   }
-  50%       { transform: rotate(7deg);  }
+  0%, 100% { transform: rotate(0deg); }
+  50%       { transform: rotate(7deg); }
 }
 
-/* Eye blink — quick, natural */
+/* Eye blink */
 @keyframes eye-blink {
   0%, 88%, 100% { transform: scaleY(1);    }
-  93%            { transform: scaleY(0.06); }
+  93%            { transform: scaleY(0.05); }
 }
 
-/* Form card slide-in from right */
-@keyframes form-slide-in {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(60px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
+/* Form card entrance — floats up with spring */
+@keyframes form-enter {
+  0%   { opacity: 0; transform: translateY(32px) scale(0.94); }
+  60%  { opacity: 1; transform: translateY(-4px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0px)  scale(1);    }
+}
+
+/* Input focus shimmer */
+@keyframes input-focus-glow {
+  0%   { box-shadow: 0 0 0 0 oklch(1 0 0 / 0); }
+  50%  { box-shadow: 0 0 0 3px oklch(1 0 0 / 0.12); }
+  100% { box-shadow: 0 0 0 2px oklch(1 0 0 / 0.08); }
 }

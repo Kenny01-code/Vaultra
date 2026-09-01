@@ -21,21 +21,36 @@ import { useRouter } from "@tanstack/react-router";
 */
 
 type Phase = "dance" | "reach" | "idle";
+type Emote = "groove" | "moonwalk" | "spin" | "dip";
+const EMOTES: Emote[] = ["groove", "moonwalk", "spin", "dip"];
+const EMOTE_MS: Record<Emote, number> = { groove: 4000, moonwalk: 4000, spin: 2200, dip: 3200 };
 
 interface HeroSceneProps {
   className?: string;
-  /** When true the form card contains a real functional auth form */
   withAuthForm?: boolean;
   redirectPath?: string;
 }
 
 export function HeroScene({ className, withAuthForm = false, redirectPath = "/vault" }: HeroSceneProps) {
   const [phase, setPhase] = useState<Phase>("dance");
+  const [emote, setEmote] = useState<Emote>("groove");
+  const [emoteIdx, setEmoteIdx] = useState(0);
   const t1 = useRef<ReturnType<typeof setTimeout> | null>(null);
   const t2 = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const te = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Cycle emotes while dancing
   useEffect(() => {
-    t1.current = setTimeout(() => setPhase("reach"), 3500);
+    if (phase !== "dance") return;
+    const e = EMOTES[emoteIdx % EMOTES.length];
+    setEmote(e);
+    te.current = setTimeout(() => setEmoteIdx(i => i + 1), EMOTE_MS[e]);
+    return () => { if (te.current) clearTimeout(te.current); };
+  }, [phase, emoteIdx]);
+
+  // After full emote cycle (~13s) trigger reach
+  useEffect(() => {
+    t1.current = setTimeout(() => setPhase("reach"), 13400);
     return () => { if (t1.current) clearTimeout(t1.current); };
   }, []);
 
@@ -64,45 +79,38 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
       <Particles />
 
       {/* Robot — shifts left once form appears */}
-      <div
-        className="absolute"
-        style={{
-          left: formVisible ? "30%" : "50%",
+      <div className="absolute" style={{
+          left: formVisible ? "28%" : "50%",
           bottom: "10%",
           transform: "translateX(-50%)",
           transition: "left 1.8s cubic-bezier(0.34,1.2,0.64,1)",
           zIndex: 20,
         }}
       >
-        <VaultGuardian phase={phase} />
+        <VaultGuardian phase={phase} emote={emote} />
       </div>
 
       {/* Ground shadow */}
-      <div
-        className="pointer-events-none absolute rounded-[50%] blur-xl"
-        style={{
-          width: 130,
-          height: 26,
+      <div className="pointer-events-none absolute rounded-[50%] blur-xl" style={{
+          width: 130, height: 26,
           background: "radial-gradient(ellipse at center, oklch(0 0 0 / 0.65), transparent 70%)",
           bottom: "7%",
-          left: formVisible ? "30%" : "50%",
+          left: formVisible ? "28%" : "50%",
           transform: "translateX(-50%)",
           transition: "left 1.8s cubic-bezier(0.34,1.2,0.64,1)",
           zIndex: 10,
         }}
       />
 
-      {/* Form card — slides in from right */}
-      <div
-        style={{
+      {/* Form card — slides in from right, close to robot */}
+      <div style={{
           position: "absolute",
-          right: formVisible ? "6%" : "-130%",
+          right: formVisible ? "4%" : "-130%",
           top: "50%",
           transform: "translateY(-50%)",
           transition: "right 1.8s cubic-bezier(0.34,1.2,0.64,1), opacity 0.5s ease",
-          transitionDelay: formVisible ? "0s" : "0s",
           zIndex: 30,
-          width: "min(340px, 86vw)",
+          width: "min(320px, 84vw)",
           opacity: formVisible ? 1 : 0,
           pointerEvents: formVisible ? "auto" : "none",
         }}
