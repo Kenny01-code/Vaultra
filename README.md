@@ -13,7 +13,7 @@ https://github.com/Kenny01-code/Vaultra
 ## Tech Stack
 
 - **Frontend**: React 19, TanStack Start (SSR), TanStack Router, TanStack Query
-- **Auth**: Supabase Auth (Email/Password, Google, GitHub, Apple OAuth)
+- **Auth**: Supabase Auth (Email/Password, Google, GitHub OAuth)
 - **Database**: Supabase (PostgreSQL + Row Level Security)
 - **Storage**: Supabase Storage (private bucket, signed URLs)
 - **Server Functions**: TanStack Start server functions with Supabase Admin client
@@ -103,9 +103,6 @@ Go to [Supabase Dashboard](https://supabase.com/dashboard) → Authentication �
 2. Authorization callback URL: `https://your-project.supabase.co/auth/v1/callback`
 3. Copy Client ID and Client Secret into Supabase → Authentication → GitHub provider
 
-#### Apple Sign-In
-- Requires an Apple Developer account ($99/year)
-- Follow Supabase docs: https://supabase.com/docs/guides/auth/social-login/auth-apple
 
 ### Storage Bucket
 
@@ -213,7 +210,7 @@ Key rules:
 
 | Requirement | Status |
 |---|---|
-| User registration + login | ✅ Email/password + Google/GitHub/Apple OAuth |
+| User registration + login | ✅ Email/password + Google/GitHub OAuth |
 | File upload (100 MB+, up to 1 GB) | ✅ Signed URL direct-to-storage upload |
 | Upload progress | ✅ XHR progress events |
 | File validation | ✅ Type, size, MIME, extension (OWASP) — client + server |
@@ -226,3 +223,6 @@ Key rules:
 | TypeScript | ✅ Strict mode |
 | Security rules | ✅ Supabase RLS + Storage policies |
 | Documentation | ✅ This README |
+
+
+
