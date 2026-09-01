@@ -15,8 +15,8 @@ import { useRouter } from "@tanstack/react-router";
 
 /*
   PHASE TIMELINE
-  0 – 3.5s  : robot dances alone (human-feeling groove)
-  3.5 – 5.5s: robot reaches out, form slides in from right (1.8s natural ease)
+  0 â€“ 3.5s  : robot dances alone (human-feeling groove)
+  3.5 â€“ 5.5s: robot reaches out, form slides in from right (1.8s natural ease)
   5.5s+     : idle breathing, form centred
 */
 
@@ -60,7 +60,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
     return () => { if (t2.current) clearTimeout(t2.current); };
   }, [phase]);
 
-  const formVisible = phase !== "dance";
+  const formVisible = true; // form on right immediately
 
   return (
     <div
@@ -78,7 +78,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
 
       <Particles />
 
-      {/* Robot — shifts left once form appears */}
+      {/* Robot â€” shifts left once form appears */}
       <div className="absolute" style={{
           left: formVisible ? "28%" : "50%",
           bottom: "10%",
@@ -102,12 +102,12 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
         }}
       />
 
-      {/* Form card — slides in from right, close to robot */}
+      {/* Form card â€” slides in from right, close to robot */}
       <div style={{
           position: "absolute",
           right: formVisible ? "4%" : "-130%",
           top: "50%",
-          transform: "translateY(-50%)",
+          transform: phase === "dance" ? "translateY(-50%)" : "translateY(-50%) translateX(50%)",
           transition: "right 1.8s cubic-bezier(0.34,1.2,0.64,1), opacity 0.5s ease",
           zIndex: 30,
           width: "min(320px, 84vw)",
@@ -124,7 +124,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
   );
 }
 
-/* ─── Vault Guardian ──────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Vault Guardian â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function VaultGuardian({ phase }: { phase: Phase }) {
   const dancing = phase === "dance";
   const reaching = phase === "reach";
@@ -173,8 +173,8 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           </filter>
         </defs>
 
-        {/* ── Legs ── */}
-        {/* Hip sway wrapper — whole lower body rocks */}
+        {/* â”€â”€ Legs â”€â”€ */}
+        {/* Hip sway wrapper â€” whole lower body rocks */}
         <g style={{ transformOrigin: "75px 195px", animation: dancing ? "hip-sway 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
           {/* Left leg */}
           <g style={{ transformOrigin: "58px 198px", animation: dancing ? "leg-l 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
@@ -192,7 +192,7 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           </g>
         </g>
 
-        {/* ── Torso ── */}
+        {/* â”€â”€ Torso â”€â”€ */}
         <g style={{ transformOrigin: "75px 150px", animation: dancing ? "torso-groove 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
           <rect x="34" y="118" width="82" height="84" rx="22" fill="url(#vg-body)" />
           {/* Chest panel */}
@@ -216,7 +216,7 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           <rect x="65" y="195" width="20" height="9" rx="3.5" fill="oklch(0.52 0 0)" />
           <rect x="68" y="197" width="14" height="5" rx="2.5" fill="oklch(0.78 0 0 / 0.45)" />
 
-          {/* ── Arms ── */}
+          {/* â”€â”€ Arms â”€â”€ */}
           {/* Left arm */}
           <g style={{
             transformOrigin: "34px 133px",
@@ -251,10 +251,10 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           </g>
         </g>
 
-        {/* ── Neck ── */}
+        {/* â”€â”€ Neck â”€â”€ */}
         <rect x="62" y="102" width="26" height="22" rx="9" fill="oklch(0.73 0 0)" />
 
-        {/* ── Head ── */}
+        {/* â”€â”€ Head â”€â”€ */}
         <g style={{ transformOrigin: "75px 72px", animation: dancing ? "head-bob 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
           <rect x="30" y="44" width="90" height="66" rx="30" fill="url(#vg-body)" />
           {/* Head shine */}
@@ -294,7 +294,7 @@ function VaultGuardian({ phase }: { phase: Phase }) {
   );
 }
 
-/* ─── Particles ───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Particles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function Particles() {
   const pts = [
     { x: "12%", y: "18%", s: 3, d: "0s",   dur: "6.2s" },
@@ -328,7 +328,7 @@ function Particles() {
   );
 }
 
-/* ─── Preview form card (homepage — links to /auth) ──────────────────────── */
+/* â”€â”€â”€ Preview form card (homepage â€” links to /auth) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function PreviewFormCard() {
   return (
     <div
@@ -352,13 +352,13 @@ function PreviewFormCard() {
         </Button>
       </div>
       <p className="mt-3 text-center text-[10px] text-muted-foreground">
-        5 GB free · No credit card · AES-256 at rest
+        5 GB free Â· No credit card Â· AES-256 at rest
       </p>
     </div>
   );
 }
 
-/* ─── Real auth form card (auth page) ────────────────────────────────────── */
+/* â”€â”€â”€ Real auth form card (auth page) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AuthFormCard({ redirectPath }: { redirectPath: string }) {
   const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -416,7 +416,7 @@ function AuthFormCard({ redirectPath }: { redirectPath: string }) {
         <span className="h-px flex-1 bg-border" />or email<span className="h-px flex-1 bg-border" />
       </div>
 
-      {/* Single form — toggled by mode */}
+      {/* Single form â€” toggled by mode */}
       <form onSubmit={mode === "signin" ? handleSignIn : handleSignUp} className="space-y-3">
         {mode === "signup" && (
           <div className="space-y-1">
