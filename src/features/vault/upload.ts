@@ -21,27 +21,40 @@ export async function uploadVaultFile(
   signal?: AbortSignal,
 ): Promise<VaultFile> {
   // Step 1 — server validates and issues a signed upload URL
-  const ticket = await createUploadTicket({
-    data: {
-      name: file.name,
-      sizeBytes: file.size,
-      mimeType: file.type || "application/octet-stream",
-    },
-  });
+  let ticket: Awaited<ReturnType<typeof createUploadTicket>>;
+  try {
+    ticket = await createUploadTicket({
+      data: {
+        name: file.name,
+        sizeBytes: file.size,
+        mimeType: file.type || "application/octet-stream",
+      },
+    });
+  } catch (error) {
+    throw new Error(`Upload ticket failed: ${getErrorMessage(error)}`);
+  }
 
   let row: VaultFile;
   try {
     // Step 2 — PUT directly to Supabase Storage with progress tracking
-    await putWithProgress(ticket.path, ticket.token, file, onProgress, signal);
+    try {
+      await putWithProgress(ticket.path, ticket.token, file, onProgress, signal);
+    } catch (error) {
+      throw new Error(`Storage transfer failed: ${getErrorMessage(error)}`);
+    }
 
     // Step 3 — server verifies the object and creates the DB record with real size
-    row = (await finalizeUpload({
-      data: {
-        path: ticket.path,
-        name: ticket.safeName,
-        mimeType: file.type || "application/octet-stream",
-      },
-    })) as VaultFile;
+    try {
+      row = (await finalizeUpload({
+        data: {
+          path: ticket.path,
+          name: ticket.safeName,
+          mimeType: file.type || "application/octet-stream",
+        },
+      })) as VaultFile;
+    } catch (error) {
+      throw new Error(`Upload finalization failed: ${getErrorMessage(error)}`);
+    }
   } catch (error) {
     // Best-effort cleanup for cancelled uploads and failed finalization.
     await discardUpload({ data: { path: ticket.path } }).catch(() => undefined);
@@ -56,6 +69,12 @@ export async function uploadVaultFile(
 
   onProgress({ loaded: file.size, total: file.size, percent: 100 });
   return row;
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string") return error;
+  return "Unknown upload error.";
 }
 
 function putWithProgress(
