@@ -110,7 +110,7 @@ export function VaultPage() {
     void queryClient.invalidateQueries({ queryKey: ["vault"] });
   };
 
-  const list = files.data ?? [];
+  const list = useMemo(() => files.data ?? [], [files.data]);
   const used = useMemo(
     () => list.reduce((sum, file) => sum + Number(file.size_bytes ?? 0), 0),
     [list],
@@ -137,8 +137,10 @@ export function VaultPage() {
     if (term) result = result.filter((f) => f.name.toLowerCase().includes(term));
 
     result.sort((a, b) => {
-      if (sort === "date-desc") return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      if (sort === "date-asc") return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      if (sort === "date-desc")
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sort === "date-asc")
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       if (sort === "size-desc") return (b.size_bytes || 0) - (a.size_bytes || 0);
       if (sort === "size-asc") return (a.size_bytes || 0) - (b.size_bytes || 0);
       if (sort === "name-asc") return a.name.localeCompare(b.name);
@@ -158,7 +160,9 @@ export function VaultPage() {
     onMutate: (input) => setBusyId(input.fileId),
     onSettled: () => setBusyId(null),
     onSuccess: (_data, input) => {
-      toast.success(input.isPublic ? "Share link generated (public)" : "File locked back to private");
+      toast.success(
+        input.isPublic ? "Share link generated (public)" : "File locked back to private",
+      );
       invalidate();
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Update failed."),
@@ -235,7 +239,9 @@ export function VaultPage() {
           }}
         >
           <CloudUpload className="size-16 animate-bounce text-primary" />
-          <p className="mt-4 font-display text-2xl font-semibold">Drop files anywhere to secure them</p>
+          <p className="mt-4 font-display text-2xl font-semibold">
+            Drop files anywhere to secure them
+          </p>
           <p className="mt-1 text-sm text-muted-foreground">Uploads up to 1 GB per file</p>
         </div>
       ) : null}
@@ -274,7 +280,11 @@ export function VaultPage() {
               <div className="flex items-center justify-between sm:justify-end gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="glass" size="sm" className="gap-1.5 text-xs font-medium min-h-[38px]">
+                    <Button
+                      variant="glass"
+                      size="sm"
+                      className="gap-1.5 text-xs font-medium min-h-[38px]"
+                    >
                       <ArrowUpDown className="size-3.5" />
                       <span className="hidden xs:inline">Sort:</span>
                       <span className="truncate max-w-24">
@@ -357,7 +367,10 @@ export function VaultPage() {
             </div>
           ) : visible.length === 0 ? (
             <div className="glass grid place-items-center gap-3 rounded-3xl p-8 sm:p-12 text-center">
-              <FolderOpen className="size-10 text-muted-foreground animate-pulse" aria-hidden="true" />
+              <FolderOpen
+                className="size-10 text-muted-foreground animate-pulse"
+                aria-hidden="true"
+              />
               <div>
                 <p className="font-display text-base font-semibold">
                   {query ? "No matching files found" : "Your vault is empty"}

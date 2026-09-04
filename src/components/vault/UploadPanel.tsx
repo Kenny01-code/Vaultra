@@ -43,7 +43,8 @@ export function UploadPanel({
 
   const startUpload = useCallback(
     async (file: File, existingId?: string) => {
-      const id = existingId ?? `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`;
+      const id =
+        existingId ?? `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`;
       const controller = new AbortController();
 
       if (!existingId) {
@@ -177,7 +178,12 @@ export function UploadPanel({
             Videos, images, audio, docs & archives up to 1 GB
           </p>
         </div>
-        <Button variant="subtle" size="sm" onClick={() => inputRef.current?.click()} className="mt-1">
+        <Button
+          variant="subtle"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+          className="mt-1"
+        >
           Browse files
         </Button>
       </div>

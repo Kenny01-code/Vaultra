@@ -31,7 +31,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -79,7 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     void syncProfile();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   useEffect(() => {
@@ -106,7 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       profileReady,
       isAdmin,
-      signOut: async () => { await supabase.auth.signOut(); },
+      signOut: async () => {
+        await supabase.auth.signOut();
+      },
       reloadUser,
     }),
     [user, loading, profileReady, isAdmin],
