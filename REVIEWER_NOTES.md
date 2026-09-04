@@ -51,6 +51,7 @@ It removes direct authenticated Storage writes and enables atomic quota enforcem
 - Actual uploaded size read from Storage metadata; client size is not trusted.
 - Atomic quota enforcement using a database function and profile-row locking.
 - Uploads are restricted by each account's storage quota: 5 GB by default, with a 1 GB maximum per file.
+- Users can select or drop up to 10 files per upload batch.
 - An upload is rejected when current usage plus the actual file size exceeds the account quota.
 - Cleanup attempts for cancelled uploads and failed finalization.
 - Clear errors, responsive UI, and maintainable feature structure.

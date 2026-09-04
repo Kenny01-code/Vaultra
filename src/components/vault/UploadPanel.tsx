@@ -9,6 +9,8 @@ import { MAX_FILE_BYTES } from "@/features/vault/types";
 import { formatBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+const MAX_FILES_PER_BATCH = 10;
+
 type Item = {
   id: string;
   name: string;
@@ -116,7 +118,13 @@ export function UploadPanel({
 
   const handleFiles = (fileList: FileList | null) => {
     if (!fileList?.length) return;
-    for (const file of Array.from(fileList)) {
+
+    const files = Array.from(fileList);
+    if (files.length > MAX_FILES_PER_BATCH) {
+      toast.error(`You can upload up to ${MAX_FILES_PER_BATCH} files at once.`);
+    }
+
+    for (const file of files.slice(0, MAX_FILES_PER_BATCH)) {
       void startUpload(file);
     }
   };
