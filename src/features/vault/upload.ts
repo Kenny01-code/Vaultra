@@ -1,4 +1,5 @@
 import { createUploadTicket, discardUpload, finalizeUpload } from "@/lib/files.functions";
+import { supabase } from "@/integrations/supabase/client";
 import type { VaultFile } from "./types";
 import { setThumbnailCache } from "./useThumbnails";
 
@@ -31,7 +32,7 @@ export async function uploadVaultFile(
   let row: VaultFile;
   try {
     // Step 2 — PUT directly to Supabase Storage with progress tracking
-    await putWithProgress(ticket.signedUrl, file, onProgress, signal);
+    await putWithProgress(ticket.signedUrl, ticket.path, ticket.token, file, onProgress, signal);
 
     // Step 3 — server verifies the object and creates the DB record with real size
     row = (await finalizeUpload({
@@ -59,6 +60,8 @@ export async function uploadVaultFile(
 
 function putWithProgress(
   url: string,
+  path: string,
+  token: string,
   file: File,
   onProgress: (p: UploadProgress) => void,
   signal?: AbortSignal,
@@ -114,7 +117,7 @@ function putWithProgress(
 
     xhr.addEventListener("error", () => {
       clearProgressTimer();
-      void putWithoutProgress(url, file, signal)
+      void putWithSdk(path, token, file, signal)
         .then(() => {
           onProgress({ loaded: file.size, total: file.size, percent: 99 });
           resolve();
@@ -136,17 +139,15 @@ function putWithProgress(
   });
 }
 
-async function putWithoutProgress(url: string, file: File, signal?: AbortSignal): Promise<void> {
-  const response = await fetch(url, {
-    method: "PUT",
-    mode: "cors",
-    cache: "no-store",
-    headers: { "Content-Type": file.type || "application/octet-stream" },
-    body: file,
-    signal,
+async function putWithSdk(
+  path: string,
+  token: string,
+  file: File,
+  signal?: AbortSignal,
+): Promise<void> {
+  if (signal?.aborted) throw new DOMException("Upload cancelled.", "AbortError");
+  const { error } = await supabase.storage.from("vault").uploadToSignedUrl(path, token, file, {
+    contentType: file.type || "application/octet-stream",
   });
-
-  if (!response.ok) {
-    throw new Error(`Upload failed (HTTP ${response.status}).`);
-  }
+  if (error) throw error;
 }
