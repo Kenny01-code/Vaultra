@@ -140,7 +140,7 @@ Browser
             ├── Supabase DB (client SDK) — file metadata queries (RLS enforced)
             └── Server Functions (Supabase Admin SDK — bypasses RLS safely)
                  ├── createUploadTicket — validates quota server-side, issues signed PUT URL
-                 ├── finalizeUpload — verifies file exists, reads real size, creates DB record
+                 ├── finalizeUpload — verifies file exists, reads real size, re-checks quota, creates DB record
                  ├── getOwnedFileUrl — issues signed GET URL (5 min TTL)
                  ├── setFileVisibility — toggle public/private (ownership enforced)
                  ├── renameFile — sanitized rename (ownership enforced)
@@ -152,7 +152,7 @@ Browser
 
 1. Browser calls `createUploadTicket` server fn → validates file type/size/quota server-side → returns Supabase Storage signed PUT URL
 2. Browser PUTs file directly to Supabase Storage (bypasses server — no bandwidth cost)
-3. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → creates DB record
+3. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → re-checks quota against that actual size → creates DB record
 4. File appears in vault
 
 ### Share Link Flow
@@ -168,11 +168,13 @@ Browser
 
 ### Quota Enforcement
 
-Quota is enforced **server-side** in `createUploadTicket`:
+Quota is enforced **server-side** in both upload stages:
 - Reads the user's `storage_quota_bytes` from the DB (Admin SDK, bypasses RLS)
 - Sums all existing `size_bytes` for the user
-- Rejects the upload if `used + newFileSize > quota`
-- `size_bytes` stored in DB comes from the server reading the actual object metadata after upload — never from the client
+- `createUploadTicket` rejects the upload if `used + declaredFileSize > quota`
+- `finalizeUpload` reads the actual object size from Storage and rejects if `used + actualFileSize > quota`
+- An over-quota uploaded object is deleted before any file record is created
+- `size_bytes` stored in DB always comes from server-side object metadata — never from the client
 
 ### Row Level Security (Supabase)
 
@@ -217,7 +219,7 @@ Key rules:
 | Private files (owner-only) | ✅ Supabase RLS + server ownership checks |
 | Public files via share link | ✅ Expiring signed URLs via share token |
 | File management (rename, delete, toggle) | ✅ Full CRUD via server functions |
-| Quota tracking | ✅ Server-side enforcement in createUploadTicket |
+| Quota tracking | ✅ Server-side enforcement at ticket creation and finalization |
 | Responsive design | ✅ Mobile-first, xs/sm/md/lg/xl breakpoints |
 | Error handling | ✅ Toast notifications, server error boundaries |
 | TypeScript | ✅ Strict mode |
