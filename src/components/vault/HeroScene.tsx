@@ -52,6 +52,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
     <div
       className={cn(
         "relative mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-6 overflow-x-clip px-4 py-8 sm:min-h-[620px] sm:flex-row sm:gap-14 sm:px-8 lg:min-h-[700px] lg:gap-20 lg:px-12",
+        withAuthForm && "auth-scene",
         className,
       )}
       aria-hidden={!withAuthForm}
@@ -65,7 +66,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
       <Particles />
 
       {/* Robot — secondary on mobile, left/center on desktop */}
-      <div className="relative z-20 order-2 flex w-[150px] shrink-0 scale-90 justify-center sm:order-1 sm:scale-100 lg:scale-110">
+      <div className="auth-form-stage relative z-20 order-2 flex w-[150px] shrink-0 translate-y-4 scale-90 justify-center sm:order-1 sm:translate-y-10 sm:scale-100 lg:scale-110">
         <div className="relative">
           <VaultGuardian phase="dance" />
           <div
@@ -76,7 +77,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
       </div>
 
       {/* Form — primary on mobile, close to robot on desktop (not far right) */}
-      <div className="relative z-30 order-1 flex w-full max-w-[340px] shrink-0 justify-center sm:order-2 sm:w-[340px]">
+      <div className="auth-form-stage relative z-30 order-1 flex w-full max-w-[340px] shrink-0 translate-y-4 justify-center sm:order-2 sm:translate-y-10 sm:w-[340px]">
         {withAuthForm ? (
           <AuthFormCard redirectPath={redirectPath} />
         ) : (
@@ -382,7 +383,7 @@ function AuthFormCard({ redirectPath }: { redirectPath: string }) {
 
   return (
     <div
-      className="glass-strong rounded-3xl p-5 shadow-[var(--shadow-elevated)]"
+      className="auth-form-card glass-strong rounded-3xl p-5 shadow-[var(--shadow-elevated)]"
       style={{ border: "1px solid oklch(1 0 0 / 0.16)" }}
       aria-hidden="false"
     >

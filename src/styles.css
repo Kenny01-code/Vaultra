@@ -962,3 +962,98 @@
   55% { opacity: 0.28; transform: scale(0.55) rotateY(180deg); }
   100% { opacity: 0; transform: scale(0.22) rotateY(360deg); }
 }
+
+/* Auth scene polish: the card has its own quiet motion language so it feels
+   alive even when the guardian is between choreography beats. */
+.auth-form-stage {
+  transform: translateY(1.5rem);
+  animation: auth-stage-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (min-width: 640px) {
+  .auth-form-stage {
+    transform: translateY(2.5rem);
+  }
+}
+
+@media (min-width: 640px) and (max-height: 720px) {
+  .auth-scene {
+    min-height: 100vh !important;
+    padding-block: 1rem;
+  }
+
+  .auth-form-stage {
+    transform: translateY(0.5rem) scale(0.82);
+  }
+}
+
+.auth-form-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: oklch(1 0 0 / 0.18) !important;
+  animation: auth-card-breathe 8s ease-in-out 900ms infinite;
+  box-shadow: 0 28px 80px oklch(0 0 0 / 0.42), 0 0 0 1px oklch(1 0 0 / 0.04);
+}
+
+.auth-form-card::before {
+  position: absolute;
+  z-index: -1;
+  inset: -45%;
+  content: "";
+  background: conic-gradient(
+    from 100deg,
+    transparent 0deg,
+    oklch(1 0 0 / 0.1) 42deg,
+    transparent 84deg,
+    oklch(1 0 0 / 0.06) 148deg,
+    transparent 210deg
+  );
+  animation: auth-card-orbit 12s linear infinite;
+}
+
+.auth-form-card::after {
+  position: absolute;
+  z-index: -1;
+  inset: 1px;
+  border-radius: inherit;
+  content: "";
+  background:
+    radial-gradient(circle at 18% 8%, oklch(1 0 0 / 0.09), transparent 32%),
+    radial-gradient(circle at 92% 88%, oklch(1 0 0 / 0.07), transparent 34%);
+  opacity: 0.7;
+  animation: auth-card-glow 6s ease-in-out infinite alternate;
+}
+
+.auth-form-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes auth-stage-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes auth-card-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateZ(0deg); }
+  50% { transform: translate3d(0, -5px, 0) rotateZ(0.35deg); }
+}
+
+@keyframes auth-card-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes auth-card-glow {
+  from { opacity: 0.48; transform: scale(0.98); }
+  to { opacity: 0.86; transform: scale(1.02); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-form-stage,
+  .auth-form-card,
+  .auth-form-card::before,
+  .auth-form-card::after {
+    animation: none;
+  }
+}
