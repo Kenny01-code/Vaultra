@@ -1,6 +1,6 @@
 # Vaultra — Secure File Storage Service
 
-A production-grade secure file storage and sharing service built with TanStack Start, Supabase, and React. Users can upload files up to 1 GB, keep them private by default, and share them through expiring signed links.
+A production-oriented secure file storage and sharing service built with TanStack Start, Supabase, and React. Users can upload files up to 1 GB, keep them private by default, and share them through expiring signed links.
 
 ## Live Demo
 
@@ -154,7 +154,7 @@ Browser
 
 1. The client accepts up to 10 files per picker or drop batch.
 2. Browser calls `createUploadTicket` server fn → validates file type/size/quota server-side → returns Supabase Storage signed PUT URL
-3. Browser PUTs file directly to Supabase Storage (bypasses server — no bandwidth cost)
+3. Browser PUTs file directly to Supabase Storage (bypasses the application server — no application-server bandwidth)
 4. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → atomically re-checks quota against that actual size → creates DB record
 5. File appears in vault
 
@@ -204,7 +204,7 @@ Key rules:
 - Files must be under `{userId}/` — enforces ownership at path level
 - Max 1 GB per file
 - Blocked MIME types: executables, PHP, HTML, SVG, shell scripts (OWASP)
-- No public reads — all downloads go through server-issued signed URLs
+- The Storage bucket remains private; downloads are provided through server-issued signed URLs
 
 ---
 
