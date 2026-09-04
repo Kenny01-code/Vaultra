@@ -76,6 +76,31 @@ export const createUploadTicket = createServerFn({ method: "POST" })
 
     return { path, signedUrl: signed.signedUrl, token: signed.token, safeName };
   });
+
+export const createAvatarUploadTicket = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({}).parse(data))
+  .handler(async ({ context }) => {
+    const admin = await getAdminClient();
+    const path = `${context.userId}/avatars/profile.jpg`;
+    const { data: signed, error } = await admin.storage
+      .from(VAULT_BUCKET)
+      .createSignedUploadUrl(path, { upsert: true });
+
+    if (error || !signed) throw new Error("Could not create avatar upload URL. Please try again.");
+    return { signedUrl: signed.signedUrl };
+  });
+
+export const discardUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ path: z.string().min(3).max(300) }).parse(data))
+  .handler(async ({ data, context }) => {
+    assertOwnedPath(context.userId, data.path);
+    const admin = await getAdminClient();
+    const { error } = await admin.storage.from(VAULT_BUCKET).remove([data.path]);
+    if (error) throw new Error("Could not discard the incomplete upload.");
+    return { discarded: true };
+  });
 // ─── finalizeUpload ──────────────────────────────────────────────────────────
 // Called after the client PUT succeeds. Verifies the object exists in Storage,
 // reads the ACTUAL size from the server (never trusts the client-supplied value),
@@ -120,46 +145,16 @@ export const finalizeUpload = createServerFn({ method: "POST" })
     // Re-validate with real size
     validateUploadIntent({ name: safeName, sizeBytes: serverSize, mimeType: data.mimeType });
 
-    // Re-check quota against the actual uploaded size after the client PUT.
-    const { data: profile, error: profileError } = await admin
-      .from("profiles")
-      .select("storage_quota_bytes")
-      .eq("id", context.userId)
-      .single();
-
-    if (profileError) throw new Error("Could not verify storage quota. Please try again.");
-
-    const { data: usageRows, error: usageError } = await admin
-      .from("files")
-      .select("size_bytes")
-      .eq("owner_id", context.userId);
-
-    if (usageError) throw new Error("Could not verify storage usage. Please try again.");
-
-    const quota = Number(profile.storage_quota_bytes ?? DEFAULT_QUOTA_BYTES);
-    const used = (usageRows ?? []).reduce((sum, row) => sum + Number(row.size_bytes ?? 0), 0);
-
-    if (used + serverSize > quota) {
-      await admin.storage.from(VAULT_BUCKET).remove([data.path]);
-      throw new Error("This upload exceeds your remaining storage quota.");
-    }
-
     const shareToken = crypto.randomUUID();
 
-    const { data: row, error: insertError } = await admin
-      .from("files")
-      .insert({
-        owner_id: context.userId,
-        name: safeName,
-        storage_path: data.path,
-        mime_type: data.mimeType,
-        size_bytes: serverSize,
-        is_public: false,
-        share_token: shareToken,
-        download_count: 0,
-      })
-      .select()
-      .single();
+    const { data: row, error: insertError } = await admin.rpc("finalize_file_upload", {
+      _owner_id: context.userId,
+      _name: safeName,
+      _storage_path: data.path,
+      _mime_type: data.mimeType,
+      _size_bytes: serverSize,
+      _share_token: shareToken,
+    });
 
     if (insertError) {
       // Clean up orphaned storage object

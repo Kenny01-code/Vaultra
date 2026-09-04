@@ -115,6 +115,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      finalize_file_upload: {
+        Args: {
+          _mime_type: string
+          _name: string
+          _owner_id: string
+          _share_token: string
+          _size_bytes: number
+          _storage_path: string
+        }
+        Returns: Database["public"]["Tables"]["files"]["Row"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

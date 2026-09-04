@@ -23,6 +23,7 @@ import { profileQuery } from "@/features/vault/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { createAvatarUploadTicket } from "@/lib/files.functions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
@@ -124,8 +125,13 @@ function ProfilePage() {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
       if (!blob) throw new Error("Could not crop image.");
       const path = `${userId}/avatars/profile.jpg`;
-      const { error: uploadError } = await supabase.storage.from("vault").upload(path, blob, { upsert: true, contentType: "image/jpeg" });
-      if (uploadError) throw uploadError;
+      const { signedUrl } = await createAvatarUploadTicket({ data: {} });
+      const uploadResponse = await fetch(signedUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "image/jpeg" },
+        body: blob,
+      });
+      if (!uploadResponse.ok) throw new Error("Could not upload profile photo.");
       const { error: profileError } = await supabase.from("profiles").update({ avatar_url: path }).eq("id", userId);
       if (profileError) throw profileError;
       await queryClient.invalidateQueries({ queryKey: ["vault", "profile", userId] });

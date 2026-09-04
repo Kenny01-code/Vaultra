@@ -140,7 +140,9 @@ Browser
             ├── Supabase DB (client SDK) — file metadata queries (RLS enforced)
             └── Server Functions (Supabase Admin SDK — bypasses RLS safely)
                  ├── createUploadTicket — validates quota server-side, issues signed PUT URL
-                 ├── finalizeUpload — verifies file exists, reads real size, re-checks quota, creates DB record
+                 ├── createAvatarUploadTicket — issues a server-authorized avatar PUT URL
+                 ├── discardUpload — removes incomplete owned uploads
+                 ├── finalizeUpload — verifies file exists, reads real size, atomically re-checks quota, creates DB record
                  ├── getOwnedFileUrl — issues signed GET URL (5 min TTL)
                  ├── setFileVisibility — toggle public/private (ownership enforced)
                  ├── renameFile — sanitized rename (ownership enforced)
@@ -152,7 +154,7 @@ Browser
 
 1. Browser calls `createUploadTicket` server fn → validates file type/size/quota server-side → returns Supabase Storage signed PUT URL
 2. Browser PUTs file directly to Supabase Storage (bypasses server — no bandwidth cost)
-3. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → re-checks quota against that actual size → creates DB record
+3. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → atomically re-checks quota against that actual size → creates DB record
 4. File appears in vault
 
 ### Share Link Flow
@@ -173,8 +175,16 @@ Quota is enforced **server-side** in both upload stages:
 - Sums all existing `size_bytes` for the user
 - `createUploadTicket` rejects the upload if `used + declaredFileSize > quota`
 - `finalizeUpload` reads the actual object size from Storage and rejects if `used + actualFileSize > quota`
+- Finalization locks the user's profile row during the usage check, preventing concurrent uploads from exceeding quota
 - An over-quota uploaded object is deleted before any file record is created
 - `size_bytes` stored in DB always comes from server-side object metadata — never from the client
+
+### Upload Cleanup
+
+- Authenticated users cannot directly insert or update objects in the vault bucket
+- Uploads use short-lived, server-issued signed URLs
+- Cancelled uploads and failed finalization attempt best-effort cleanup through `discardUpload`
+- Production deployments should also schedule a periodic reconciliation job to remove Storage objects without matching `files` records, covering browser/device disconnects
 
 ### Row Level Security (Supabase)
 
