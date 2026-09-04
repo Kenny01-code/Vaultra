@@ -65,10 +65,36 @@ function putWithProgress(
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    let lastProgressAt = 0;
+    let pendingProgress: UploadProgress | undefined;
+    let progressTimer: number | undefined;
+
+    const flushProgress = () => {
+      progressTimer = undefined;
+      if (pendingProgress) {
+        onProgress(pendingProgress);
+        pendingProgress = undefined;
+        lastProgressAt = performance.now();
+      }
+    };
+
+    const reportProgress = (progress: UploadProgress) => {
+      pendingProgress = progress;
+      const elapsed = performance.now() - lastProgressAt;
+      if (elapsed >= 80) {
+        flushProgress();
+      } else if (progressTimer === undefined) {
+        progressTimer = window.setTimeout(flushProgress, 80 - elapsed);
+      }
+    };
+
+    const clearProgressTimer = () => {
+      if (progressTimer !== undefined) window.clearTimeout(progressTimer);
+    };
 
     xhr.upload.addEventListener("progress", (e) => {
       if (e.lengthComputable) {
-        onProgress({
+        reportProgress({
           loaded: e.loaded,
           total: e.total,
           percent: Math.min(99, Math.round((e.loaded / e.total) * 100)),
@@ -77,15 +103,23 @@ function putWithProgress(
     });
 
     xhr.addEventListener("load", () => {
+      clearProgressTimer();
       if (xhr.status >= 200 && xhr.status < 300) {
+        if (pendingProgress) onProgress(pendingProgress);
         resolve();
       } else {
         reject(new Error(`Upload failed (HTTP ${xhr.status}). Please try again.`));
       }
     });
 
-    xhr.addEventListener("error", () => reject(new Error("Upload failed. Check your connection.")));
-    xhr.addEventListener("abort", () => reject(new DOMException("Upload cancelled.", "AbortError")));
+    xhr.addEventListener("error", () => {
+      clearProgressTimer();
+      reject(new Error("Upload failed. Check your connection."));
+    });
+    xhr.addEventListener("abort", () => {
+      clearProgressTimer();
+      reject(new DOMException("Upload cancelled.", "AbortError"));
+    });
 
     signal?.addEventListener("abort", () => xhr.abort());
 
