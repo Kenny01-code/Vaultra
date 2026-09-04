@@ -38,7 +38,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
   return (
     <div
       className={cn(
-        "relative flex w-full flex-col items-center justify-center gap-6 overflow-x-clip px-4 py-8 sm:min-h-[620px] sm:flex-row sm:gap-8 sm:px-8 lg:min-h-[700px] lg:gap-12 lg:px-12",
+        "relative mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-6 overflow-x-clip px-4 py-8 sm:min-h-[620px] sm:flex-row sm:gap-14 sm:px-8 lg:min-h-[700px] lg:gap-20 lg:px-12",
         className,
       )}
       aria-hidden={!withAuthForm}
@@ -52,7 +52,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
       <Particles />
 
       {/* Robot — secondary on mobile, left/center on desktop */}
-      <div className="relative z-20 order-2 flex shrink-0 scale-90 justify-center sm:order-1 sm:scale-100 lg:scale-110">
+      <div className="relative z-20 order-2 flex w-[150px] shrink-0 scale-90 justify-center sm:order-1 sm:scale-100 lg:scale-110">
         <div className="relative">
           <VaultGuardian phase="dance" />
           <div
@@ -63,7 +63,7 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
       </div>
 
       {/* Form — primary on mobile, close to robot on desktop (not far right) */}
-      <div className="relative z-30 order-1 w-full max-w-[340px] shrink-0 sm:order-2 sm:w-[min(340px,42vw)]">
+      <div className="relative z-30 order-1 flex w-full max-w-[340px] shrink-0 justify-center sm:order-2 sm:w-[340px]">
         {withAuthForm ? (
           <AuthFormCard redirectPath={redirectPath} />
         ) : (
