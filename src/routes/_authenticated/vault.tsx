@@ -86,7 +86,7 @@ const SORT_OPTIONS: { value: VaultSort; label: string }[] = [
 ];
 
 export function VaultPage() {
-  const { user } = useAuth();
+  const { user, profileReady } = useAuth();
   const userId = user?.id ?? "";
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
@@ -103,8 +103,8 @@ export function VaultPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [isWindowDragging, setIsWindowDragging] = useState(false);
 
-  const files = useQuery({ ...filesQuery(userId), enabled: Boolean(userId) });
-  const profile = useQuery({ ...profileQuery(userId), enabled: Boolean(userId) });
+  const files = useQuery({ ...filesQuery(userId), enabled: Boolean(userId) && profileReady });
+  const profile = useQuery({ ...profileQuery(userId), enabled: Boolean(userId) && profileReady });
 
   const invalidate = () => {
     void queryClient.invalidateQueries({ queryKey: ["vault"] });

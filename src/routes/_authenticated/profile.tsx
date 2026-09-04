@@ -41,11 +41,11 @@ export const Route = createFileRoute("/_authenticated/profile")({
 });
 
 function ProfilePage() {
-  const { user } = useAuth();
+  const { user, profileReady } = useAuth();
   const userId = user?.id ?? "";
   const queryClient = useQueryClient();
 
-  const profile = useQuery({ ...profileQuery(userId), enabled: Boolean(userId) });
+  const profile = useQuery({ ...profileQuery(userId), enabled: Boolean(userId) && profileReady });
   const avatar = useAvatarUrl(profile.data?.avatarUrl);
 
   const [fullName, setFullName] = useState("");

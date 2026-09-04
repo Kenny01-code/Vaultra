@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 type AuthState = {
   user: User | null;
   loading: boolean;
+  profileReady: boolean;
   isAdmin: boolean;
   signOut: () => Promise<void>;
   reloadUser: () => Promise<void>;
@@ -13,6 +14,7 @@ type AuthState = {
 const AuthContext = createContext<AuthState>({
   user: null,
   loading: true,
+  profileReady: false,
   isAdmin: false,
   signOut: async () => {},
   reloadUser: async () => {},
@@ -21,6 +23,7 @@ const AuthContext = createContext<AuthState>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileReady, setProfileReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -39,9 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // NOTE: storage_quota_bytes is intentionally omitted — the DB default (5 GB) applies.
   // Never let the client set their own quota.
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setProfileReady(true);
+      return;
+    }
 
     let isMounted = true;
+    setProfileReady(false);
     const syncProfile = async () => {
       try {
         const { data: existing, error: lookupError } = await supabase
@@ -66,6 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       } catch (err) {
         console.warn("Failed to sync profile:", err);
+      } finally {
+        if (isMounted) setProfileReady(true);
       }
     };
 
@@ -95,11 +104,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       user,
       loading,
+      profileReady,
       isAdmin,
       signOut: async () => { await supabase.auth.signOut(); },
       reloadUser,
     }),
-    [user, loading, isAdmin],
+    [user, loading, profileReady, isAdmin],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
