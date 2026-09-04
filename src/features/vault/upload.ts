@@ -32,7 +32,7 @@ export async function uploadVaultFile(
   let row: VaultFile;
   try {
     // Step 2 — PUT directly to Supabase Storage with progress tracking
-    await putWithProgress(ticket.signedUrl, ticket.path, ticket.token, file, onProgress, signal);
+    await putWithProgress(ticket.path, ticket.token, file, onProgress, signal);
 
     // Step 3 — server verifies the object and creates the DB record with real size
     row = (await finalizeUpload({
@@ -59,90 +59,20 @@ export async function uploadVaultFile(
 }
 
 function putWithProgress(
-  url: string,
   path: string,
   token: string,
   file: File,
   onProgress: (p: UploadProgress) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    let lastProgressAt = 0;
-    let pendingProgress: UploadProgress | undefined;
-    let progressTimer: number | undefined;
-
-    const flushProgress = () => {
-      progressTimer = undefined;
-      if (pendingProgress) {
-        onProgress(pendingProgress);
-        pendingProgress = undefined;
-        lastProgressAt = performance.now();
-      }
-    };
-
-    const reportProgress = (progress: UploadProgress) => {
-      pendingProgress = progress;
-      const elapsed = performance.now() - lastProgressAt;
-      if (elapsed >= 80) {
-        flushProgress();
-      } else if (progressTimer === undefined) {
-        progressTimer = window.setTimeout(flushProgress, 80 - elapsed);
-      }
-    };
-
-    const clearProgressTimer = () => {
-      if (progressTimer !== undefined) window.clearTimeout(progressTimer);
-    };
-
-    xhr.upload.addEventListener("progress", (e) => {
-      if (e.lengthComputable) {
-        reportProgress({
-          loaded: e.loaded,
-          total: e.total,
-          percent: Math.min(99, Math.round((e.loaded / e.total) * 100)),
-        });
-      }
-    });
-
-    xhr.addEventListener("load", () => {
-      clearProgressTimer();
-      if (xhr.status >= 200 && xhr.status < 300) {
-        if (pendingProgress) onProgress(pendingProgress);
-        resolve();
-      } else {
-        reject(new Error(`Upload failed (HTTP ${xhr.status}). Please try again.`));
-      }
-    });
-
-    xhr.addEventListener("error", () => {
-      clearProgressTimer();
-      void putWithSdk(path, token, file, signal)
-        .then(() => {
-          onProgress({ loaded: file.size, total: file.size, percent: 99 });
-          resolve();
-        })
-        .catch(() => {
-          reject(new Error("Upload could not reach Storage. Check your connection or try again."));
-        });
-    });
-    xhr.addEventListener("abort", () => {
-      clearProgressTimer();
-      reject(new DOMException("Upload cancelled.", "AbortError"));
-    });
-
-    signal?.addEventListener("abort", () => xhr.abort());
-
-    xhr.open("PUT", url);
-    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
-    xhr.send(file);
-  });
+  return putWithSdk(path, token, file, onProgress, signal);
 }
 
 async function putWithSdk(
   path: string,
   token: string,
   file: File,
+  onProgress: (progress: UploadProgress) => void,
   signal?: AbortSignal,
 ): Promise<void> {
   if (signal?.aborted) throw new DOMException("Upload cancelled.", "AbortError");
@@ -150,4 +80,5 @@ async function putWithSdk(
     contentType: file.type || "application/octet-stream",
   });
   if (error) throw error;
+  onProgress({ loaded: file.size, total: file.size, percent: 99 });
 }
