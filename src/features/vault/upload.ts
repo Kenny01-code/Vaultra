@@ -114,7 +114,14 @@ function putWithProgress(
 
     xhr.addEventListener("error", () => {
       clearProgressTimer();
-      reject(new Error("Upload failed. Check your connection."));
+      void putWithoutProgress(url, file, signal)
+        .then(() => {
+          onProgress({ loaded: file.size, total: file.size, percent: 99 });
+          resolve();
+        })
+        .catch(() => {
+          reject(new Error("Upload could not reach Storage. Check your connection or try again."));
+        });
     });
     xhr.addEventListener("abort", () => {
       clearProgressTimer();
@@ -127,4 +134,19 @@ function putWithProgress(
     xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
     xhr.send(file);
   });
+}
+
+async function putWithoutProgress(url: string, file: File, signal?: AbortSignal): Promise<void> {
+  const response = await fetch(url, {
+    method: "PUT",
+    mode: "cors",
+    cache: "no-store",
+    headers: { "Content-Type": file.type || "application/octet-stream" },
+    body: file,
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Upload failed (HTTP ${response.status}).`);
+  }
 }
