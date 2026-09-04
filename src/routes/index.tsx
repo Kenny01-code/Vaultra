@@ -233,9 +233,6 @@ function Index() {
       <footer className="border-t border-border/60 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
           <Logo showWordmark />
-          <a href="/vaultra-logo.svg" download="vaultra-logo.svg" className="focus-ring rounded text-foreground underline-offset-4 hover:underline">
-            Download logo
-          </a>
           <p>© {new Date().getFullYear()} Vaultra — encrypted-at-rest storage.</p>
         </div>
       </footer>
