@@ -24,7 +24,10 @@ export function formatRelativeTime(iso: string): string {
   });
 }
 
-export function fileKind(mimeType: string, name = ""): "image" | "video" | "audio" | "pdf" | "text" | "archive" | "other" {
+export function fileKind(
+  mimeType: string,
+  name = "",
+): "image" | "video" | "audio" | "pdf" | "text" | "archive" | "other" {
   const mime = (mimeType || "").toLowerCase();
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
   if (mime.startsWith("image/")) return "image";

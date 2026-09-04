@@ -72,7 +72,9 @@ function SharedPreview({ url, mimeType, name }: { url: string; mimeType: string;
   }
   if (kind === "video") {
     return (
-      <div className={`${frame} relative aspect-video max-h-[70vh] bg-black/90 flex items-center justify-center`}>
+      <div
+        className={`${frame} relative aspect-video max-h-[70vh] bg-black/90 flex items-center justify-center`}
+      >
         <video src={url} controls playsInline className="size-full object-contain">
           Your browser does not support HTML5 video.
         </video>
@@ -173,7 +175,8 @@ function SharePage() {
                   {fileData.name}
                 </h1>
                 <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  {formatBytes(fileData.sizeBytes)} · {fileData.mimeType || "application/octet-stream"} · Uploaded{" "}
+                  {formatBytes(fileData.sizeBytes)} ·{" "}
+                  {fileData.mimeType || "application/octet-stream"} · Uploaded{" "}
                   {formatRelativeTime(fileData.createdAt)}
                 </p>
               </div>

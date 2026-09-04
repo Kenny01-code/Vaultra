@@ -2,10 +2,9 @@ import { config } from "dotenv";
 
 // Load server-only credentials before TanStack server functions are imported.
 if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
-config({ path: ".env.local" });
-config({ path: ".env" });
+  config({ path: ".env.local" });
+  config({ path: ".env" });
 }
-
 
 import "./lib/error-capture";
 
@@ -68,4 +67,3 @@ export default {
     }
   },
 };
-

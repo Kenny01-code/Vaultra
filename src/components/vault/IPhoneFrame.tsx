@@ -6,18 +6,15 @@ import { cn } from "@/lib/utils";
  * Titanium chassis, Dynamic Island, side buttons, USB-C port.
  * Renders an iframe of the current origin inside the screen.
  */
-export function IPhoneFrame({
-  className,
-  src,
-}: {
-  className?: string;
-  src?: string;
-}) {
+export function IPhoneFrame({ className, src }: { className?: string; src?: string }) {
   const [loaded, setLoaded] = useState(false);
   const url = src ?? (typeof window !== "undefined" ? window.location.origin : "about:blank");
 
   return (
-    <div className={cn("relative mx-auto select-none iphone-responsive", className)} style={{ width: 320 }}>
+    <div
+      className={cn("relative mx-auto select-none iphone-responsive", className)}
+      style={{ width: 320 }}
+    >
       {/* Outer titanium chassis */}
       <div
         className="relative rounded-[52px] p-[3px]"
@@ -39,7 +36,6 @@ export function IPhoneFrame({
         >
           {/* Screen bezel */}
           <div className="relative overflow-hidden rounded-[48px] bg-black" style={{ margin: 3 }}>
-
             {/* ── Dynamic Island ── */}
             <div
               className="absolute left-1/2 top-[10px] z-20 -translate-x-1/2"
@@ -55,13 +51,17 @@ export function IPhoneFrame({
               <div
                 className="absolute right-[22px] top-1/2 size-[10px] -translate-y-1/2 rounded-full"
                 style={{
-                  background: "radial-gradient(circle at 35% 30%, oklch(0.22 0 0), oklch(0.06 0 0))",
+                  background:
+                    "radial-gradient(circle at 35% 30%, oklch(0.22 0 0), oklch(0.06 0 0))",
                   boxShadow: "inset 0 0 4px oklch(0 0 0 / 0.8), 0 0 0 1px oklch(1 0 0 / 0.06)",
                 }}
               >
                 <div
                   className="absolute left-1/2 top-1/2 size-[4px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{ background: "oklch(0.12 0 0)", boxShadow: "0 0 3px oklch(0.4 0 0 / 0.3)" }}
+                  style={{
+                    background: "oklch(0.12 0 0)",
+                    boxShadow: "0 0 3px oklch(0.4 0 0 / 0.3)",
+                  }}
                 />
               </div>
             </div>

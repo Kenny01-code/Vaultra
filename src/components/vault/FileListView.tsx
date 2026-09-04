@@ -74,7 +74,8 @@ export function FileListView({
             {files.map((file) => (
               <tr
                 key={file.id}
-                className="group content-auto transition-colors hover:bg-surface-2/60" style={{ contentVisibility: "auto", containIntrinsicSize: "auto 56px" }}
+                className="group content-auto transition-colors hover:bg-surface-2/60"
+                style={{ contentVisibility: "auto", containIntrinsicSize: "auto 56px" }}
               >
                 <td className="py-3 pl-4 pr-3">
                   <div className="flex items-center gap-3">
@@ -165,7 +166,12 @@ export function FileListView({
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="size-8" aria-label="More options">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          aria-label="More options"
+                        >
                           <MoreVertical className="size-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -201,7 +207,10 @@ export function FileListView({
         </table>
       </div>
 
-      <AlertDialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+      <AlertDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete â€œ{deleteTarget?.name}â€?</AlertDialogTitle>
@@ -228,4 +237,3 @@ export function FileListView({
     </div>
   );
 }
-

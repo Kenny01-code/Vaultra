@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+﻿import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { Globe, LayoutDashboard, Lock, LogOut, Plus, Shield, Upload, User } from "lucide-react";
 import type { ReactNode } from "react";
@@ -125,7 +125,7 @@ export function AppShell({
             <User className="size-4" /> Edit profile
           </Link>
         </DropdownMenuItem>
-        {/* Admin console link ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â only visible to the admin */}
+        {/* Admin console link */}
         {isAdmin ? (
           <DropdownMenuItem asChild className="cursor-pointer">
             <Link to="/admin">
@@ -149,7 +149,10 @@ export function AppShell({
       className="min-h-screen bg-background text-foreground"
       style={{ ["--shell-sidebar" as string]: "17rem" }}
     >
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-aurora opacity-70" aria-hidden="true" />
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 bg-aurora opacity-70"
+        aria-hidden="true"
+      />
 
       {/* Desktop Sidebar (lg: screens) */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[var(--shell-sidebar)] flex-col border-r border-border/70 bg-sidebar/85 px-4 py-6 backdrop-blur-2xl lg:flex">
@@ -285,7 +288,9 @@ export function AppShell({
                   {...(item.search ? { search: item.search } : {})}
                   className={cn(
                     "focus-ring flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-[10px] transition-all duration-200",
-                    active ? "font-semibold text-foreground" : "text-muted-foreground hover:text-foreground",
+                    active
+                      ? "font-semibold text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <span
@@ -306,5 +311,3 @@ export function AppShell({
     </div>
   );
 }
-
-

@@ -54,14 +54,16 @@ export function CinematicVault({ className }: { className?: string }) {
           <div
             className="absolute inset-x-[8%] bottom-[4%] h-20 rounded-[50%] blur-2xl"
             style={{
-              background: "radial-gradient(ellipse at center, oklch(0 0 0 / 0.92), transparent 70%)",
+              background:
+                "radial-gradient(ellipse at center, oklch(0 0 0 / 0.92), transparent 70%)",
               transform: "translateZ(-200px) scaleY(0.35)",
             }}
           />
           <div
             className="absolute inset-x-[14%] bottom-[2%] h-16 rounded-[50%] blur-xl"
             style={{
-              background: "radial-gradient(ellipse at center, oklch(1 0 0 / 0.07), transparent 68%)",
+              background:
+                "radial-gradient(ellipse at center, oklch(1 0 0 / 0.07), transparent 68%)",
               transform: "translateZ(-180px) scaleY(0.3)",
             }}
           />
@@ -97,8 +99,10 @@ export function CinematicVault({ className }: { className?: string }) {
               className="absolute rounded-full"
               style={{
                 inset: "-10%",
-                background: "conic-gradient(from 120deg, oklch(0.22 0 0), oklch(0.10 0 0) 20%, oklch(0.26 0 0) 40%, oklch(0.09 0 0) 60%, oklch(0.24 0 0) 80%, oklch(0.10 0 0) 90%, oklch(0.22 0 0))",
-                boxShadow: "0 0 0 2px oklch(1 0 0 / 0.08), 0 40px 80px -20px oklch(0 0 0 / 0.95), inset 0 2px 0 oklch(1 0 0 / 0.12)",
+                background:
+                  "conic-gradient(from 120deg, oklch(0.22 0 0), oklch(0.10 0 0) 20%, oklch(0.26 0 0) 40%, oklch(0.09 0 0) 60%, oklch(0.24 0 0) 80%, oklch(0.10 0 0) 90%, oklch(0.22 0 0))",
+                boxShadow:
+                  "0 0 0 2px oklch(1 0 0 / 0.08), 0 40px 80px -20px oklch(0 0 0 / 0.95), inset 0 2px 0 oklch(1 0 0 / 0.12)",
               }}
             />
 
@@ -122,13 +126,19 @@ export function CinematicVault({ className }: { className?: string }) {
                 <div
                   className="size-3 rounded-full"
                   style={{
-                    background: "radial-gradient(circle at 35% 28%, oklch(0.65 0 0), oklch(0.18 0 0) 70%)",
+                    background:
+                      "radial-gradient(circle at 35% 28%, oklch(0.65 0 0), oklch(0.18 0 0) 70%)",
                     boxShadow: "0 1px 3px oklch(0 0 0 / 0.9), inset 0 1px 0 oklch(1 0 0 / 0.2)",
                     transform: `rotate(${-deg}deg)`,
                   }}
                 >
                   {/* hex socket */}
-                  <div className="absolute inset-[30%] rounded-sm bg-[oklch(0.08_0_0)] opacity-80" style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }} />
+                  <div
+                    className="absolute inset-[30%] rounded-sm bg-[oklch(0.08_0_0)] opacity-80"
+                    style={{
+                      clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -138,7 +148,8 @@ export function CinematicVault({ className }: { className?: string }) {
               className="absolute rounded-full"
               style={{
                 inset: "-2%",
-                background: "conic-gradient(from 45deg, oklch(0.32 0 0), oklch(0.14 0 0) 15%, oklch(0.38 0 0) 30%, oklch(0.12 0 0) 50%, oklch(0.35 0 0) 65%, oklch(0.13 0 0) 80%, oklch(0.32 0 0))",
+                background:
+                  "conic-gradient(from 45deg, oklch(0.32 0 0), oklch(0.14 0 0) 15%, oklch(0.38 0 0) 30%, oklch(0.12 0 0) 50%, oklch(0.35 0 0) 65%, oklch(0.13 0 0) 80%, oklch(0.32 0 0))",
                 boxShadow: "inset 0 4px 32px oklch(0 0 0 / 0.95), 0 0 0 1px oklch(1 0 0 / 0.1)",
               }}
             />
@@ -147,7 +158,8 @@ export function CinematicVault({ className }: { className?: string }) {
             <div
               className="absolute inset-0 overflow-hidden rounded-full"
               style={{
-                background: "conic-gradient(from 0deg, oklch(0.38 0 0), oklch(0.20 0 0) 8%, oklch(0.44 0 0) 17%, oklch(0.18 0 0) 25%, oklch(0.40 0 0) 33%, oklch(0.19 0 0) 42%, oklch(0.43 0 0) 50%, oklch(0.18 0 0) 58%, oklch(0.41 0 0) 67%, oklch(0.20 0 0) 75%, oklch(0.44 0 0) 83%, oklch(0.19 0 0) 92%, oklch(0.38 0 0))",
+                background:
+                  "conic-gradient(from 0deg, oklch(0.38 0 0), oklch(0.20 0 0) 8%, oklch(0.44 0 0) 17%, oklch(0.18 0 0) 25%, oklch(0.40 0 0) 33%, oklch(0.19 0 0) 42%, oklch(0.43 0 0) 50%, oklch(0.18 0 0) 58%, oklch(0.41 0 0) 67%, oklch(0.20 0 0) 75%, oklch(0.44 0 0) 83%, oklch(0.19 0 0) 92%, oklch(0.38 0 0))",
                 boxShadow: "inset 0 0 80px oklch(0 0 0 / 0.8), inset 0 4px 0 oklch(1 0 0 / 0.08)",
               }}
             >
@@ -157,17 +169,26 @@ export function CinematicVault({ className }: { className?: string }) {
               {/* Primary specular — top-left key light */}
               <div
                 className="absolute inset-0"
-                style={{ background: "radial-gradient(ellipse 70% 55% at 28% 18%, oklch(1 0 0 / 0.28), transparent 60%)" }}
+                style={{
+                  background:
+                    "radial-gradient(ellipse 70% 55% at 28% 18%, oklch(1 0 0 / 0.28), transparent 60%)",
+                }}
               />
               {/* Secondary specular — bottom-right fill */}
               <div
                 className="absolute inset-0"
-                style={{ background: "radial-gradient(ellipse 50% 40% at 76% 82%, oklch(1 0 0 / 0.08), transparent 55%)" }}
+                style={{
+                  background:
+                    "radial-gradient(ellipse 50% 40% at 76% 82%, oklch(1 0 0 / 0.08), transparent 55%)",
+                }}
               />
               {/* Edge vignette */}
               <div
                 className="absolute inset-0 rounded-full"
-                style={{ background: "radial-gradient(circle at 50% 50%, transparent 55%, oklch(0 0 0 / 0.7) 100%)" }}
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 50%, transparent 55%, oklch(0 0 0 / 0.7) 100%)",
+                }}
               />
 
               {/* ── Precision machined concentric rings ── */}
@@ -184,7 +205,10 @@ export function CinematicVault({ className }: { className?: string }) {
                     inset: r.inset,
                     border: "1px solid oklch(1 0 0 / 1)",
                     opacity: r.opacity,
-                    animation: r.dur !== "0s" ? `orbit ${r.dur} linear infinite ${r.reverse ? "reverse" : ""}` : undefined,
+                    animation:
+                      r.dur !== "0s"
+                        ? `orbit ${r.dur} linear infinite ${r.reverse ? "reverse" : ""}`
+                        : undefined,
                   }}
                 />
               ))}
@@ -199,8 +223,10 @@ export function CinematicVault({ className }: { className?: string }) {
                   <div
                     className="size-[1.1rem] rounded-full"
                     style={{
-                      background: "radial-gradient(circle at 32% 26%, oklch(0.78 0 0), oklch(0.28 0 0) 55%, oklch(0.12 0 0))",
-                      boxShadow: "0 2px 4px oklch(0 0 0 / 0.95), inset 0 1px 0 oklch(1 0 0 / 0.35), 0 0 0 1px oklch(0 0 0 / 0.5)",
+                      background:
+                        "radial-gradient(circle at 32% 26%, oklch(0.78 0 0), oklch(0.28 0 0) 55%, oklch(0.12 0 0))",
+                      boxShadow:
+                        "0 2px 4px oklch(0 0 0 / 0.95), inset 0 1px 0 oklch(1 0 0 / 0.35), 0 0 0 1px oklch(0 0 0 / 0.5)",
                       transform: `rotate(${-deg}deg)`,
                     }}
                   >
@@ -209,7 +235,8 @@ export function CinematicVault({ className }: { className?: string }) {
                       className="absolute inset-[28%] opacity-70"
                       style={{
                         background: "oklch(0.06 0 0)",
-                        clipPath: "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
+                        clipPath:
+                          "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)",
                       }}
                     />
                   </div>
@@ -220,13 +247,14 @@ export function CinematicVault({ className }: { className?: string }) {
                   COMBINATION DIAL — ultra-detailed
               ══════════════════════════════════ */}
               <div className="absolute left-1/2 top-1/2 size-[42%] -translate-x-1/2 -translate-y-1/2">
-
                 {/* Dial outer bezel */}
                 <div
                   className="absolute -inset-[6%] rounded-full"
                   style={{
-                    background: "conic-gradient(from 60deg, oklch(0.28 0 0), oklch(0.12 0 0) 20%, oklch(0.32 0 0) 40%, oklch(0.10 0 0) 60%, oklch(0.30 0 0) 80%, oklch(0.12 0 0) 90%, oklch(0.28 0 0))",
-                    boxShadow: "0 8px 24px oklch(0 0 0 / 0.9), inset 0 2px 0 oklch(1 0 0 / 0.15), 0 0 0 1px oklch(1 0 0 / 0.08)",
+                    background:
+                      "conic-gradient(from 60deg, oklch(0.28 0 0), oklch(0.12 0 0) 20%, oklch(0.32 0 0) 40%, oklch(0.10 0 0) 60%, oklch(0.30 0 0) 80%, oklch(0.12 0 0) 90%, oklch(0.28 0 0))",
+                    boxShadow:
+                      "0 8px 24px oklch(0 0 0 / 0.9), inset 0 2px 0 oklch(1 0 0 / 0.15), 0 0 0 1px oklch(1 0 0 / 0.08)",
                   }}
                 />
 
@@ -234,15 +262,20 @@ export function CinematicVault({ className }: { className?: string }) {
                 <div
                   className="absolute inset-0 rounded-full overflow-hidden"
                   style={{
-                    background: "conic-gradient(from 0deg, oklch(0.46 0 0), oklch(0.22 0 0) 12%, oklch(0.52 0 0) 25%, oklch(0.20 0 0) 38%, oklch(0.48 0 0) 50%, oklch(0.21 0 0) 63%, oklch(0.50 0 0) 75%, oklch(0.20 0 0) 88%, oklch(0.46 0 0))",
-                    boxShadow: "inset 0 0 24px oklch(0 0 0 / 0.85), 0 12px 36px -8px oklch(0 0 0 / 0.9)",
+                    background:
+                      "conic-gradient(from 0deg, oklch(0.46 0 0), oklch(0.22 0 0) 12%, oklch(0.52 0 0) 25%, oklch(0.20 0 0) 38%, oklch(0.48 0 0) 50%, oklch(0.21 0 0) 63%, oklch(0.50 0 0) 75%, oklch(0.20 0 0) 88%, oklch(0.46 0 0))",
+                    boxShadow:
+                      "inset 0 0 24px oklch(0 0 0 / 0.85), 0 12px 36px -8px oklch(0 0 0 / 0.9)",
                     animation: "orbit 10s linear infinite",
                   }}
                 >
                   {/* Dial specular */}
                   <div
                     className="absolute inset-0"
-                    style={{ background: "radial-gradient(ellipse 65% 50% at 30% 20%, oklch(1 0 0 / 0.22), transparent 55%)" }}
+                    style={{
+                      background:
+                        "radial-gradient(ellipse 65% 50% at 30% 20%, oklch(1 0 0 / 0.22), transparent 55%)",
+                    }}
                   />
                   <div className="bg-noise absolute inset-0 opacity-25 mix-blend-overlay" />
 
@@ -260,8 +293,8 @@ export function CinematicVault({ className }: { className?: string }) {
                           background: isMajor
                             ? "oklch(1 0 0 / 0.85)"
                             : isMid
-                            ? "oklch(1 0 0 / 0.5)"
-                            : "oklch(1 0 0 / 0.25)",
+                              ? "oklch(1 0 0 / 0.5)"
+                              : "oklch(1 0 0 / 0.25)",
                           transform: `translate(-50%, -50%) rotate(${deg}deg) translateY(-44%)`,
                         }}
                       />
@@ -289,7 +322,8 @@ export function CinematicVault({ className }: { className?: string }) {
                       style={{
                         width: "6%",
                         height: "72%",
-                        background: "linear-gradient(180deg, oklch(0.68 0 0), oklch(0.26 0 0) 50%, oklch(0.68 0 0))",
+                        background:
+                          "linear-gradient(180deg, oklch(0.68 0 0), oklch(0.26 0 0) 50%, oklch(0.68 0 0))",
                         boxShadow: "0 2px 8px oklch(0 0 0 / 0.7)",
                         transform: `translate(-50%,-50%) rotate(${deg}deg)`,
                       }}
@@ -301,8 +335,10 @@ export function CinematicVault({ className }: { className?: string }) {
                 <div
                   className="absolute left-1/2 top-1/2 size-[32%] -translate-x-1/2 -translate-y-1/2 rounded-full"
                   style={{
-                    background: "radial-gradient(circle at 32% 26%, oklch(1 0 0), oklch(0.75 0 0) 30%, oklch(0.42 0 0) 60%, oklch(0.18 0 0))",
-                    boxShadow: "0 0 0 2px oklch(0 0 0 / 0.6), 0 0 40px oklch(1 0 0 / 0.5), inset 0 2px 4px oklch(1 0 0 / 0.6)",
+                    background:
+                      "radial-gradient(circle at 32% 26%, oklch(1 0 0), oklch(0.75 0 0) 30%, oklch(0.42 0 0) 60%, oklch(0.18 0 0))",
+                    boxShadow:
+                      "0 0 0 2px oklch(0 0 0 / 0.6), 0 0 40px oklch(1 0 0 / 0.5), inset 0 2px 4px oklch(1 0 0 / 0.6)",
                   }}
                 />
 
@@ -325,9 +361,7 @@ export function CinematicVault({ className }: { className?: string }) {
                   }}
                 />
                 {/* LED label */}
-                <div
-                  className="absolute left-1/2 top-[-22%] -translate-x-1/2 font-mono text-[5px] uppercase tracking-widest text-foreground/40"
-                >
+                <div className="absolute left-1/2 top-[-22%] -translate-x-1/2 font-mono text-[5px] uppercase tracking-widest text-foreground/40">
                   ARMED
                 </div>
               </div>
@@ -336,7 +370,8 @@ export function CinematicVault({ className }: { className?: string }) {
               <div
                 className="absolute inset-x-0 top-0 h-full"
                 style={{
-                  background: "linear-gradient(180deg, transparent 42%, oklch(1 0 0 / 0.18) 50%, oklch(1 0 0 / 0.06) 54%, transparent 58%)",
+                  background:
+                    "linear-gradient(180deg, transparent 42%, oklch(1 0 0 / 0.18) 50%, oklch(1 0 0 / 0.06) 54%, transparent 58%)",
                   animation: "scan 6s ease-in-out infinite",
                 }}
               />
@@ -349,7 +384,8 @@ export function CinematicVault({ className }: { className?: string }) {
             <div
               className="absolute inset-0 rounded-full"
               style={{
-                boxShadow: "inset 0 -6px 20px oklch(0 0 0 / 0.6), inset 0 6px 12px oklch(1 0 0 / 0.06)",
+                boxShadow:
+                  "inset 0 -6px 20px oklch(0 0 0 / 0.6), inset 0 6px 12px oklch(1 0 0 / 0.06)",
                 pointerEvents: "none",
               }}
             />
@@ -357,14 +393,45 @@ export function CinematicVault({ className }: { className?: string }) {
 
           {/* ── Floating encrypted file chips ── */}
           {[
-            { pos: "left-[-4%] top-[8%]", z: 220, delay: "0s", name: "contract.pdf", tag: "AES-256", dot: "oklch(0.95 0 0)" },
-            { pos: "right-[-5%] top-[22%]", z: 180, delay: "1.1s", name: "keynote.mp4", tag: "Private", dot: "oklch(0.8 0 0)" },
-            { pos: "left-[0%] bottom-[14%]", z: 160, delay: "2.3s", name: "design.png", tag: "Owner-only", dot: "oklch(0.9 0 0)" },
-            { pos: "right-[-2%] bottom-[8%]", z: 240, delay: "0.6s", name: "backup.zip", tag: "Expiring link", dot: "oklch(0.7 0 0)" },
+            {
+              pos: "left-[-4%] top-[8%]",
+              z: 220,
+              delay: "0s",
+              name: "contract.pdf",
+              tag: "AES-256",
+              dot: "oklch(0.95 0 0)",
+            },
+            {
+              pos: "right-[-5%] top-[22%]",
+              z: 180,
+              delay: "1.1s",
+              name: "keynote.mp4",
+              tag: "Private",
+              dot: "oklch(0.8 0 0)",
+            },
+            {
+              pos: "left-[0%] bottom-[14%]",
+              z: 160,
+              delay: "2.3s",
+              name: "design.png",
+              tag: "Owner-only",
+              dot: "oklch(0.9 0 0)",
+            },
+            {
+              pos: "right-[-2%] bottom-[8%]",
+              z: 240,
+              delay: "0.6s",
+              name: "backup.zip",
+              tag: "Expiring link",
+              dot: "oklch(0.7 0 0)",
+            },
           ].map((chip) => (
             <div
               key={chip.name}
-              className={cn("glass-strong animate-float absolute rounded-2xl shadow-[var(--shadow-elevated)]", chip.pos)}
+              className={cn(
+                "glass-strong animate-float absolute rounded-2xl shadow-[var(--shadow-elevated)]",
+                chip.pos,
+              )}
               style={{
                 transform: `translateZ(${chip.z}px)`,
                 animationDelay: chip.delay,
@@ -400,7 +467,10 @@ export function CinematicVault({ className }: { className?: string }) {
         <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-surface/60 px-3 py-1 backdrop-blur-sm">
           <span
             className="size-1.5 rounded-full bg-foreground"
-            style={{ boxShadow: "0 0 8px oklch(1 0 0 / 0.8)", animation: "tick-glow 2s ease-in-out infinite" }}
+            style={{
+              boxShadow: "0 0 8px oklch(1 0 0 / 0.8)",
+              animation: "tick-glow 2s ease-in-out infinite",
+            }}
           />
           <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
             Vault status · sealed

@@ -51,9 +51,7 @@ export function SocialAuth({
   return (
     <div
       className={cn(
-        layout === "row"
-          ? "grid grid-cols-2 gap-2"
-          : "grid grid-cols-2 gap-2",
+        layout === "row" ? "grid grid-cols-2 gap-2" : "grid grid-cols-2 gap-2",
         className,
       )}
     >

@@ -24,14 +24,7 @@ export function VaultraMark({ className }: { className?: string }) {
         strokeOpacity="0.95"
       />
       {/* Outer ring */}
-      <circle
-        cx="16"
-        cy="15.8"
-        r="5.8"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        opacity="0.88"
-      />
+      <circle cx="16" cy="15.8" r="5.8" stroke="currentColor" strokeWidth="1.4" opacity="0.88" />
       {/* Centre dot */}
       <circle cx="16" cy="15.8" r="2.1" fill="currentColor" />
       {/* Crosshair ticks N / S / E / W */}

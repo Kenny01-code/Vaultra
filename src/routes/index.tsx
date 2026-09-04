@@ -94,12 +94,17 @@ function Index() {
             HERO — 3D animated guardian + cinematic form drag
         ══════════════════════════════════════════════════════ */}
         <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20">
-          <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]" aria-hidden="true" />
-          <div className="bg-aurora pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+          <div
+            className="bg-grid pointer-events-none absolute inset-0 opacity-[0.28]"
+            aria-hidden="true"
+          />
+          <div
+            className="bg-aurora pointer-events-none absolute inset-0 opacity-60"
+            aria-hidden="true"
+          />
 
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-8">
-
               {/* Left — headline + CTAs */}
               <div className="stagger flex-1 text-center lg:text-left">
                 <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground sm:text-xs">
@@ -109,7 +114,12 @@ function Index() {
                 <h1 className="mt-4 text-[1.85rem] font-semibold leading-[1.06] tracking-tight sm:text-5xl md:text-6xl">
                   Your files,{" "}
                   <TypeLine
-                    phrases={["locked down.", "owner-only.", "shareable on your terms.", "audit-ready."]}
+                    phrases={[
+                      "locked down.",
+                      "owner-only.",
+                      "shareable on your terms.",
+                      "audit-ready.",
+                    ]}
                     className="block sm:inline"
                   />
                 </h1>
@@ -145,13 +155,14 @@ function Index() {
 
               {/* Right — 3D Cinematic vault */}
               <div className="w-full flex-1">
-                <Suspense fallback={
-                  <div className="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[36rem] animate-pulse rounded-full bg-surface-2" />
-                }>
+                <Suspense
+                  fallback={
+                    <div className="mx-auto aspect-square w-full max-w-[22rem] sm:max-w-[28rem] lg:max-w-[36rem] animate-pulse rounded-full bg-surface-2" />
+                  }
+                >
                   <CinematicVault />
                 </Suspense>
               </div>
-
             </div>
           </div>
         </section>
@@ -188,7 +199,9 @@ function Index() {
           <Reveal>
             <div className="glass-strong flex flex-col items-start gap-5 rounded-3xl p-6 sm:p-8 md:flex-row md:items-center md:justify-between md:p-10">
               <div>
-                <h2 className="text-xl font-semibold sm:text-2xl">Ready to store something safely?</h2>
+                <h2 className="text-xl font-semibold sm:text-2xl">
+                  Ready to store something safely?
+                </h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Sign up in seconds with Google, GitHub or email — no card, no setup.
                 </p>
@@ -205,13 +218,18 @@ function Index() {
         {/* ── iPhone preview ── */}
         <section className="cv-auto overflow-hidden py-16 md:py-24">
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
-            <div className="pointer-events-none absolute inset-0 bg-aurora opacity-40" aria-hidden="true" />
+            <div
+              className="pointer-events-none absolute inset-0 bg-aurora opacity-40"
+              aria-hidden="true"
+            />
             <Reveal className="text-center">
               <span className="glass inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] text-muted-foreground">
                 <ShieldCheck className="size-3.5" />
                 Designed for every screen
               </span>
-              <h2 className="mt-4 text-xl font-semibold sm:text-3xl">Looks stunning on iPhone 17 Pro Max</h2>
+              <h2 className="mt-4 text-xl font-semibold sm:text-3xl">
+                Looks stunning on iPhone 17 Pro Max
+              </h2>
               <p className="mt-3 text-sm text-muted-foreground">
                 Pixel-perfect on every device — from 4K displays to the latest Pro Max.
               </p>
@@ -219,9 +237,14 @@ function Index() {
             <Reveal delay={120} className="mt-12 flex justify-center">
               <div className="relative w-full flex justify-center overflow-hidden px-4">
                 <div className="pointer-events-none absolute -inset-16 rounded-full bg-[radial-gradient(ellipse_at_50%_60%,oklch(1_0_0/0.10),transparent_65%)] blur-3xl" />
-                <Suspense fallback={
-                  <div className="rounded-[52px] bg-surface-2 animate-pulse" style={{ width: 280, height: 606 }} />
-                }>
+                <Suspense
+                  fallback={
+                    <div
+                      className="rounded-[52px] bg-surface-2 animate-pulse"
+                      style={{ width: 280, height: 606 }}
+                    />
+                  }
+                >
                   <IPhoneFrame />
                 </Suspense>
               </div>

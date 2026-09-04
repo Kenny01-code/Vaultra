@@ -4,8 +4,6 @@ export function isUserAdmin(
   user: { email?: string | null; emailVerified?: boolean } | null,
 ): boolean {
   return Boolean(
-    user?.emailVerified &&
-      user.email &&
-      ADMIN_EMAILS.includes(user.email.toLowerCase().trim()),
+    user?.emailVerified && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase().trim()),
   );
 }

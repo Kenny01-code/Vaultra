@@ -65,7 +65,10 @@ export function FileCard({
   return (
     <article
       className="glass card-hover content-auto group relative flex flex-col overflow-hidden rounded-2xl"
-      style={{ animation: "var(--animate-fade-up)", animationDelay: `${Math.min(index, 12) * 45}ms` }}
+      style={{
+        animation: "var(--animate-fade-up)",
+        animationDelay: `${Math.min(index, 12) * 45}ms`,
+      }}
     >
       <button
         type="button"
@@ -97,7 +100,10 @@ export function FileCard({
         <span className="absolute right-2 top-2">
           <Badge
             variant={file.is_public ? "default" : "secondary"}
-            className={cn("gap-1 text-[10px]", file.is_public && "bg-brand text-primary-foreground")}
+            className={cn(
+              "gap-1 text-[10px]",
+              file.is_public && "bg-brand text-primary-foreground",
+            )}
           >
             {file.is_public ? (
               <>
@@ -169,11 +175,23 @@ export function FileCard({
 
           <div className="flex items-center gap-1">
             {file.is_public ? (
-              <Button variant="ghost" size="icon" className="size-8" onClick={onCopyLink} aria-label="Copy share link">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={onCopyLink}
+                aria-label="Copy share link"
+              >
                 <Share2 />
               </Button>
             ) : null}
-            <Button variant="ghost" size="icon" className="size-8" onClick={onDownload} aria-label="Download file">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-8"
+              onClick={onDownload}
+              aria-label="Download file"
+            >
               <Download />
             </Button>
           </div>

@@ -15,12 +15,7 @@ export type VaultFile = {
 export type VaultView = "recent" | "all" | "public" | "private";
 
 export type VaultSort =
-  | "date-desc"
-  | "date-asc"
-  | "size-desc"
-  | "size-asc"
-  | "name-asc"
-  | "name-desc";
+  "date-desc" | "date-asc" | "size-desc" | "size-asc" | "name-asc" | "name-desc";
 
 export type VaultDisplayMode = "grid" | "list";
 

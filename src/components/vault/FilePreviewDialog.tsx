@@ -55,7 +55,9 @@ export function FilePreviewDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-1.5rem)] max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl p-4 sm:p-6">
         <DialogHeader className="pr-6">
-          <DialogTitle className="truncate text-base sm:text-lg">{file?.name ?? "File Preview"}</DialogTitle>
+          <DialogTitle className="truncate text-base sm:text-lg">
+            {file?.name ?? "File Preview"}
+          </DialogTitle>
           <DialogDescription className="font-mono text-xs text-muted-foreground">
             {file
               ? `${file.mime_type} · ${formatBytes(file.size_bytes)} · Uploaded ${formatRelativeTime(file.created_at)}`
@@ -137,7 +139,12 @@ export function FilePreviewDialog({
         <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3">
           <div className="flex items-center gap-2">
             {file?.is_public ? (
-              <Button variant="glass" size="sm" onClick={() => void copyShareLink()} className="gap-1.5 text-xs">
+              <Button
+                variant="glass"
+                size="sm"
+                onClick={() => void copyShareLink()}
+                className="gap-1.5 text-xs"
+              >
                 <Copy className="size-3.5" /> Copy public link
               </Button>
             ) : null}

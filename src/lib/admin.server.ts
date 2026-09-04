@@ -28,7 +28,8 @@ export function kindOf(mimeType: string): string {
   if (mime.startsWith("audio/")) return "Audio";
   if (mime === "application/pdf") return "PDF";
   if (mime.startsWith("text/") || mime.includes("json") || mime.includes("csv")) return "Text";
-  if (mime.includes("zip") || mime.includes("compressed") || mime.includes("tar")) return "Archives";
+  if (mime.includes("zip") || mime.includes("compressed") || mime.includes("tar"))
+    return "Archives";
   return "Other";
 }
 

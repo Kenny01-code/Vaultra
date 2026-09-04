@@ -80,12 +80,7 @@ export function AnalyticsCharts({
   const empty = data.length === 0;
 
   return (
-    <section
-      className={cn(
-        "glass rounded-3xl p-4 shadow-[var(--shadow-card)] sm:p-6",
-        className,
-      )}
-    >
+    <section className={cn("glass rounded-3xl p-4 shadow-[var(--shadow-card)] sm:p-6", className)}>
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-base font-semibold sm:text-lg">Storage analytics</h2>
@@ -109,7 +104,9 @@ export function AnalyticsCharts({
       </header>
 
       {empty ? (
-        <p className="mt-8 text-sm text-muted-foreground">No data yet — upload a file to populate the charts.</p>
+        <p className="mt-8 text-sm text-muted-foreground">
+          No data yet — upload a file to populate the charts.
+        </p>
       ) : (
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="h-64 sm:h-72">

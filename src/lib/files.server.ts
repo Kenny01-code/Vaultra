@@ -1,4 +1,4 @@
-// Server-only validation helpers — no Firebase, no Supabase imports here.
+﻿// Server-only validation helpers â€” no Firebase, no Supabase imports here.
 // Pure functions only; safe to import from any server function.
 
 export const MAX_FILE_BYTES = 1024 * 1024 * 1024; // 1 GB per file
@@ -7,11 +7,52 @@ export const VAULT_BUCKET = "vault";
 
 /** Executables / server-interpretable types rejected outright (OWASP file upload). */
 const BLOCKED_EXTENSIONS = new Set([
-  "exe", "dll", "so", "bat", "cmd", "com", "cpl", "msi", "msc", "scr", "jar",
-  "sh", "bash", "zsh", "ps1", "vbs", "js", "mjs", "cjs", "jse", "wsf", "wsh",
-  "php", "php3", "php4", "php5", "phtml", "asp", "aspx", "jsp", "jspx",
-  "cgi", "pl", "py", "rb", "app", "dmg", "pkg", "deb", "rpm", "htaccess",
-  "svg", "html", "htm", "xhtml", "shtml",
+  "exe",
+  "dll",
+  "so",
+  "bat",
+  "cmd",
+  "com",
+  "cpl",
+  "msi",
+  "msc",
+  "scr",
+  "jar",
+  "sh",
+  "bash",
+  "zsh",
+  "ps1",
+  "vbs",
+  "js",
+  "mjs",
+  "cjs",
+  "jse",
+  "wsf",
+  "wsh",
+  "php",
+  "php3",
+  "php4",
+  "php5",
+  "phtml",
+  "asp",
+  "aspx",
+  "jsp",
+  "jspx",
+  "cgi",
+  "pl",
+  "py",
+  "rb",
+  "app",
+  "dmg",
+  "pkg",
+  "deb",
+  "rpm",
+  "htaccess",
+  "svg",
+  "html",
+  "htm",
+  "xhtml",
+  "shtml",
 ]);
 
 const BLOCKED_MIME_PATTERNS = [
@@ -23,17 +64,22 @@ const BLOCKED_MIME_PATTERNS = [
 
 export function extensionOf(name: string): string {
   const parts = name.split(".");
-  return parts.length > 1 ? parts.pop()!.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+  return parts.length > 1
+    ? parts
+        .pop()!
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "")
+    : "";
 }
 
 /** Strips paths, control characters and traversal sequences from a display name. */
 export function sanitizeFileName(rawName: string): string {
-  const base = rawName.split(/[\\\/]/).pop() ?? "file";
+  const base = rawName.split(/[\\/]/).pop() ?? "file";
   const cleaned = base
     // eslint-disable-next-line no-control-regex
     .replace(/[\u0000-\u001f\u007f]/g, "")
     .replace(/\.{2,}/g, ".")
-    .replace(/[^a-zA-Z0-9._()\-\[\]\s]+/g, "_")
+    .replace(/[^a-zA-Z0-9._()\-[\]\s]+/g, "_")
     .replace(/^[._]+/, "")
     .trim();
   const safe = cleaned.length ? cleaned : "file";

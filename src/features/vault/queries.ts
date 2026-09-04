@@ -22,7 +22,11 @@ export const profileQuery = (userId: string) =>
   queryOptions({
     queryKey: ["vault", "profile", userId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
       if (error) throw error;
       return {
         fullName: (data?.["full_name"] as string | null) ?? null,

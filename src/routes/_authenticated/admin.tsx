@@ -1,17 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  FileCheck2,
-  HardDrive,
-  Lock,
-  Share2,
-  Shield,
-  Users,
-} from "lucide-react";
+import { FileCheck2, HardDrive, Lock, Share2, Shield, Users } from "lucide-react";
 
 import { AppShell } from "@/components/vault/AppShell";
-import { AnalyticsCharts, type KindSlice, type TrendPoint } from "@/components/vault/AnalyticsCharts";
+import {
+  AnalyticsCharts,
+  type KindSlice,
+  type TrendPoint,
+} from "@/components/vault/AnalyticsCharts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatBytes, formatRelativeTime } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,7 +21,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 const fetchAdminOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabaseAdmin, isAdminClientAvailable } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin, isAdminClientAvailable } =
+      await import("@/integrations/supabase/client.server");
 
     if (!isAdminClientAvailable()) {
       throw new Error(
@@ -48,9 +46,7 @@ const fetchAdminOverview = createServerFn({ method: "GET" })
           .select("*")
           .order("created_at", { ascending: false })
           .limit(500),
-        supabaseAdmin
-          .from("profiles")
-          .select("id", { count: "exact", head: true }),
+        supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
       ]);
 
     if (filesError) throw filesError;
@@ -78,12 +74,15 @@ function kindOf(mimeType: string, fileName = ""): string {
   if (mime.startsWith("video/")) return "Video";
   if (mime.startsWith("audio/")) return "Audio";
   if (mime === "application/pdf" || ext === "pdf") return "PDF";
-  if (mime.startsWith("text/") || ["json", "csv", "md", "txt", "log"].includes(ext)) return "Text/Code";
+  if (mime.startsWith("text/") || ["json", "csv", "md", "txt", "log"].includes(ext))
+    return "Text/Code";
   if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "Archives";
   return "Other";
 }
 
-function groupByKind(rows: { mime_type: string; name?: string; size_bytes: number | string }[]): KindSlice[] {
+function groupByKind(
+  rows: { mime_type: string; name?: string; size_bytes: number | string }[],
+): KindSlice[] {
   const map = new Map<string, { files: number; bytes: number }>();
   for (const row of rows) {
     const kind = kindOf(row.mime_type, row.name ?? "");
@@ -132,7 +131,8 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { title: "Admin Console & Analytics — Vaultra" },
       {
         name: "description",
-        content: "Site-wide overview of Vaultra accounts, stored files and real-time storage analytics.",
+        content:
+          "Site-wide overview of Vaultra accounts, stored files and real-time storage analytics.",
       },
       { property: "og:title", content: "Admin Console & Analytics — Vaultra" },
       { property: "og:description", content: "Operational metrics and analytics for Vaultra." },
@@ -206,10 +206,22 @@ function AdminPage() {
           </p>
           <div className="mt-4 glass rounded-xl p-4 text-left text-xs text-muted-foreground max-w-md mx-auto space-y-1">
             <p className="font-semibold text-foreground">How to fix:</p>
-            <p>1. Go to <strong>Vercel</strong> → your project → <strong>Settings → Environment Variables</strong></p>
-            <p>2. Add <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_URL</code> — your Supabase project URL</p>
-            <p>3. Add <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code> — from Supabase Dashboard → Settings → API</p>
-            <p>4. <strong>Redeploy</strong> the project</p>
+            <p>
+              1. Go to <strong>Vercel</strong> → your project →{" "}
+              <strong>Settings → Environment Variables</strong>
+            </p>
+            <p>
+              2. Add <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_URL</code> —
+              your Supabase project URL
+            </p>
+            <p>
+              3. Add{" "}
+              <code className="font-mono bg-surface-2 px-1 rounded">SUPABASE_SERVICE_ROLE_KEY</code>{" "}
+              — from Supabase Dashboard → Settings → API
+            </p>
+            <p>
+              4. <strong>Redeploy</strong> the project
+            </p>
           </div>
         </div>
       ) : stats ? (
@@ -218,7 +230,10 @@ function AdminPage() {
           <div className="flex items-center gap-2">
             <span
               className="size-2 rounded-full bg-foreground"
-              style={{ boxShadow: "0 0 6px oklch(1 0 0 / 0.8)", animation: "tick-glow 2s ease-in-out infinite" }}
+              style={{
+                boxShadow: "0 0 6px oklch(1 0 0 / 0.8)",
+                animation: "tick-glow 2s ease-in-out infinite",
+              }}
             />
             <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
               Live · refreshes every 30s
@@ -258,7 +273,9 @@ function AdminPage() {
                 </p>
                 <HardDrive className="size-4 text-primary opacity-80" />
               </div>
-              <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">{formatBytes(stats.bytes)}</p>
+              <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">
+                {formatBytes(stats.bytes)}
+              </p>
               <p className="mt-1 text-[11px] text-muted-foreground">Encrypted at rest</p>
             </div>
 
@@ -269,7 +286,9 @@ function AdminPage() {
                 </p>
                 <Share2 className="size-4 text-primary opacity-80" />
               </div>
-              <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">{stats.publicFiles}</p>
+              <p className="mt-2 font-display text-xl font-semibold sm:text-3xl">
+                {stats.publicFiles}
+              </p>
               <p className="mt-1 text-[11px] text-muted-foreground">Revocable links</p>
             </div>
           </div>
@@ -317,22 +336,38 @@ function AdminPage() {
               </p>
               <div className="mt-4 divide-y divide-border/60">
                 {stats.recentFiles.map((file) => (
-                  <div key={file.id} className="flex items-center justify-between gap-3 py-3 text-xs">
+                  <div
+                    key={file.id}
+                    className="flex items-center justify-between gap-3 py-3 text-xs"
+                  >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <FileTypeIcon mimeType={file.mime_type} name={file.name} className="size-4 shrink-0" />
+                      <FileTypeIcon
+                        mimeType={file.mime_type}
+                        name={file.name}
+                        className="size-4 shrink-0"
+                      />
                       <div className="min-w-0">
-                        <p className="font-medium truncate max-w-[160px] sm:max-w-[220px]">{file.name}</p>
+                        <p className="font-medium truncate max-w-[160px] sm:max-w-[220px]">
+                          {file.name}
+                        </p>
                         <p className="text-[10px] text-muted-foreground font-mono">
                           {formatBytes(Number(file.size_bytes))}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant={file.is_public ? "default" : "secondary"} className="text-[10px] gap-1">
+                      <Badge
+                        variant={file.is_public ? "default" : "secondary"}
+                        className="text-[10px] gap-1"
+                      >
                         {file.is_public ? (
-                          <><Share2 className="size-2.5" /> Public</>
+                          <>
+                            <Share2 className="size-2.5" /> Public
+                          </>
                         ) : (
-                          <><Lock className="size-2.5" /> Private</>
+                          <>
+                            <Lock className="size-2.5" /> Private
+                          </>
                         )}
                       </Badge>
                       <span className="text-[10px] text-muted-foreground hidden xs:inline">

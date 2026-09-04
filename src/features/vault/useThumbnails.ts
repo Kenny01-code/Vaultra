@@ -17,10 +17,7 @@ export function getThumbnailCache(storagePath: string): string | undefined {
 
 export function useThumbnails(files: VaultFile[]) {
   const imagePaths = useMemo(
-    () =>
-      files
-        .filter((f) => fileKind(f.mime_type, f.name) === "image")
-        .map((f) => f.storage_path),
+    () => files.filter((f) => fileKind(f.mime_type, f.name) === "image").map((f) => f.storage_path),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [files.map((f) => f.storage_path).join(",")],
   );
@@ -49,8 +46,11 @@ export function useThumbnails(files: VaultFile[]) {
       await Promise.all(
         missingPaths.map(async (path) => {
           try {
-            const { data, error } = await supabase.storage.from("vault").createSignedUrl(path, 60 * 60);
-            if (error || !data?.signedUrl) throw error ?? new Error("Could not create thumbnail URL.");
+            const { data, error } = await supabase.storage
+              .from("vault")
+              .createSignedUrl(path, 60 * 60);
+            if (error || !data?.signedUrl)
+              throw error ?? new Error("Could not create thumbnail URL.");
             const url = data.signedUrl;
             inMemoryCache[path] = url;
             results[path] = url;

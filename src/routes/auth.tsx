@@ -54,8 +54,8 @@ export function AuthPage() {
   const [resetBusy, setResetBusy] = useState(false);
 
   // Password recovery (from email link)
-  const [recoveryMode, setRecoveryMode] = useState(() =>
-    typeof window !== "undefined" && window.location.hash.includes("type=recovery"),
+  const [recoveryMode, setRecoveryMode] = useState(
+    () => typeof window !== "undefined" && window.location.hash.includes("type=recovery"),
   );
   const [newPassword, setNewPassword] = useState("");
   const [recoveryBusy, setRecoveryBusy] = useState(false);
@@ -67,7 +67,9 @@ export function AuthPage() {
   }, [loading, user, router, targetDestination, recoveryMode]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") setRecoveryMode(true);
     });
     return () => subscription.unsubscribe();
@@ -76,7 +78,10 @@ export function AuthPage() {
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanEmail = resetEmail.trim().toLowerCase();
-    if (!cleanEmail) { toast.error("Please enter your email address."); return; }
+    if (!cleanEmail) {
+      toast.error("Please enter your email address.");
+      return;
+    }
     setResetBusy(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
@@ -95,7 +100,10 @@ export function AuthPage() {
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword.length < 8) { toast.error("Use at least 8 characters for your new password."); return; }
+    if (newPassword.length < 8) {
+      toast.error("Use at least 8 characters for your new password.");
+      return;
+    }
     setRecoveryBusy(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -115,15 +123,17 @@ export function AuthPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       {/* Background layers */}
-      <div className="bg-grid pointer-events-none absolute inset-0 opacity-[0.22]" aria-hidden="true" />
-      <div className="bg-aurora pointer-events-none absolute inset-0 opacity-55" aria-hidden="true" />
+      <div
+        className="bg-grid pointer-events-none absolute inset-0 opacity-[0.22]"
+        aria-hidden="true"
+      />
+      <div
+        className="bg-aurora pointer-events-none absolute inset-0 opacity-55"
+        aria-hidden="true"
+      />
 
       {/* Full-screen hero scene — robot dances then drags the real auth form to centre */}
-      <HeroScene
-        withAuthForm
-        redirectPath={targetDestination}
-        className="min-h-screen"
-      />
+      <HeroScene withAuthForm redirectPath={targetDestination} className="min-h-screen" />
 
       {/* Password Reset Dialog */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>
@@ -132,24 +142,37 @@ export function AuthPage() {
             <DialogTitle className="flex items-center gap-2">
               <KeyRound className="size-5 text-primary" /> Reset password
             </DialogTitle>
-            <DialogDescription>
-              Enter your email and we'll send you a reset link.
-            </DialogDescription>
+            <DialogDescription>Enter your email and we'll send you a reset link.</DialogDescription>
           </DialogHeader>
           <form onSubmit={handlePasswordReset} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="reset-email">Email</Label>
               <Input
-                id="reset-email" type="email" required autoComplete="email"
+                id="reset-email"
+                type="email"
+                required
+                autoComplete="email"
                 placeholder="name@example.com"
-                value={resetEmail} onChange={(e) => setResetEmail(e.target.value)}
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
               />
             </div>
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setResetOpen(false)} disabled={resetBusy}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setResetOpen(false)}
+                disabled={resetBusy}
+              >
                 Cancel
               </Button>
-              <Button type="submit" variant="hero" size="sm" disabled={resetBusy || !resetEmail.trim()}>
+              <Button
+                type="submit"
+                variant="hero"
+                size="sm"
+                disabled={resetBusy || !resetEmail.trim()}
+              >
                 {resetBusy ? <Loader2 className="size-4 animate-spin" /> : "Send link"}
               </Button>
             </DialogFooter>
@@ -170,9 +193,13 @@ export function AuthPage() {
             <div className="space-y-1.5">
               <Label htmlFor="new-password">New password</Label>
               <Input
-                id="new-password" type="password" autoComplete="new-password"
-                minLength={8} required
-                value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
               />
               <p className="text-[11px] text-muted-foreground">Use at least 8 characters.</p>
             </div>
