@@ -152,10 +152,11 @@ Browser
 
 ### Upload Flow
 
-1. Browser calls `createUploadTicket` server fn → validates file type/size/quota server-side → returns Supabase Storage signed PUT URL
-2. Browser PUTs file directly to Supabase Storage (bypasses server — no bandwidth cost)
-3. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → atomically re-checks quota against that actual size → creates DB record
-4. File appears in vault
+1. The client accepts up to 10 files per picker or drop batch.
+2. Browser calls `createUploadTicket` server fn → validates file type/size/quota server-side → returns Supabase Storage signed PUT URL
+3. Browser PUTs file directly to Supabase Storage (bypasses server — no bandwidth cost)
+4. Browser calls `finalizeUpload` server fn → Admin SDK verifies file exists → reads **actual** server-side size (never trusts client) → atomically re-checks quota against that actual size → creates DB record
+5. File appears in vault
 
 ### Share Link Flow
 
@@ -175,6 +176,8 @@ Quota is enforced **server-side** in both upload stages:
 - Sums all existing `size_bytes` for the user
 - `createUploadTicket` rejects the upload if `used + declaredFileSize > quota`
 - `finalizeUpload` reads the actual object size from Storage and rejects if `used + actualFileSize > quota`
+- Each account has a 5 GB default quota; each individual file is limited to 1 GB
+- Each upload selection/drop is limited to 10 files
 - Finalization locks the user's profile row during the usage check, preventing concurrent uploads from exceeding quota
 - An over-quota uploaded object is deleted before any file record is created
 - `size_bytes` stored in DB always comes from server-side object metadata — never from the client
@@ -211,6 +214,8 @@ Key rules:
 - **Lazy loading** — CinematicVault, IPhoneFrame, FilePreviewDialog loaded on demand
 - **content-visibility: auto** — below-fold sections skip rendering until scrolled into view
 - **TanStack Query** — aggressive caching (staleTime 20s, gcTime 5min), no refetch on window focus
+- **Upload rendering** — progress callbacks are throttled to reduce React rerenders while large files stream directly to Storage
+- **Auth hydration** — vault queries wait for profile synchronization to finish, preventing first-load refresh races
 - **Route preloading** — links preload on hover/focus (`defaultPreload: "intent"`)
 - **GPU layers** — animated elements promoted to compositor with `translateZ(0)`
 - **DNS prefetch** — Supabase endpoints prefetched on page load
@@ -225,11 +230,12 @@ Key rules:
 | User registration + login | ✅ Email/password + Google/GitHub OAuth |
 | File upload (100 MB+, up to 1 GB) | ✅ Signed URL direct-to-storage upload |
 | Upload progress | ✅ XHR progress events |
+| Batch upload limit | ✅ Maximum 10 files per selection/drop |
 | File validation | ✅ Type, size, MIME, extension (OWASP) — client + server |
 | Private files (owner-only) | ✅ Supabase RLS + server ownership checks |
 | Public files via share link | ✅ Expiring signed URLs via share token |
 | File management (rename, delete, toggle) | ✅ Full CRUD via server functions |
-| Quota tracking | ✅ Server-side enforcement at ticket creation and finalization |
+| Quota tracking | ✅ 5 GB default quota, 1 GB per-file cap, server-side enforcement at ticket creation and finalization |
 | Responsive design | ✅ Mobile-first, xs/sm/md/lg/xl breakpoints |
 | Error handling | ✅ Toast notifications, server error boundaries |
 | TypeScript | ✅ Strict mode |
