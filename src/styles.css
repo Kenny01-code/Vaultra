@@ -761,3 +761,204 @@
   90%  { transform: translateX(5px) translateY(-2px) rotate(-1deg); }
   100% { transform: translateX(0) translateY(0) rotate(-2deg); }
 }
+
+/* Lightweight 3D-feeling guardian choreography. The SVG stays crisp while its
+   transforms create depth without loading a full 3D runtime on the auth route. */
+.guardian-body {
+  perspective: 700px;
+  transform-style: preserve-3d;
+}
+
+.guardian-body svg {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.guardian-logo-mark {
+  opacity: 0;
+  transform: scale(0.3) rotate(-18deg);
+}
+
+.guardian-body[data-emote="seal"] .guardian-logo-mark {
+  animation: guardian-logo-reveal-v2 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.guardian-body[data-emote="seal"] svg {
+  animation: guardian-body-seal-v2 1.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes guardian-groove-v2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateZ(-2deg) rotateY(-4deg); }
+  25% { transform: translate3d(-16px, -7px, 8px) rotateZ(-5deg) rotateY(8deg); }
+  50% { transform: translate3d(0, 1px, 0) rotateZ(2deg) rotateY(0deg); }
+  75% { transform: translate3d(16px, -6px, 8px) rotateZ(4deg) rotateY(-8deg); }
+}
+
+@keyframes guardian-moonwalk-v2 {
+  0%, 100% { transform: translate3d(18px, 3px, 0) rotateZ(-2deg) rotateY(-8deg); }
+  50% { transform: translate3d(-20px, -2px, 12px) rotateZ(3deg) rotateY(8deg); }
+}
+
+@keyframes guardian-spin-v2 {
+  0% { transform: translate3d(0, 0, 0) rotateY(0deg) rotateZ(-3deg); }
+  45% { transform: translate3d(0, -10px, 16px) rotateY(180deg) rotateZ(4deg); }
+  100% { transform: translate3d(0, 0, 0) rotateY(360deg) rotateZ(-3deg); }
+}
+
+@keyframes guardian-dip-v2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateZ(0deg) rotateY(0deg); }
+  35% { transform: translate3d(-8px, 10px, 4px) rotateZ(-8deg) rotateY(-12deg); }
+  65% { transform: translate3d(10px, 6px, 10px) rotateZ(8deg) rotateY(12deg); }
+}
+
+@keyframes torso-groove-v2 {
+  0%, 100% { transform: rotateZ(-4deg) rotateY(-5deg); }
+  50% { transform: rotateZ(5deg) rotateY(5deg) translateY(-4px); }
+}
+
+@keyframes torso-moonwalk-v2 {
+  0%, 100% { transform: rotateZ(-7deg) rotateY(-10deg) translateY(4px); }
+  50% { transform: rotateZ(6deg) rotateY(10deg) translateY(-2px); }
+}
+
+@keyframes torso-spin-v2 {
+  0%, 100% { transform: rotateZ(-3deg) rotateY(0deg); }
+  50% { transform: rotateZ(5deg) rotateY(180deg) translateY(-5px); }
+}
+
+@keyframes torso-dip-v2 {
+  0%, 100% { transform: rotateZ(0deg) translateY(0); }
+  50% { transform: rotateZ(-10deg) translateY(9px); }
+}
+
+@keyframes hip-groove-v2 {
+  0%, 100% { transform: rotateZ(5deg) translateX(-3px); }
+  50% { transform: rotateZ(-5deg) translateX(3px); }
+}
+
+@keyframes hip-moonwalk-v2 {
+  0%, 100% { transform: translateX(8px) rotateZ(-4deg); }
+  50% { transform: translateX(-8px) rotateZ(4deg); }
+}
+
+@keyframes hip-spin-v2 {
+  0%, 100% { transform: rotateZ(0deg); }
+  50% { transform: rotateZ(12deg); }
+}
+
+@keyframes hip-dip-v2 {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(14px) rotateZ(-8deg); }
+}
+
+@keyframes head-groove-v2 {
+  0%, 100% { transform: rotateZ(-5deg) translateY(1px); }
+  50% { transform: rotateZ(5deg) translateY(-5px); }
+}
+
+@keyframes head-moonwalk-v2 {
+  0%, 100% { transform: rotateZ(-7deg) translateY(3px); }
+  50% { transform: rotateZ(5deg) translateY(-2px); }
+}
+
+@keyframes head-spin-v2 {
+  0%, 100% { transform: rotateZ(-3deg) rotateY(0deg); }
+  50% { transform: rotateZ(4deg) rotateY(180deg); }
+}
+
+@keyframes head-dip-v2 {
+  0%, 100% { transform: translateY(0) rotateZ(0deg); }
+  50% { transform: translateY(10px) rotateZ(-12deg); }
+}
+
+@keyframes leg-l-groove-v2 {
+  0%, 100% { transform: rotateZ(8deg) translateY(0); }
+  50% { transform: rotateZ(-12deg) translateY(-8px); }
+}
+
+@keyframes leg-r-groove-v2 {
+  0%, 100% { transform: rotateZ(-12deg) translateY(-8px); }
+  50% { transform: rotateZ(8deg) translateY(0); }
+}
+
+@keyframes leg-l-moonwalk-v2 {
+  0%, 100% { transform: translateX(8px) rotateZ(-5deg); }
+  50% { transform: translateX(-10px) rotateZ(7deg); }
+}
+
+@keyframes leg-r-moonwalk-v2 {
+  0%, 100% { transform: translateX(-10px) rotateZ(7deg); }
+  50% { transform: translateX(8px) rotateZ(-5deg); }
+}
+
+@keyframes leg-l-spin-v2 {
+  0%, 100% { transform: rotateZ(5deg) translateY(0); }
+  50% { transform: rotateZ(-5deg) translateY(-5px); }
+}
+
+@keyframes leg-r-spin-v2 {
+  0%, 100% { transform: rotateZ(-5deg) translateY(-5px); }
+  50% { transform: rotateZ(5deg) translateY(0); }
+}
+
+@keyframes leg-l-dip-v2 {
+  0%, 100% { transform: rotateZ(0deg); }
+  50% { transform: rotateZ(-15deg) translateY(12px); }
+}
+
+@keyframes leg-r-dip-v2 {
+  0%, 100% { transform: rotateZ(0deg); }
+  50% { transform: rotateZ(12deg) translateY(8px); }
+}
+
+@keyframes arm-l-groove-v2 {
+  0%, 100% { transform: rotateZ(25deg) translateY(0); }
+  50% { transform: rotateZ(-28deg) translateY(-7px); }
+}
+
+@keyframes arm-r-groove-v2 {
+  0%, 100% { transform: rotateZ(-28deg) translateY(-7px); }
+  50% { transform: rotateZ(25deg) translateY(0); }
+}
+
+@keyframes arm-l-moonwalk-v2 {
+  0%, 100% { transform: rotateZ(-18deg) translateY(4px); }
+  50% { transform: rotateZ(32deg) translateY(-3px); }
+}
+
+@keyframes arm-r-moonwalk-v2 {
+  0%, 100% { transform: rotateZ(32deg) translateY(-3px); }
+  50% { transform: rotateZ(-18deg) translateY(4px); }
+}
+
+@keyframes arm-l-spin-v2 {
+  0%, 100% { transform: rotateZ(55deg) rotateY(0deg); }
+  50% { transform: rotateZ(-55deg) rotateY(180deg); }
+}
+
+@keyframes arm-r-spin-v2 {
+  0%, 100% { transform: rotateZ(-55deg) rotateY(0deg); }
+  50% { transform: rotateZ(55deg) rotateY(180deg); }
+}
+
+@keyframes arm-l-dip-v2 {
+  0%, 100% { transform: rotateZ(20deg); }
+  50% { transform: rotateZ(-50deg) translateY(10px); }
+}
+
+@keyframes arm-r-dip-v2 {
+  0%, 100% { transform: rotateZ(-45deg); }
+  50% { transform: rotateZ(35deg) translateY(-12px); }
+}
+
+@keyframes guardian-logo-reveal-v2 {
+  0%, 35% { opacity: 0; transform: scale(0.3) rotate(-18deg); }
+  65% { opacity: 1; transform: scale(1.12) rotate(6deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+
+@keyframes guardian-body-seal-v2 {
+  0% { opacity: 1; transform: scale(1) rotateY(0deg); }
+  55% { opacity: 0.28; transform: scale(0.55) rotateY(180deg); }
+  100% { opacity: 0; transform: scale(0.22) rotateY(360deg); }
+}

@@ -7,7 +7,7 @@ import { SocialAuth } from "@/components/auth/SocialAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Logo } from "@/components/vault/Logo";
+import { Logo, VaultraMark } from "@/components/vault/Logo";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
@@ -21,9 +21,22 @@ import { useRouter } from "@tanstack/react-router";
 */
 
 type Phase = "dance" | "reach" | "idle";
-type Emote = "groove" | "moonwalk" | "spin" | "dip";
-const EMOTES: Emote[] = ["groove", "moonwalk", "spin", "dip"];
-const EMOTE_MS: Record<Emote, number> = { groove: 4000, moonwalk: 4000, spin: 2200, dip: 3200 };
+type Emote = "groove" | "moonwalk" | "spin" | "dip" | "seal";
+const EMOTES: Emote[] = ["groove", "moonwalk", "spin", "dip", "seal"];
+const EMOTE_MS: Record<Emote, number> = {
+  groove: 4000,
+  moonwalk: 4000,
+  spin: 2200,
+  dip: 3200,
+  seal: 1800,
+};
+
+const MOTION_ANIMATIONS = {
+  groove: { root: "guardian-groove-v2", torso: "torso-groove-v2", hip: "hip-groove-v2", head: "head-groove-v2", leftLeg: "leg-l-groove-v2", rightLeg: "leg-r-groove-v2", leftArm: "arm-l-groove-v2", rightArm: "arm-r-groove-v2" },
+  moonwalk: { root: "guardian-moonwalk-v2", torso: "torso-moonwalk-v2", hip: "hip-moonwalk-v2", head: "head-moonwalk-v2", leftLeg: "leg-l-moonwalk-v2", rightLeg: "leg-r-moonwalk-v2", leftArm: "arm-l-moonwalk-v2", rightArm: "arm-r-moonwalk-v2" },
+  spin: { root: "guardian-spin-v2", torso: "torso-spin-v2", hip: "hip-spin-v2", head: "head-spin-v2", leftLeg: "leg-l-spin-v2", rightLeg: "leg-r-spin-v2", leftArm: "arm-l-spin-v2", rightArm: "arm-r-spin-v2" },
+  dip: { root: "guardian-dip-v2", torso: "torso-dip-v2", hip: "hip-dip-v2", head: "head-dip-v2", leftLeg: "leg-l-dip-v2", rightLeg: "leg-r-dip-v2", leftArm: "arm-l-dip-v2", rightArm: "arm-r-dip-v2" },
+} as const;
 
 interface HeroSceneProps {
   className?: string;
@@ -77,17 +90,31 @@ export function HeroScene({ className, withAuthForm = false, redirectPath = "/va
 
 /* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Vault Guardian ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */
 function VaultGuardian({ phase }: { phase: Phase }) {
-  const dancing = phase === "dance";
+  const [emote, setEmote] = useState<Emote>("groove");
+  useEffect(() => {
+    if (phase !== "dance") return;
+    const timer = window.setTimeout(() => {
+      setEmote((current) => EMOTES[(EMOTES.indexOf(current) + 1) % EMOTES.length]);
+    }, EMOTE_MS[emote]);
+    return () => window.clearTimeout(timer);
+  }, [emote, phase]);
+
+  const dancing = phase === "dance" && emote !== "seal";
+  const sealing = phase === "dance" && emote === "seal";
   const reaching = phase === "reach";
+  const motion = dancing && emote !== "seal" ? MOTION_ANIMATIONS[emote] : null;
 
   return (
     <div
-      className="relative select-none"
+      className="guardian-body relative select-none"
+      data-emote={emote}
       style={{
         width: 150,
         height: 280,
-        animation: dancing
-          ? "guardian-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+        animation: sealing
+          ? "guardian-seal-v2 1.8s cubic-bezier(0.22,1,0.36,1) both"
+          : dancing && motion
+          ? `${motion.root} ${EMOTE_MS[emote]}ms cubic-bezier(0.37,0,0.63,1) infinite`
           : reaching
           ? "guardian-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
           : "guardian-idle 3.2s ease-in-out infinite",
@@ -126,16 +153,16 @@ function VaultGuardian({ phase }: { phase: Phase }) {
 
         {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Legs ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
         {/* Hip sway wrapper ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â whole lower body rocks */}
-        <g style={{ transformOrigin: "75px 195px", animation: dancing ? "hip-sway 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+        <g style={{ transformOrigin: "75px 195px", animation: motion ? `${motion.hip} ${EMOTE_MS[emote]}ms ease-in-out infinite` : "none" }}>
           {/* Left leg */}
-          <g style={{ transformOrigin: "58px 198px", animation: dancing ? "leg-l 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+          <g style={{ transformOrigin: "58px 198px", animation: motion ? `${motion.leftLeg} ${EMOTE_MS[emote]}ms ease-in-out infinite` : "none" }}>
             <rect x="46" y="198" width="24" height="56" rx="12" fill="url(#vg-leg)" />
             <ellipse cx="58" cy="254" rx="17" ry="10" fill="oklch(0.26 0 0)" />
             <ellipse cx="58" cy="252" rx="15" ry="8" fill="oklch(0.36 0 0)" />
             <ellipse cx="53" cy="250" rx="5" ry="2.5" fill="oklch(1 0 0 / 0.22)" />
           </g>
           {/* Right leg */}
-          <g style={{ transformOrigin: "92px 198px", animation: dancing ? "leg-r 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+          <g style={{ transformOrigin: "92px 198px", animation: motion ? `${motion.rightLeg} ${EMOTE_MS[emote]}ms ease-in-out infinite` : "none" }}>
             <rect x="80" y="198" width="24" height="56" rx="12" fill="url(#vg-leg)" />
             <ellipse cx="92" cy="254" rx="17" ry="10" fill="oklch(0.26 0 0)" />
             <ellipse cx="92" cy="252" rx="15" ry="8" fill="oklch(0.36 0 0)" />
@@ -144,7 +171,7 @@ function VaultGuardian({ phase }: { phase: Phase }) {
         </g>
 
         {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Torso ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
-        <g style={{ transformOrigin: "75px 150px", animation: dancing ? "torso-groove 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+        <g style={{ transformOrigin: "75px 150px", animation: motion ? `${motion.torso} ${EMOTE_MS[emote]}ms ease-in-out infinite` : "none" }}>
           <rect x="34" y="118" width="82" height="84" rx="22" fill="url(#vg-body)" />
           {/* Chest panel */}
           <rect x="46" y="130" width="58" height="42" rx="11" fill="oklch(0.16 0 0)" />
@@ -171,8 +198,8 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           {/* Left arm */}
           <g style={{
             transformOrigin: "34px 133px",
-            animation: dancing
-              ? "arm-l-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+            animation: motion
+              ? `${motion.leftArm} ${EMOTE_MS[emote]}ms ease-in-out infinite`
               : reaching
               ? "arm-l-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
               : "arm-idle 3.2s ease-in-out infinite",
@@ -187,8 +214,8 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           {/* Right arm */}
           <g style={{
             transformOrigin: "116px 133px",
-            animation: dancing
-              ? "arm-r-dance 1.1s cubic-bezier(0.37,0,0.63,1) infinite"
+            animation: motion
+              ? `${motion.rightArm} ${EMOTE_MS[emote]}ms ease-in-out infinite`
               : reaching
               ? "arm-r-reach 1.6s cubic-bezier(0.34,1.2,0.64,1) forwards"
               : "arm-idle 3.2s ease-in-out infinite 0.5s",
@@ -206,7 +233,7 @@ function VaultGuardian({ phase }: { phase: Phase }) {
         <rect x="62" y="102" width="26" height="22" rx="9" fill="oklch(0.73 0 0)" />
 
         {/* ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ Head ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ÂÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ */}
-        <g style={{ transformOrigin: "75px 72px", animation: dancing ? "head-bob 1.1s cubic-bezier(0.37,0,0.63,1) infinite" : "none" }}>
+        <g style={{ transformOrigin: "75px 72px", animation: motion ? `${motion.head} ${EMOTE_MS[emote]}ms ease-in-out infinite` : "none" }}>
           <rect x="30" y="44" width="90" height="66" rx="30" fill="url(#vg-body)" />
           {/* Head shine */}
           <ellipse cx="64" cy="55" rx="24" ry="11" fill="oklch(1 0 0 / 0.16)" />
@@ -241,6 +268,9 @@ function VaultGuardian({ phase }: { phase: Phase }) {
           <rect x="120" y="80" width="9" height="3" rx="1.5" fill="oklch(0.43 0 0)" />
         </g>
       </svg>
+      <div className="guardian-logo-mark pointer-events-none absolute inset-0 grid place-items-center" aria-hidden="true">
+        <VaultraMark className="size-24 text-white" />
+      </div>
     </div>
   );
 }
