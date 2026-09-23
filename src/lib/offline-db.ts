@@ -5,7 +5,7 @@
  */
 
 const DB_NAME = "vaultra-offline";
-const DB_VERSION = 1;
+const DB_VERSION = 2; // bumped to add new fields
 
 export type GuestFile = {
   id: string;
@@ -14,6 +14,10 @@ export type GuestFile = {
   sizeBytes: number;
   blob: Blob;
   createdAt: string;
+  updatedAt: string;
+  isPublic: boolean;
+  shareToken: string;
+  downloadCount: number;
 };
 
 export type DraftUpload = {
@@ -61,6 +65,23 @@ async function tx<T>(
 
 export async function saveGuestFile(file: GuestFile): Promise<void> {
   await tx("guest_files", "readwrite", (s) => s.put(file));
+}
+
+export async function updateGuestFile(id: string, patch: Partial<Omit<GuestFile, "id" | "blob">>): Promise<void> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const t = db.transaction("guest_files", "readwrite");
+    const store = t.objectStore("guest_files");
+    const getReq = store.get(id);
+    getReq.onsuccess = () => {
+      const existing = getReq.result as GuestFile | undefined;
+      if (!existing) { resolve(); return; }
+      const putReq = store.put({ ...existing, ...patch, updatedAt: new Date().toISOString() });
+      putReq.onsuccess = () => resolve();
+      putReq.onerror = () => reject(putReq.error);
+    };
+    getReq.onerror = () => reject(getReq.error);
+  });
 }
 
 export async function listGuestFiles(): Promise<GuestFile[]> {

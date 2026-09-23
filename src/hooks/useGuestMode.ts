@@ -4,6 +4,7 @@ import {
   deleteGuestFile,
   listGuestFiles,
   saveGuestFile,
+  updateGuestFile,
   type GuestFile,
 } from "@/lib/offline-db";
 
@@ -44,26 +45,49 @@ export function useGuestMode() {
     void loadFiles();
   }, [loadFiles]);
 
-  const addGuestFile = useCallback(
-    async (file: File) => {
-      const gf: GuestFile = {
-        id: crypto.randomUUID(),
-        name: file.name,
-        mimeType: file.type || "application/octet-stream",
-        sizeBytes: file.size,
-        blob: file,
-        createdAt: new Date().toISOString(),
-      };
-      await saveGuestFile(gf);
-      setGuestFiles((prev) => [gf, ...prev]);
-      return gf;
-    },
-    [],
-  );
+  const addGuestFile = useCallback(async (file: File): Promise<GuestFile> => {
+    const gf: GuestFile = {
+      id: crypto.randomUUID(),
+      name: file.name,
+      mimeType: file.type || "application/octet-stream",
+      sizeBytes: file.size,
+      blob: file,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isPublic: false,
+      shareToken: crypto.randomUUID(),
+      downloadCount: 0,
+    };
+    await saveGuestFile(gf);
+    setGuestFiles((prev) => [gf, ...prev]);
+    return gf;
+  }, []);
 
   const removeGuestFile = useCallback(async (id: string) => {
     await deleteGuestFile(id);
     setGuestFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  const toggleVisibility = useCallback(async (id: string, isPublic: boolean) => {
+    await updateGuestFile(id, { isPublic });
+    setGuestFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, isPublic, updatedAt: new Date().toISOString() } : f)),
+    );
+  }, []);
+
+  const renameGuestFile = useCallback(async (id: string, name: string) => {
+    const safe = name.trim().replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").slice(0, 255) || "file";
+    await updateGuestFile(id, { name: safe });
+    setGuestFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, name: safe, updatedAt: new Date().toISOString() } : f)),
+    );
+  }, []);
+
+  const incrementDownload = useCallback(async (id: string) => {
+    setGuestFiles((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, downloadCount: f.downloadCount + 1 } : f)),
+    );
+    await updateGuestFile(id, {}).catch(() => undefined); // best-effort
   }, []);
 
   return {
@@ -74,6 +98,9 @@ export function useGuestMode() {
     loading,
     addGuestFile,
     removeGuestFile,
+    toggleVisibility,
+    renameGuestFile,
+    incrementDownload,
     refreshFiles: loadFiles,
   };
 }

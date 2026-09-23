@@ -106,6 +106,8 @@ export function VaultPage() {
           loading={guest.loading}
           onAdd={guest.addGuestFile}
           onRemove={guest.removeGuestFile}
+          onToggleVisibility={guest.toggleVisibility}
+          onRename={guest.renameGuestFile}
           onSignIn={() => void router.navigate({ to: "/auth" })}
           onExitGuest={() => {
             exitGuest();

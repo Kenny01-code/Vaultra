@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HeroScene } from "@/components/vault/HeroScene";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 
@@ -47,6 +48,7 @@ export function AuthPage() {
   const targetDestination = search.redirect || "/vault";
 
   const { user, loading, enterGuest } = useAuth();
+  const isOnline = useOnlineStatus();
 
   const handleGuest = () => {
     enterGuest();
@@ -140,17 +142,19 @@ export function AuthPage() {
       {/* Full-screen hero scene — robot dances then drags the real auth form to centre */}
       <HeroScene withAuthForm redirectPath={targetDestination} className="min-h-screen" />
 
-      {/* Guest mode entry — fixed to viewport bottom so it's always visible */}
-      <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none">
-        <button
-          type="button"
-          onClick={handleGuest}
-          className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 py-2.5 text-xs font-medium text-white/80 shadow-lg backdrop-blur-md transition-all hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95"
-        >
-          <UserX className="size-3.5" />
-          Continue as guest — no account needed
-        </button>
-      </div>
+      {/* Guest mode entry — only shown when offline so it doesn't clutter the normal sign-in flow */}
+      {!isOnline && (
+        <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none">
+          <button
+            type="button"
+            onClick={handleGuest}
+            className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 py-2.5 text-xs font-medium text-white/80 shadow-lg backdrop-blur-md transition-all hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95"
+          >
+            <UserX className="size-3.5" />
+            Continue as guest — no account needed
+          </button>
+        </div>
+      )}
 
       {/* Password Reset Dialog */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>
