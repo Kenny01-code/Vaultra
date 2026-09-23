@@ -7,6 +7,7 @@ export type UploadProgress = {
   loaded: number;
   total: number;
   percent: number;
+  bytesPerSec?: number;
 };
 
 /**
@@ -95,9 +96,41 @@ async function putWithSdk(
   signal?: AbortSignal,
 ): Promise<void> {
   if (signal?.aborted) throw new DOMException("Upload cancelled.", "AbortError");
-  const { error } = await supabase.storage.from("vault").uploadToSignedUrl(path, token, file, {
-    contentType: file.type || "application/octet-stream",
+
+  // Get the signed upload URL from Supabase so we can PUT with real XHR progress
+  const { data: signedData, error: signedError } = await supabase.storage
+    .from("vault")
+    .createSignedUploadUrl(path);
+  if (signedError) throw signedError;
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    let lastLoaded = 0;
+    let lastTime = Date.now();
+
+    xhr.upload.addEventListener("progress", (e) => {
+      if (!e.lengthComputable) return;
+      const now = Date.now();
+      const dt = (now - lastTime) / 1000;
+      const dl = e.loaded - lastLoaded;
+      lastLoaded = e.loaded;
+      lastTime = now;
+      const bytesPerSec = dt > 0 ? dl / dt : 0;
+      const percent = Math.min(99, Math.round((e.loaded / e.total) * 100));
+      onProgress({ loaded: e.loaded, total: e.total, percent, bytesPerSec });
+    });
+
+    xhr.addEventListener("load", () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve();
+      else reject(new Error(`Storage upload failed: HTTP ${xhr.status}`));
+    });
+    xhr.addEventListener("error", () => reject(new Error("Network error during upload.")));
+    xhr.addEventListener("abort", () => reject(new DOMException("Upload cancelled.", "AbortError")));
+
+    signal?.addEventListener("abort", () => xhr.abort());
+
+    xhr.open("PUT", signedData.signedUrl);
+    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    xhr.send(file);
   });
-  if (error) throw error;
-  onProgress({ loaded: file.size, total: file.size, percent: 99 });
 }
