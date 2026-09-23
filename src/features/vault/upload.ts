@@ -1,5 +1,4 @@
 import { createUploadTicket, discardUpload, finalizeUpload } from "@/lib/files.functions";
-import { supabase } from "@/integrations/supabase/client";
 import type { VaultFile } from "./types";
 import { setThumbnailCache } from "./useThumbnails";
 
@@ -85,51 +84,56 @@ function putWithProgress(
   onProgress: (p: UploadProgress) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  return putWithSdk(path, token, file, onProgress, signal);
-}
-
-async function putWithSdk(
-  path: string,
-  token: string,
-  file: File,
-  onProgress: (progress: UploadProgress) => void,
-  signal?: AbortSignal,
-): Promise<void> {
   if (signal?.aborted) throw new DOMException("Upload cancelled.", "AbortError");
 
-  // Get the signed upload URL from Supabase so we can PUT with real XHR progress
-  const { data: signedData, error: signedError } = await supabase.storage
-    .from("vault")
-    .createSignedUploadUrl(path);
-  if (signedError) throw signedError;
+  // Build the signed upload URL directly from the token the ticket already gave us.
+  // This avoids a second round-trip to createSignedUploadUrl.
+  const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string).replace(/\/$/, "");
+  const signedUrl = `${supabaseUrl}/storage/v1/object/upload/sign/vault/${path}?token=${token}`;
 
-  await new Promise<void>((resolve, reject) => {
+  // Throttle progress callbacks to 4x/sec max — prevents React thrashing on large files
+  const THROTTLE_MS = 250;
+  let lastEmit = 0;
+  let lastLoaded = 0;
+  let lastTime = Date.now();
+  // Rolling speed average over last 4 samples
+  const speedSamples: number[] = [];
+
+  return new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    let lastLoaded = 0;
-    let lastTime = Date.now();
 
     xhr.upload.addEventListener("progress", (e) => {
       if (!e.lengthComputable) return;
       const now = Date.now();
+      if (now - lastEmit < THROTTLE_MS) return;
+      lastEmit = now;
+
       const dt = (now - lastTime) / 1000;
       const dl = e.loaded - lastLoaded;
       lastLoaded = e.loaded;
       lastTime = now;
-      const bytesPerSec = dt > 0 ? dl / dt : 0;
+
+      if (dt > 0) {
+        speedSamples.push(dl / dt);
+        if (speedSamples.length > 4) speedSamples.shift();
+      }
+      const bytesPerSec = speedSamples.length
+        ? speedSamples.reduce((a, b) => a + b, 0) / speedSamples.length
+        : 0;
+
       const percent = Math.min(99, Math.round((e.loaded / e.total) * 100));
       onProgress({ loaded: e.loaded, total: e.total, percent, bytesPerSec });
     });
 
     xhr.addEventListener("load", () => {
       if (xhr.status >= 200 && xhr.status < 300) resolve();
-      else reject(new Error(`Storage upload failed: HTTP ${xhr.status}`));
+      else reject(new Error(`Storage upload failed: HTTP ${xhr.status} — ${xhr.responseText.slice(0, 120)}`));
     });
     xhr.addEventListener("error", () => reject(new Error("Network error during upload.")));
     xhr.addEventListener("abort", () => reject(new DOMException("Upload cancelled.", "AbortError")));
-
     signal?.addEventListener("abort", () => xhr.abort());
 
-    xhr.open("PUT", signedData.signedUrl);
+    xhr.open("PUT", signedUrl);
     xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
     xhr.send(file);
   });
