@@ -77,14 +77,6 @@ export function UploadPanel({
         onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
       />
 
-      {/* Offline notice */}
-      {!isOnline && (
-        <div className="mb-3 flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/8 px-3 py-2 text-xs text-amber-300">
-          <WifiOff className="size-3.5 shrink-0" />
-          <span>Offline — files will be saved as drafts and uploaded when you reconnect</span>
-        </div>
-      )}
-
       {/* Drop zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setDragging(true); }}

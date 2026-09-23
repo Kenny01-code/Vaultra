@@ -20,6 +20,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { supabase } from "@/integrations/supabase/client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { cn } from "@/lib/utils";
 
 const authSearchSchema = z.object({
   redirect: z.string().optional(),
@@ -142,19 +143,22 @@ export function AuthPage() {
       {/* Full-screen hero scene — robot dances then drags the real auth form to centre */}
       <HeroScene withAuthForm redirectPath={targetDestination} className="min-h-screen" />
 
-      {/* Guest mode entry — only shown when offline so it doesn't clutter the normal sign-in flow */}
-      {!isOnline && (
-        <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none">
-          <button
-            type="button"
-            onClick={handleGuest}
-            className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 py-2.5 text-xs font-medium text-white/80 shadow-lg backdrop-blur-md transition-all hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95"
-          >
-            <UserX className="size-3.5" />
-            Continue as guest — no account needed
-          </button>
-        </div>
-      )}
+      {/* Guest mode entry — always visible; subtle when online, prominent when offline */}
+      <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none">
+        <button
+          type="button"
+          onClick={handleGuest}
+          className={cn(
+            "pointer-events-auto flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-medium shadow-lg backdrop-blur-md transition-all active:scale-95",
+            isOnline
+              ? "border border-white/10 bg-black/30 text-white/40 hover:border-white/20 hover:bg-black/50 hover:text-white/70"
+              : "border border-white/20 bg-black/60 text-white/80 hover:border-white/40 hover:bg-black/80 hover:text-white",
+          )}
+        >
+          <UserX className="size-3.5" />
+          {isOnline ? "Browse without account" : "Continue as guest — no account needed"}
+        </button>
+      </div>
 
       {/* Password Reset Dialog */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>

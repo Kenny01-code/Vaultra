@@ -3,6 +3,7 @@ import {
   ArrowUpDown,
   CloudUpload,
   Copy,
+  CropIcon,
   Download,
   Eye,
   FolderOpen,
@@ -48,10 +49,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { FileTypeIcon } from "@/components/vault/FileTypeIcon";
+import { ImageCropDialog } from "@/components/vault/ImageCropDialog";
 import { StorageMeter } from "@/components/vault/StorageMeter";
 import { fileKind, formatBytes, formatRelativeTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -129,6 +130,11 @@ export function GuestVault({
   // Delete confirm
   const [deleteTarget, setDeleteTarget] = useState<GuestFile | null>(null);
 
+  // Image crop
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
+  const pendingFiles = useRef<File[]>([]);
+
   const totalUsed = files.reduce((s, f) => s + f.sizeBytes, 0);
 
   const visible = useMemo(() => {
@@ -146,14 +152,45 @@ export function GuestVault({
     return result;
   }, [files, query, sort]);
 
+  const saveFile = async (file: File) => {
+    if (file.size > MAX_GUEST_FILE) { toast.error(`"${file.name}" exceeds the 500 MB guest limit.`); return; }
+    if (totalUsed + file.size > MAX_GUEST_TOTAL) { toast.error("Guest storage full (2 GB). Delete files or sign in for 5 GB."); return; }
+    try { await onAdd(file); toast.success(`"${file.name}" saved locally`); }
+    catch { toast.error(`Failed to save "${file.name}"`); }
+  };
+
   const handleFiles = async (fileList: FileList | null) => {
     if (!fileList?.length) return;
     const arr = Array.from(fileList).slice(0, MAX_FILES_PER_BATCH);
-    for (const file of arr) {
-      if (file.size > MAX_GUEST_FILE) { toast.error(`"${file.name}" exceeds the 500 MB guest limit.`); continue; }
-      if (totalUsed + file.size > MAX_GUEST_TOTAL) { toast.error("Guest storage full (2 GB). Delete files or sign in for 5 GB."); break; }
-      try { await onAdd(file); toast.success(`"${file.name}" saved locally`); }
-      catch { toast.error(`Failed to save "${file.name}"`); }
+    // Pull out the first image for cropping; save the rest directly
+    const images = arr.filter((f) => f.type.startsWith("image/"));
+    const others = arr.filter((f) => !f.type.startsWith("image/"));
+    for (const file of others) await saveFile(file);
+    if (images.length > 0) {
+      // Queue remaining images after the first
+      pendingFiles.current = images.slice(1);
+      setCropFile(images[0]);
+      setCropOpen(true);
+    }
+  };
+
+  const handleCropDone = async (cropped: File) => {
+    await saveFile(cropped);
+    // Process next queued image if any
+    if (pendingFiles.current.length > 0) {
+      const next = pendingFiles.current.shift()!;
+      setCropFile(next);
+      setCropOpen(true);
+    }
+  };
+
+  const handleCropSkip = async () => {
+    // User skipped crop — save original
+    if (cropFile) await saveFile(cropFile);
+    if (pendingFiles.current.length > 0) {
+      const next = pendingFiles.current.shift()!;
+      setCropFile(next);
+      setCropOpen(true);
     }
   };
 
@@ -346,6 +383,22 @@ export function GuestVault({
           onDownload={() => previewFile && downloadFile(previewFile)}
         />
       </Suspense>
+
+      {/* Image crop dialog */}
+      <ImageCropDialog
+        file={cropFile}
+        open={cropOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCropOpen(false);
+            void handleCropSkip();
+          }
+        }}
+        onCrop={(cropped) => {
+          setCropOpen(false);
+          void handleCropDone(cropped);
+        }}
+      />
 
       {/* Rename dialog */}
       <Dialog open={Boolean(renameTarget)} onOpenChange={(open) => !open && setRenameTarget(null)}>
