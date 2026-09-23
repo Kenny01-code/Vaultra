@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Download, ExternalLink, FileText, FileWarning, Loader2, Music } from "lucide-react";
+import { Download, ExternalLink, FileText, FileWarning, HardDrive, Loader2, Music } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/vault/Logo";
 import { fileKind, formatBytes, formatRelativeTime } from "@/lib/format";
 import { getSharedFile } from "@/lib/files.functions";
+import { listGuestFiles } from "@/lib/offline-db";
 
 type SharedFileData = {
   id: string;
@@ -130,8 +131,91 @@ function SharedPreview({ url, mimeType, name }: { url: string; mimeType: string;
   );
 }
 
+/** Shown when the server can't find the file. Checks IndexedDB to give a smarter message. */
+function UnavailablePage({ token }: { token: string }) {
+  const [isGuestFile, setIsGuestFile] = useState<boolean | null>(null);
+  const [guestFileData, setGuestFileData] = useState<{ name: string; blob: Blob; mimeType: string } | null>(null);
+
+  useEffect(() => {
+    listGuestFiles()
+      .then((files) => {
+        const match = files.find((f) => f.shareToken === token);
+        if (match) {
+          setIsGuestFile(true);
+          setGuestFileData({ name: match.name, blob: match.blob, mimeType: match.mimeType });
+        } else {
+          setIsGuestFile(false);
+        }
+      })
+      .catch(() => setIsGuestFile(false));
+  }, [token]);
+
+  const downloadGuestFile = () => {
+    if (!guestFileData) return;
+    const url = URL.createObjectURL(guestFileData.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = guestFileData.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
+  // Still checking IndexedDB
+  if (isGuestFile === null) {
+    return (
+      <div className="glass mx-auto max-w-md rounded-3xl p-6 text-center sm:p-10 shadow-[var(--shadow-elevated)]">
+        <Loader2 className="mx-auto size-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // Found in local IndexedDB — this browser has the file
+  if (isGuestFile && guestFileData) {
+    return (
+      <div className="glass mx-auto max-w-md rounded-3xl p-6 text-center sm:p-10 shadow-[var(--shadow-elevated)]">
+        <HardDrive className="mx-auto size-10 text-amber-400" aria-hidden="true" />
+        <h1 className="mt-4 font-display text-lg font-semibold sm:text-xl">
+          Local guest file
+        </h1>
+        <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+          <strong className="text-foreground">{guestFileData.name}</strong> is a guest file stored
+          only in this browser. It can't be shared with other devices or browsers. You can download
+          it here or sign in to upload it to the cloud for real sharing.
+        </p>
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+          <Button variant="hero" className="gap-1.5" onClick={downloadGuestFile}>
+            <Download className="size-4" /> Download file
+          </Button>
+          <Button asChild variant="glass">
+            <Link to="/auth">Sign in for cloud sharing</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Not found anywhere — generic unavailable
+  return (
+    <div className="glass mx-auto max-w-md rounded-3xl p-6 text-center sm:p-10 shadow-[var(--shadow-elevated)]">
+      <FileWarning className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
+      <h1 className="mt-4 font-display text-lg font-semibold sm:text-xl">
+        This link is unavailable
+      </h1>
+      <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+        The file may have been marked private, deleted, or the link has expired. If the owner
+        shared this from guest mode, the file only exists in their browser and can't be accessed
+        here.
+      </p>
+      <Button asChild variant="hero" className="mt-6 w-full sm:w-auto">
+        <Link to="/">Back to Vaultra</Link>
+      </Button>
+    </div>
+  );
+}
+
 function SharePage() {
   const loaderData = Route.useLoaderData();
+  const { token } = Route.useParams();
   const fileData: SharedFileData | null = loaderData?.found ? loaderData.file : null;
 
   return (
@@ -149,18 +233,7 @@ function SharePage() {
 
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:py-12 pb-20">
         {!fileData ? (
-          <div className="glass mx-auto max-w-md rounded-3xl p-6 text-center sm:p-10 shadow-[var(--shadow-elevated)]">
-            <FileWarning className="mx-auto size-10 text-muted-foreground" aria-hidden="true" />
-            <h1 className="mt-4 font-display text-lg font-semibold sm:text-xl">
-              This link is unavailable
-            </h1>
-            <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-              The file was marked private by its owner, deleted, or the share link is invalid.
-            </p>
-            <Button asChild variant="hero" className="mt-6 w-full sm:w-auto">
-              <Link to="/">Back to Vaultra</Link>
-            </Button>
-          </div>
+          <UnavailablePage token={token} />
         ) : (
           <div className="animate-fade-up space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-border/60 pb-5">

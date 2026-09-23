@@ -216,10 +216,18 @@ export function GuestVault({
   };
 
   const copyShareLink = (gf: GuestFile) => {
-    // Guest share links are local — copy a data note since there's no server
+    if (!gf.isPublic) {
+      toast.error("Make the file public first before copying a share link.");
+      return;
+    }
+    // Guest files are stored in IndexedDB — they cannot be accessed from other
+    // devices or browsers. We generate a local share URL but warn the user.
     const text = `${window.location.origin}/s/${gf.shareToken}`;
     void navigator.clipboard.writeText(text);
-    toast.success("Share link copied — note: guest links only work on this device");
+    toast.warning(
+      "Share link copied — guest files are stored locally in this browser only. This link won't work in other browsers, devices, or incognito windows. Sign in for real shareable links.",
+      { duration: 8000 },
+    );
   };
 
   const handleRename = async () => {
