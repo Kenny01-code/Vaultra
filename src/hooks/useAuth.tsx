@@ -1,12 +1,17 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+
+const GUEST_KEY = "vaultra-guest-mode";
 
 type AuthState = {
   user: User | null;
   loading: boolean;
   profileReady: boolean;
   isAdmin: boolean;
+  isGuest: boolean;
+  enterGuest: () => void;
+  exitGuest: () => void;
   signOut: () => Promise<void>;
   reloadUser: () => Promise<void>;
 };
@@ -16,6 +21,9 @@ const AuthContext = createContext<AuthState>({
   loading: true,
   profileReady: false,
   isAdmin: false,
+  isGuest: false,
+  enterGuest: () => {},
+  exitGuest: () => {},
   signOut: async () => {},
   reloadUser: async () => {},
 });
@@ -25,6 +33,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [profileReady, setProfileReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isGuest, setIsGuest] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(GUEST_KEY) === "1";
+  });
+
+  const enterGuest = useCallback(() => {
+    localStorage.setItem(GUEST_KEY, "1");
+    setIsGuest(true);
+  }, []);
+
+  const exitGuest = useCallback(() => {
+    localStorage.removeItem(GUEST_KEY);
+    setIsGuest(false);
+  }, []);
 
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
@@ -110,12 +132,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       profileReady,
       isAdmin,
+      isGuest,
+      enterGuest,
+      exitGuest,
       signOut: async () => {
         await supabase.auth.signOut();
       },
       reloadUser,
     }),
-    [user, loading, profileReady, isAdmin],
+    [user, loading, profileReady, isAdmin, isGuest, enterGuest, exitGuest],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

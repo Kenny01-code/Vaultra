@@ -4,13 +4,13 @@ Vaultra is a secure file-storage and sharing service built with React, TanStack 
 
 ## Links
 
-- Live demo: https://vaultra-one.vercel.app/
-- Repository: https://github.com/Kenny01-code/Vaultra
-- Local app: http://localhost:3000
+* Live demo: https://vaultra-one.vercel.app/
+* Repository: https://github.com/Kenny01-code/Vaultra
+* Local app: http://localhost:3000
 
 ## Login
 
-Create an account through email/password sign-up. Google and GitHub OAuth are supported when enabled in Supabase. No credentials or secrets are committed; temporary reviewer credentials can be provided separately.
+Create an account through email/password sign-up. Google and GitHub OAuth are supported when enabled and configured in Supabase. No credentials or secrets are committed; temporary reviewer credentials can be provided separately.
 
 ## Local Setup
 
@@ -34,7 +34,7 @@ It removes direct authenticated Storage writes and enables atomic quota enforcem
 ## Suggested Review Flow
 
 1. Register or sign in.
-2. Upload a file larger than 100 MB and observe progress.
+2. Upload a file of 100 MB or larger and observe progress.
 3. Preview, rename, download, and delete it.
 4. Make a file public and open its share link in a private window.
 5. Revoke access and confirm the link no longer works.
@@ -44,17 +44,17 @@ It removes direct authenticated Storage writes and enables atomic quota enforcem
 
 ## Engineering Focus
 
-- Authenticated routing, ownership checks, and Supabase Row Level Security.
-- Private-by-default files with explicit public sharing.
-- Server-issued signed upload URLs with browser progress reporting.
-- Filename, MIME, extension, and per-file-size validation.
-- Actual uploaded size read from Storage metadata; client size is not trusted.
-- Atomic quota enforcement using a database function and profile-row locking.
-- Uploads are restricted by each account's storage quota: 5 GB by default, with a 1 GB maximum per file.
-- Users can select or drop up to 10 files per upload batch.
-- An upload is rejected when current usage plus the actual file size exceeds the account quota.
-- Cleanup attempts for cancelled uploads and failed finalization.
-- Clear errors, responsive UI, and maintainable feature structure.
+* Authenticated routing, ownership checks, and Supabase Row Level Security.
+* Private-by-default files with explicit public sharing.
+* Server-issued signed upload URLs with browser progress reporting.
+* Filename, MIME, extension, and per-file-size validation.
+* Actual uploaded size read from Storage metadata; client size is not trusted.
+* Atomic quota enforcement using a database function and profile-row locking.
+* Uploads are restricted by each account's storage quota: 5 GB by default, with a 1 GB maximum per file.
+* Users can select or drop up to 10 files per upload batch.
+* An upload is rejected when current usage plus the actual file size exceeds the account quota.
+* Cleanup attempts for cancelled uploads and failed finalization.
+* Clear errors, responsive UI, and maintainable feature structure.
 
 ## Upload Flow
 
@@ -72,15 +72,17 @@ npm run build
 npm run lint
 ```
 
-`npm run build` is the production compilation check. Existing repository-wide Prettier drift may be reported by `npm run lint` without preventing the build.
+`npm run lint` currently completes with **0 errors**. The remaining 7 warnings are non-blocking React Fast Refresh warnings.
+
+`npm run build` is the production compilation check.
 
 ## Deployment Notes
 
-- Apply all Supabase migrations before evaluating uploads.
-- Configure OAuth callback URLs for social login.
-- Keep server-only environment variables in the deployment platform.
-- Rotate any accidentally exposed credentials before production use.
-- A scheduled reconciliation job is recommended for Storage objects left by browser/device disconnects.
+* Apply all Supabase migrations before evaluating uploads.
+* Configure OAuth callback URLs for social login.
+* Keep server-only environment variables in the deployment platform.
+* Rotate any accidentally exposed credentials before production use.
+* A scheduled reconciliation job is recommended for Storage objects left by browser/device disconnects.
 
 ## Assignment Coverage
 

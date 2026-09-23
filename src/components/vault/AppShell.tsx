@@ -1,6 +1,6 @@
 ﻿import { useQuery } from "@tanstack/react-query";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { Globe, LayoutDashboard, Lock, LogOut, Plus, Shield, Upload, User } from "lucide-react";
+import { Globe, LayoutDashboard, Lock, LogIn, LogOut, Plus, Shield, Upload, User, UserX } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -77,7 +77,7 @@ export function AppShell({
   subtitle?: string;
   aside?: ReactNode;
 }) {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isGuest, exitGuest, signOut } = useAuth();
   const router = useRouter();
   const userId = user?.id ?? "";
 
@@ -91,7 +91,7 @@ export function AppShell({
   // Filter nav: admin-only items hidden unless user isAdmin
   const nav = BASE_NAV.filter((item) => !item.adminOnly || isAdmin);
 
-  const name = profile.data?.fullName ?? user?.email ?? "Your vault";
+  const name = isGuest ? "Guest" : (profile.data?.fullName ?? user?.email ?? "Your vault");
   const initials = name.slice(0, 2).toUpperCase();
 
   const handleSignOut = async () => {
@@ -106,40 +106,67 @@ export function AppShell({
           className="focus-ring flex size-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-transform active:scale-95"
           aria-label="Account menu"
         >
-          <Avatar className="size-9 border border-border/80 shadow-sm">
-            {avatar ? <AvatarImage src={avatar} alt="" /> : null}
-            <AvatarFallback className="bg-surface-2 text-xs font-medium">{initials}</AvatarFallback>
-          </Avatar>
+          {isGuest ? (
+            <span className="flex size-9 items-center justify-center rounded-full border border-amber-500/50 bg-amber-500/10">
+              <UserX className="size-4 text-amber-400" />
+            </span>
+          ) : (
+            <Avatar className="size-9 border border-border/80 shadow-sm">
+              {avatar ? <AvatarImage src={avatar} alt="" /> : null}
+              <AvatarFallback className="bg-surface-2 text-xs font-medium">{initials}</AvatarFallback>
+            </Avatar>
+          )}
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60 rounded-2xl shadow-[var(--shadow-elevated)]">
         <DropdownMenuLabel className="truncate">
           <span className="block text-sm font-medium">{name}</span>
           <span className="block truncate text-xs font-normal text-muted-foreground">
-            {user?.email}
+            {isGuest ? "Local storage only — not synced" : user?.email}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild className="cursor-pointer">
-          <Link to="/profile">
-            <User className="size-4" /> Edit profile
-          </Link>
-        </DropdownMenuItem>
-        {/* Admin console link */}
-        {isAdmin ? (
-          <DropdownMenuItem asChild className="cursor-pointer">
-            <Link to="/admin">
-              <Shield className="size-4" /> Admin console &amp; analytics
-            </Link>
-          </DropdownMenuItem>
-        ) : null}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => void handleSignOut()}
-          className="cursor-pointer text-destructive focus:text-destructive"
-        >
-          <LogOut className="size-4" /> Sign out
-        </DropdownMenuItem>
+        {isGuest ? (
+          <>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => void router.navigate({ to: "/auth" })}
+            >
+              <LogIn className="size-4" /> Sign in to sync files
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="cursor-pointer text-destructive focus:text-destructive"
+              onClick={() => {
+                exitGuest();
+                void router.navigate({ to: "/auth" });
+              }}
+            >
+              <UserX className="size-4" /> Exit guest mode
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <Link to="/profile">
+                <User className="size-4" /> Edit profile
+              </Link>
+            </DropdownMenuItem>
+            {isAdmin ? (
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link to="/admin">
+                  <Shield className="size-4" /> Admin console &amp; analytics
+                </Link>
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => void handleSignOut()}
+              className="cursor-pointer text-destructive focus:text-destructive"
+            >
+              <LogOut className="size-4" /> Sign out
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -207,7 +234,11 @@ export function AppShell({
           {AccountMenu}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{name}</p>
-            <p className="truncate text-[11px] text-muted-foreground">{user?.email}</p>
+            <p className="truncate text-[11px] text-muted-foreground">
+              {isGuest ? (
+                <span className="text-amber-400">Guest — local only</span>
+              ) : user?.email}
+            </p>
           </div>
         </div>
       </aside>

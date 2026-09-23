@@ -1,6 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { KeyRound, Loader2 } from "lucide-react";
+import { KeyRound, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -46,7 +46,12 @@ export function AuthPage() {
   const search = Route.useSearch();
   const targetDestination = search.redirect || "/vault";
 
-  const { user, loading } = useAuth();
+  const { user, loading, enterGuest } = useAuth();
+
+  const handleGuest = () => {
+    enterGuest();
+    void router.navigate({ to: "/vault" });
+  };
 
   // Password reset dialog
   const [resetOpen, setResetOpen] = useState(false);
@@ -134,6 +139,17 @@ export function AuthPage() {
 
       {/* Full-screen hero scene — robot dances then drags the real auth form to centre */}
       <HeroScene withAuthForm redirectPath={targetDestination} className="min-h-screen" />
+
+      {/* Guest mode entry */}
+      <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
+        <button
+          type="button"
+          onClick={handleGuest}
+          className="flex items-center gap-1.5 rounded-full border border-border/60 bg-surface/80 px-4 py-2 text-xs text-muted-foreground backdrop-blur-sm transition-colors hover:border-border hover:text-foreground"
+        >
+          <UserX className="size-3.5" /> Continue as guest (offline only)
+        </button>
+      </div>
 
       {/* Password Reset Dialog */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import {
   ArrowUpDown,
@@ -33,12 +33,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppShell } from "@/components/vault/AppShell";
 import { FileCard } from "@/components/vault/FileCard";
 import { FileListView } from "@/components/vault/FileListView";
+import { GuestVault } from "@/components/vault/GuestVault";
 import { StorageMeter } from "@/components/vault/StorageMeter";
 import { UploadPanel } from "@/components/vault/UploadPanel";
 import { filesQuery, profileQuery } from "@/features/vault/queries";
 import type { VaultDisplayMode, VaultFile, VaultSort, VaultView } from "@/features/vault/types";
 import { useThumbnails } from "@/features/vault/useThumbnails";
 import { useAuth } from "@/hooks/useAuth";
+import { useGuestMode } from "@/hooks/useGuestMode";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteFile, renameFile, setFileVisibility } from "@/lib/files.functions";
 
@@ -86,12 +88,34 @@ const SORT_OPTIONS: { value: VaultSort; label: string }[] = [
 ];
 
 export function VaultPage() {
-  const { user, profileReady } = useAuth();
+  const { user, profileReady, isGuest, exitGuest } = useAuth();
+  const router = useRouter();
+  const guest = useGuestMode();
   const userId = user?.id ?? "";
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const queryClient = useQueryClient();
   const uploadInput = useRef<HTMLInputElement>(null);
+
+  // ── Guest mode — render local-only vault ──────────────────────────────────
+  if (isGuest) {
+    return (
+      <AppShell>
+        <GuestVault
+          files={guest.guestFiles}
+          loading={guest.loading}
+          onAdd={guest.addGuestFile}
+          onRemove={guest.removeGuestFile}
+          onSignIn={() => void router.navigate({ to: "/auth" })}
+          onExitGuest={() => {
+            exitGuest();
+            guest.exitGuest();
+            void router.navigate({ to: "/auth" });
+          }}
+        />
+      </AppShell>
+    );
+  }
 
   const [query, setQuery] = useState(search.q ?? "");
   const [sort, setSort] = useState<VaultSort>("date-desc");
