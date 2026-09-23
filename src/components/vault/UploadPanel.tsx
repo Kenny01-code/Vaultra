@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   CheckCircle2, CloudUpload, FileAudio, FileImage,
   FileText, FileVideo, File as FileIcon,
@@ -8,29 +8,11 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { uploadVaultFile, type UploadProgress } from "@/features/vault/upload";
-import { MAX_FILE_BYTES } from "@/features/vault/types";
 import { formatBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { deleteDraft, listDrafts, saveDraft } from "@/lib/offline-db";
-import { useOnlineStatus } from "@/hooks/useOnlineStatus";
+import { useUploadStore } from "@/hooks/useUploadStore";
 
 const MAX_FILES_PER_BATCH = 10;
-
-type Item = {
-  id: string;
-  name: string;
-  size: number;
-  loaded: number;
-  percent: number;
-  bytesPerSec: number;
-  status: "queued" | "uploading" | "finalizing" | "completed" | "error" | "draft";
-  error?: string;
-  controller?: AbortController;
-  fileRef: File;
-  startedAt?: number;
-  isDraft?: boolean;
-};
 
 function mimeIcon(file: File) {
   const t = file.type;
@@ -66,148 +48,21 @@ export function UploadPanel({
   usedBytes?: number;
   quotaBytes?: number;
 }) {
-  const [items, setItems] = useState<Item[]>([]);
+  const { items, isOnline, startUpload, cancelItem } = useUploadStore();
   const [dragging, setDragging] = useState(false);
-  const activeCount = useRef(0);
-  const isOnline = useOnlineStatus();
-
-  // Restore drafts from IndexedDB on mount
-  useEffect(() => {
-    void listDrafts().then((drafts) => {
-      if (!drafts.length) return;
-      const restored: Item[] = drafts.map((d) => ({
-        id: d.id,
-        name: d.name,
-        size: d.sizeBytes,
-        loaded: 0,
-        percent: 0,
-        bytesPerSec: 0,
-        status: "draft" as const,
-        fileRef: new File([d.blob], d.name, { type: d.mimeType }),
-        isDraft: true,
-      }));
-      setItems(restored);
-      if (restored.length) toast.info(`${restored.length} draft upload${restored.length > 1 ? "s" : ""} restored`);
-    });
-  }, []);
-
-  const update = (id: string, patch: Partial<Item>) =>
-    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
-
-  const startUpload = useCallback(
-    async (file: File, existingId?: string) => {
-      const id = existingId ?? `${file.name}-${file.size}-${Math.random().toString(36).slice(2, 8)}`;
-      const controller = new AbortController();
-
-      if (!existingId) {
-        // Save as draft in IndexedDB immediately so it survives navigation
-        await saveDraft({ id, name: file.name, mimeType: file.type || "application/octet-stream", sizeBytes: file.size, blob: file, savedAt: new Date().toISOString() }).catch(() => undefined);
-        setItems((prev) => [
-          ...prev,
-          {
-            id, name: file.name, size: file.size,
-            loaded: 0, percent: 0, bytesPerSec: 0,
-            status: "queued", controller, fileRef: file, isDraft: true,
-          },
-        ]);
-      } else {
-        update(id, { status: "queued", error: undefined, percent: 0, loaded: 0, bytesPerSec: 0, controller });
-      }
-
-      // If offline, keep as draft and notify
-      if (!isOnline) {
-        update(id, { status: "draft" });
-        toast.info(`"${file.name}" saved as draft — will upload when you're back online.`);
-        return;
-      }
-
-      // Small delay so "queued" state is visible
-      await new Promise((r) => setTimeout(r, 80));
-      update(id, { status: "uploading", startedAt: Date.now() });
-      activeCount.current += 1;
-
-      try {
-        if (file.size > MAX_FILE_BYTES) throw new Error("File exceeds the 1 GB maximum limit.");
-
-        const remaining = Math.max(0, quotaBytes - usedBytes);
-        if (file.size > remaining) {
-          throw new Error(
-            remaining <= 0
-              ? "Your vault is full. Delete some files to free up space."
-              : `Not enough space. You have ${formatBytes(remaining)} left but this file is ${formatBytes(file.size)}.`,
-          );
-        }
-
-        await uploadVaultFile(
-          file,
-          (progress: UploadProgress) => {
-            if (progress.percent >= 99) {
-              update(id, { percent: 99, loaded: progress.loaded, bytesPerSec: 0, status: "finalizing" });
-            } else {
-              update(id, {
-                percent: progress.percent,
-                loaded: progress.loaded,
-                bytesPerSec: progress.bytesPerSec ?? 0,
-                status: "uploading",
-              });
-            }
-          },
-          controller.signal,
-        );
-
-        // Remove draft from IndexedDB on success
-        await deleteDraft(id).catch(() => undefined);
-        update(id, { percent: 100, loaded: file.size, bytesPerSec: 0, status: "completed", isDraft: false });
-        toast.success(`"${file.name}" secured in your vault`);
-        onUploaded();
-
-        setTimeout(() => {
-          setItems((prev) => prev.filter((item) => item.id !== id));
-        }, 3500);
-      } catch (error) {
-        if (controller.signal.aborted) {
-          await deleteDraft(id).catch(() => undefined);
-          setItems((prev) => prev.filter((item) => item.id !== id));
-          toast.info(`Upload of "${file.name}" cancelled.`);
-        } else {
-          const message = error instanceof Error ? error.message : "Upload failed.";
-          update(id, { error: message, status: "error" });
-          toast.error(message);
-        }
-      } finally {
-        activeCount.current -= 1;
-      }
-    },
-    [onUploaded, usedBytes, quotaBytes, isOnline],
-  );
 
   const handleFiles = (fileList: FileList | null) => {
     if (!fileList?.length) return;
     const files = Array.from(fileList);
     if (files.length > MAX_FILES_PER_BATCH) toast.error(`Max ${MAX_FILES_PER_BATCH} files at once.`);
-    for (const file of files.slice(0, MAX_FILES_PER_BATCH)) void startUpload(file);
-  };
-
-  const cancelItem = (item: Item) => {
-    if (item.status === "uploading" || item.status === "queued") {
-      item.controller?.abort();
-    } else {
-      void deleteDraft(item.id).catch(() => undefined);
-      setItems((prev) => prev.filter((e) => e.id !== item.id));
+    for (const file of files.slice(0, MAX_FILES_PER_BATCH)) {
+      void startUpload(file, undefined, { usedBytes, quotaBytes, onUploaded });
     }
   };
 
-  // When coming back online, auto-resume draft items
-  useEffect(() => {
-    if (!isOnline) return;
-    const drafts = items.filter((i) => i.status === "draft");
-    if (!drafts.length) return;
-    toast.info(`Back online — resuming ${drafts.length} draft upload${drafts.length > 1 ? "s" : ""}...`);
-    for (const d of drafts) void startUpload(d.fileRef, d.id);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline]);
-
-  const uploading = items.filter((i) => i.status === "uploading" || i.status === "finalizing" || i.status === "queued" || i.status === "draft");
+  const uploading = items.filter(
+    (i) => i.status === "uploading" || i.status === "finalizing" || i.status === "queued" || i.status === "draft",
+  );
   const totalPercent = uploading.length
     ? Math.round(uploading.reduce((s, i) => s + i.percent, 0) / uploading.length)
     : 0;
@@ -221,6 +76,14 @@ export function UploadPanel({
         className="sr-only"
         onChange={(e) => { handleFiles(e.target.files); e.target.value = ""; }}
       />
+
+      {/* Offline notice */}
+      {!isOnline && (
+        <div className="mb-3 flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/8 px-3 py-2 text-xs text-amber-300">
+          <WifiOff className="size-3.5 shrink-0" />
+          <span>Offline — files will be saved as drafts and uploaded when you reconnect</span>
+        </div>
+      )}
 
       {/* Drop zone */}
       <div
@@ -246,14 +109,16 @@ export function UploadPanel({
             {dragging ? "Release to upload" : "Drop files or click to browse"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Videos, images, audio, docs up to 1 GB · max 10 files
+            {isOnline
+              ? "Videos, images, audio, docs up to 1 GB · max 10 files"
+              : "Offline — files saved as drafts until reconnected"}
           </p>
         </div>
         {uploading.length > 0 && (
           <div className="flex items-center gap-2 rounded-full bg-surface-2 px-3 py-1">
             <Zap className="size-3 text-primary animate-pulse" />
             <span className="font-mono text-[11px] text-muted-foreground">
-              {uploading.length} uploading · {totalPercent}%
+              {uploading.length} {isOnline ? "uploading" : "queued"} · {totalPercent}%
             </span>
           </div>
         )}
@@ -277,11 +142,11 @@ export function UploadPanel({
                 style={{ animation: "var(--animate-fade-up)" }}
               >
                 <div className="flex items-center gap-2.5">
-                  {/* File type icon */}
                   <span className={cn(
                     "grid size-8 shrink-0 place-items-center rounded-xl",
                     item.status === "completed" ? "bg-emerald-500/15" :
-                    item.status === "error" ? "bg-destructive/15" : "bg-surface-2",
+                    item.status === "error" ? "bg-destructive/15" :
+                    item.status === "draft" ? "bg-amber-500/15" : "bg-surface-2",
                   )}>
                     {item.status === "uploading" || item.status === "queued" ? (
                       <Loader2 className="size-4 animate-spin text-primary" />
@@ -296,7 +161,6 @@ export function UploadPanel({
                     )}
                   </span>
 
-                  {/* Name + stats */}
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-medium" title={item.name}>{item.name}</p>
                     <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
@@ -319,13 +183,12 @@ export function UploadPanel({
                     </p>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex shrink-0 items-center gap-1">
                     {item.status === "draft" && isOnline && (
                       <button
                         className="focus-ring rounded-lg p-1.5 text-muted-foreground hover:text-foreground"
                         title="Upload now"
-                        onClick={() => void startUpload(item.fileRef, item.id)}
+                        onClick={() => void startUpload(item.fileRef, item.id, { usedBytes, quotaBytes, onUploaded })}
                       >
                         <RotateCcw className="size-3.5" />
                       </button>
@@ -334,7 +197,7 @@ export function UploadPanel({
                       <button
                         className="focus-ring rounded-lg p-1.5 text-muted-foreground hover:text-foreground"
                         title="Retry"
-                        onClick={() => void startUpload(item.fileRef, item.id)}
+                        onClick={() => void startUpload(item.fileRef, item.id, { usedBytes, quotaBytes, onUploaded })}
                       >
                         <RotateCcw className="size-3.5" />
                       </button>
@@ -349,8 +212,7 @@ export function UploadPanel({
                   </div>
                 </div>
 
-                {/* Progress bar */}
-                {item.status !== "error" && (
+                {item.status !== "error" && item.status !== "draft" && (
                   <div className="mt-2.5 space-y-1">
                     <Progress
                       value={item.percent}
@@ -374,7 +236,6 @@ export function UploadPanel({
         </ul>
       )}
 
-      {/* Batch upload button when items exist */}
       {items.length > 0 && (
         <Button
           variant="glass"

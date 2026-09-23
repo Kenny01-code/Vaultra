@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
 import { OfflineBanner } from "@/components/vault/OfflineBanner";
+import { UploadStoreProvider } from "@/hooks/useUploadStore";
 
 function NotFoundComponent() {
   return (
@@ -160,9 +161,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <OfflineBanner />
-        <Outlet />
-        <Toaster />
+        <UploadStoreProvider>
+          <OfflineBanner />
+          <Outlet />
+          <Toaster />
+        </UploadStoreProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

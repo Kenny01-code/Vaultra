@@ -140,14 +140,15 @@ export function AuthPage() {
       {/* Full-screen hero scene — robot dances then drags the real auth form to centre */}
       <HeroScene withAuthForm redirectPath={targetDestination} className="min-h-screen" />
 
-      {/* Guest mode entry */}
-      <div className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2">
+      {/* Guest mode entry — fixed to viewport bottom so it's always visible */}
+      <div className="fixed bottom-6 left-0 right-0 z-[100] flex justify-center pointer-events-none">
         <button
           type="button"
           onClick={handleGuest}
-          className="flex items-center gap-1.5 rounded-full border border-border/60 bg-surface/80 px-4 py-2 text-xs text-muted-foreground backdrop-blur-sm transition-colors hover:border-border hover:text-foreground"
+          className="pointer-events-auto flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-5 py-2.5 text-xs font-medium text-white/80 shadow-lg backdrop-blur-md transition-all hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95"
         >
-          <UserX className="size-3.5" /> Continue as guest (offline only)
+          <UserX className="size-3.5" />
+          Continue as guest — no account needed
         </button>
       </div>
 
